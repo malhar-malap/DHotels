@@ -58,14 +58,14 @@ const ContactUsPage = () => {
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-[#d8572a]/10 py-16">
       <Seo
-        title="Contact Us | DH Acquisitions"
-        description="Get in touch with DH Acquisitions to buy, sell or value a hospital, pharma company, diagnostic centre or other healthcare business in India."
+        title="Contact Us | DHotels"
+        description="Get in touch with DHotels to buy, sell or value a hospital, pharma company, diagnostic centre or other hospitality property in India."
         path="/contact-us"
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h1 className="text-4xl font-extrabold text-gray-100 mb-4">Contact Us</h1>
-          <p className="text-lg text-gray-500">We're here to help you with your healthcare business needs.</p>
+          <p className="text-lg text-gray-500">We're here to help you with your hospitality property needs.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
@@ -175,7 +175,7 @@ const ContactUsPage = () => {
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-gray-100 mb-1 tracking-wider uppercase">Email</h3>
-                    <p className="text-gray-400 font-medium hover:text-[#d8572a] transition-colors cursor-pointer">support@dhacquisitions.co</p>
+                    <p className="text-gray-400 font-medium hover:text-[#d8572a] transition-colors cursor-pointer">support@dhotels.co</p>
                   </div>
                 </div>
 

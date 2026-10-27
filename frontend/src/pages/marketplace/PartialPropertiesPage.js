@@ -45,18 +45,20 @@ const PartialPropertiesPage = () => {
       let relevantCategories = [];
       const catRes = await masterAPI.getCategories();
       if (catRes.data && catRes.data.success) {
-        const partialCategoryNames = ['hospital', 'hospitals', 'pharma company', 'pharma companies'];
+        const partialCategoryNames = ['hotel', 'hotels', 'resort', 'resorts'];
         relevantCategories = catRes.data.data.filter(c => partialCategoryNames.includes(c.name.toLowerCase()));
         setCategories(relevantCategories);
       }
 
-      // Fetch deal types to find the IDs for "Partial Stake Sale" for each category
+      // Fetch deal types to find the IDs for "Profit Sharing" or "Partial" for each category
       let allPartialTypes = [];
       for (const category of relevantCategories) {
           try {
               const dealTypesRes = await masterAPI.getDealTypes(category.id);
               if (dealTypesRes.data && dealTypesRes.data.success) {
-                  const partialTypes = dealTypesRes.data.data.filter(dt => dt.name.toLowerCase().includes('partial'));
+                  const partialTypes = dealTypesRes.data.data.filter(dt => 
+                    dt.name.toLowerCase().includes('profit') || dt.name.toLowerCase().includes('partial')
+                  );
                   const withCategory = partialTypes.map(dt => ({ ...dt, categoryId: category.id }));
                   allPartialTypes = [...allPartialTypes, ...withCategory];
               }
@@ -159,8 +161,8 @@ const PartialPropertiesPage = () => {
   return (
     <div className="min-h-screen bg-mesh bg-gray-900 text-gray-100 relative overflow-hidden">
       <Seo
-        title="Partial Stake Sales in Hospitals & Pharma Companies | DH Acquisitions"
-        description="Explore co-investment and partial equity acquisitions in hospitals, medical clinics and pharmaceutical companies across India with verified healthcare operators."
+        title="Profit Sharing & Hotel Co-Investments | DHotels"
+        description="Explore profit sharing partnerships, management contracts, and co-investment acquisitions in hotels, resorts, and premium hospitality properties across India."
         path="/partial-properties"
       />
       {/* Ambient glows */}
@@ -172,13 +174,13 @@ const PartialPropertiesPage = () => {
         <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
           <div className="text-center md:text-left mb-8 max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-primary-500/10 border border-primary-500/20 rounded-full text-[10px] font-bold text-primary-400 mb-4 tracking-wider uppercase">
-              <FiShield className="w-3.5 h-3.5 text-primary-400" /> Asset Co-Ownership
+              <FiShield className="w-3.5 h-3.5 text-primary-400" /> Partnership & Profit Sharing
             </div>
             <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-none mb-4">
-              Partial Stake <span className="text-gradient">Sales</span>
+              Profit Sharing & <span className="text-gradient">Co-Ownership</span>
             </h1>
             <p className="text-gray-400 text-sm md:text-base leading-relaxed">
-              Explore co-investment and partial equity acquisitions in hospitals, medical clinics, and pharmaceutical companies. Share resources and grow with verified healthcare operators.
+              Explore profit-sharing partnerships, management contracts, and fractional acquisitions in hotels and resorts. Partner with verified hospitality operators.
             </p>
           </div>
 

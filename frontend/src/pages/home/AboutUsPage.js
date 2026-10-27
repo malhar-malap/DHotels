@@ -77,8 +77,8 @@ const AboutUsPage = () => {
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-[#d8572a]/5 pt-24 pb-32 font-sans text-white relative overflow-hidden">
       <Seo
-        title="About Us | DH Acquisitions"
-        description="Learn about DH Acquisitions, the healthcare marketplace and advisory team helping buyers and sellers of hospitals, pharma companies, clinics and diagnostic centres across India."
+        title="About Us | DHotels"
+        description="Learn about DHotels, the hospitality marketplace and advisory team helping buyers and sellers of hospitals, pharma companies, clinics and diagnostic centres across India."
         path="/about"
       />
       
@@ -95,21 +95,21 @@ const AboutUsPage = () => {
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white leading-tight">
             India's Dedicated <br className="hidden md:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f7b538] via-[#db7c26] to-[#d8572a]">
-              Healthcare Transaction Marketplace
+              Hospitality Transaction Marketplace
             </span>
           </h1>
           <div className="space-y-6 text-gray-300 leading-relaxed text-lg max-w-3xl mx-auto">
             <p>
-              <strong>DHAcquisitions.co</strong> is India’s dedicated healthcare transaction marketplace, specialising in the acquisition, sale, lease, and operational transition of healthcare businesses. We focus exclusively on the healthcare sector — hospitals, pharmaceutical companies, diagnostic centres, dental clinics, pharmacies, and related assets.
+              <strong>DHotels.co</strong> is India’s dedicated hospitality transaction marketplace, specialising in the acquisition, sale, lease, and operational transition of hospitality businesses. We focus exclusively on the hospitality sector — hospitals, pharmaceutical companies, diagnostic centres, dental clinics, pharmacies, and related assets.
             </p>
             <p>
-              Healthcare businesses are more than commercial assets; they are vital institutions serving patients, families, and communities. Transactions in this sector demand exceptional diligence, regulatory expertise, and operational insight to ensure continuity of care and sustainable outcomes.
+              Hospitality businesses are more than commercial assets; they are vital institutions serving patients, families, and communities. Transactions in this sector demand exceptional diligence, regulatory expertise, and operational insight to ensure continuity of care and sustainable outcomes.
             </p>
             <p>
-              Unlike fragmented networks and informal intermediaries common in India, DHAcquisitions.co delivers a structured, confidential, compliant, and professionally managed process. We provide end-to-end support — from transaction planning and buyer/seller matching to due diligence, regulatory coordination, negotiations, and seamless operational handovers.
+              Unlike fragmented networks and informal intermediaries common in India, DHotels.co delivers a structured, confidential, compliant, and professionally managed process. We provide end-to-end support — from transaction planning and buyer/seller matching to due diligence, regulatory coordination, negotiations, and seamless operational handovers.
             </p>
             <p className="font-medium text-[#db7c26]">
-              Our goal is to connect qualified stakeholders and facilitate successful transitions that strengthen India’s healthcare infrastructure.
+              Our goal is to connect qualified stakeholders and facilitate successful transitions that strengthen India’s hospitality infrastructure.
             </p>
           </div>
         </div>
@@ -125,10 +125,10 @@ const AboutUsPage = () => {
               <h2 className="text-2xl font-bold text-white mb-4">Vision</h2>
               <div className="text-gray-300 space-y-4">
                 <p>
-                  To become India’s most trusted healthcare business transaction platform — a transparent, efficient, and professionally managed marketplace for acquisitions, sales, leases, and operational partnerships.
+                  To become India’s most trusted hospitality business transaction platform — a transparent, efficient, and professionally managed marketplace for acquisitions, sales, leases, and operational partnerships.
                 </p>
                 <p>
-                  We envision a future where healthcare entrepreneurs, investors, operators, and professionals can transact with confidence, supported by robust frameworks that protect patient care and unlock the full potential of quality assets across metros, Tier-2 cities, and regional markets.
+                  We envision a future where hospitality entrepreneurs, investors, operators, and professionals can transact with confidence, supported by robust frameworks that protect patient care and unlock the full potential of quality assets across metros, Tier-2 cities, and regional markets.
                 </p>
               </div>
             </div>
@@ -142,7 +142,7 @@ const AboutUsPage = () => {
               </div>
               <h2 className="text-2xl font-bold text-white mb-4">Mission</h2>
               <p className="text-gray-300 mb-6">
-                To deliver successful healthcare transactions through commercial expertise, regulatory discipline, and deep operational understanding.
+                To deliver successful hospitality transactions through commercial expertise, regulatory discipline, and deep operational understanding.
               </p>
               <div className="text-gray-300 space-y-3">
                 <p className="font-semibold text-[#db7c26] text-sm uppercase tracking-wider mb-2">We achieve this by:</p>
@@ -151,7 +151,7 @@ const AboutUsPage = () => {
                   "Maintaining the highest standards of confidentiality and professionalism.",
                   "Ensuring smooth ownership transitions without disrupting patient care.",
                   "Promoting transparency, accountability, and regulatory compliance.",
-                  "Supporting the long-term productivity and growth of healthcare assets across India."
+                  "Supporting the long-term productivity and growth of hospitality assets across India."
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-start gap-3">
                     <FiCheckCircle className="w-5 h-5 text-[#db7c26] flex-shrink-0 mt-0.5" />
@@ -166,10 +166,10 @@ const AboutUsPage = () => {
           </div>
         </div>
 
-        {/* Healthcare Asset Classes (Centered Grid on bottom row) */}
+        {/* Hospitality Asset Classes (Centered Grid on bottom row) */}
         <div className="space-y-12">
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-white">Healthcare Asset Classes</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-white">Hospitality Asset Classes</h2>
             <p className="text-gray-400">We support transactions across key segments:</p>
           </div>
           <div className="flex flex-wrap justify-center gap-6">
@@ -203,10 +203,10 @@ const AboutUsPage = () => {
             </span>
             <div className="space-y-2">
               <h2 className="text-3xl md:text-4xl font-bold text-white">Manas Survee</h2>
-              <p className="text-[#db7c26] font-medium text-lg">Founder, DHAcquisitions.co & CEO, Dhumavati Consulting LLP</p>
+              <p className="text-[#db7c26] font-medium text-lg">Founder, DHotels.co & CEO, Dhumavati Consulting LLP</p>
             </div>
             <p className="text-gray-300 leading-relaxed text-base">
-              With over 16 years of experience in project development, business structuring, stakeholder management, and transaction execution, Manas brings deep expertise to healthcare M&A. His leadership is grounded in integrity, persistence, and value creation — principles essential for aligning commercial goals with regulatory and operational realities in India’s healthcare sector.
+              With over 16 years of experience in project development, business structuring, stakeholder management, and transaction execution, Manas brings deep expertise to hospitality M&A. His leadership is grounded in integrity, persistence, and value creation — principles essential for aligning commercial goals with regulatory and operational realities in India’s hospitality sector.
             </p>
           </div>
         </div>
@@ -216,13 +216,13 @@ const AboutUsPage = () => {
           <h2 className="text-3xl font-bold text-white text-center md:text-left">Founding Philosophy</h2>
           <div className="bg-gray-900/30 border border-white/5 rounded-3xl p-8 space-y-6 text-gray-300 leading-relaxed">
             <p>
-              The idea behind DHAcquisitions.co emerged from a simple observation. India possesses thousands of healthcare assets with significant untapped potential. Many owners are seeking succession solutions, growth partners, strategic investors, operators, or exit opportunities. At the same time, there are qualified buyers and operators actively searching for opportunities.
+              The idea behind DHotels.co emerged from a simple observation. India possesses thousands of hospitality assets with significant untapped potential. Many owners are seeking succession solutions, growth partners, strategic investors, operators, or exit opportunities. At the same time, there are qualified buyers and operators actively searching for opportunities.
             </p>
             <p>
               However, the absence of a specialised transaction platform has often made it difficult for these stakeholders to connect and transact efficiently.
             </p>
             <p className="font-medium text-white">
-              DHAcquisitions.co was created to bridge this gap by providing sector-specific expertise and transaction support designed exclusively for healthcare businesses.
+              DHotels.co was created to bridge this gap by providing sector-specific expertise and transaction support designed exclusively for hospitality businesses.
             </p>
           </div>
         </div>
@@ -256,11 +256,11 @@ const AboutUsPage = () => {
           </p>
         </div>
 
-        {/* Healthcare Transaction Process */}
+        {/* Hospitality Transaction Process */}
         <div className="space-y-12 max-w-5xl mx-auto">
           <div className="text-center space-y-2">
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#db7c26]">Structural Pipeline</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-white">Healthcare Transaction Process</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-white">Hospitality Transaction Process</h2>
           </div>
           
           {/* Timeline Grid */}
@@ -293,10 +293,10 @@ const AboutUsPage = () => {
           <h2 className="text-3xl font-bold text-white">Looking Ahead</h2>
           <div className="space-y-4 text-gray-300 leading-relaxed text-base">
             <p>
-              India’s healthcare sector is expected to continue expanding significantly over the coming decades. Increasing healthcare demand, rising investment activity, industry consolidation, technological advancement, and infrastructure development will create substantial transaction opportunities.
+              India’s hospitality sector is expected to continue expanding significantly over the coming decades. Increasing hospitality demand, rising investment activity, industry consolidation, technological advancement, and infrastructure development will create substantial transaction opportunities.
             </p>
             <p>
-              DHAcquisitions.co aims to play a meaningful role in this transformation by providing a trusted platform for healthcare business transactions. Our goal is not merely to facilitate deals but to help create stronger healthcare institutions capable of delivering long-term value to patients, communities, investors, and operators.
+              DHotels.co aims to play a meaningful role in this transformation by providing a trusted platform for hospitality business transactions. Our goal is not merely to facilitate deals but to help create stronger hospitality institutions capable of delivering long-term value to patients, communities, investors, and operators.
             </p>
           </div>
         </div>

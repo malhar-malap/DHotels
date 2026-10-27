@@ -54,13 +54,13 @@ const LegalCenterPage = () => {
       'User Rights: Explains your legal rights regarding data access, correction, consent withdrawal, and grievance redressal.'
     ],
     terms: [
-      'Binding Agreement: Outlines legal conditions governing your access and use of DHAcquisitions.co.',
+      'Binding Agreement: Outlines legal conditions governing your access and use of DHotels.co.',
       'Informational Purpose: Content provides general market data and does not constitute formal advisory or commitment.',
       'Acceptable Use: Prohibits unlawful access, scraping, malware distribution, or misrepresentation.',
       'Liability & Indemnity: Limits liability to statutory extent and governs legal relationships under Mumbai courts.'
     ],
     cookies: [
-      'Mechanism: Explains what cookies and tracking technologies are deployed across DHAcquisitions.co.',
+      'Mechanism: Explains what cookies and tracking technologies are deployed across DHotels.co.',
       'Categories: Details essential, functional, analytical/performance, and advertising cookies.',
       'User Autonomy: Provides mechanisms to accept, decline, or configure preferences anytime.',
       'Statutory Protection: Personal data collected via cookies is processed under DPDP Act, 2023 & IT Rules.'
@@ -80,7 +80,7 @@ const LegalCenterPage = () => {
       sections: [
         {
           title: 'Scope & Preamble',
-          body: 'Dhumavati Consulting LLP (“Dhumavati”, “we”, “us” or “our”) respects your privacy and is committed to appropriately protecting personal data entrusted to us.\n\nThis Privacy Policy (“Policy”) explains how we collect, use, disclose, store and otherwise process personal data when you access or use https://dhacquisitions.co/ (“Website”), communicate with us through the Website or otherwise interact with us in connection with the Website.\n\nThis Policy applies to personal data processed by us in connection with the Website. It does not necessarily apply to personal data processed pursuant to a separate engagement, mandate or contractual relationship with Dhumavati where such processing is governed by separate contractual terms or notices.'
+          body: 'Dhumavati Consulting LLP (“Dhumavati”, “we”, “us” or “our”) respects your privacy and is committed to appropriately protecting personal data entrusted to us.\n\nThis Privacy Policy (“Policy”) explains how we collect, use, disclose, store and otherwise process personal data when you access or use https://dhotels.co/ (“Website”), communicate with us through the Website or otherwise interact with us in connection with the Website.\n\nThis Policy applies to personal data processed by us in connection with the Website. It does not necessarily apply to personal data processed pursuant to a separate engagement, mandate or contractual relationship with Dhumavati where such processing is governed by separate contractual terms or notices.'
         },
         {
           title: 'Personal Data We May Collect',
@@ -148,7 +148,7 @@ const LegalCenterPage = () => {
         },
         {
           title: 'Contact Information',
-          body: 'Dhumavati Consulting LLP\nFor privacy-related queries, requests or grievances, please use the contact details provided on the Website.\nWebsite: https://dhacquisitions.co/'
+          body: 'Dhumavati Consulting LLP\nFor privacy-related queries, requests or grievances, please use the contact details provided on the Website.\nWebsite: https://dhotels.co/'
         }
       ]
     },
@@ -159,7 +159,7 @@ const LegalCenterPage = () => {
       sections: [
         {
           title: 'Scope & Acceptance',
-          body: 'These Terms and Conditions (“Terms”) govern your access to and use of the website https://dhacquisitions.co/ and all pages, content, features and functionalities made available through it (collectively, the “Website”).\n\nThe Website is operated by Dhumavati Consulting LLP (“Dhumavati”, “we”, “us” or “our”).\n\nBy accessing, browsing or using the Website, you acknowledge that you have read, understood and agreed to be bound by these Terms. If you do not agree with these Terms, you should discontinue your use of the Website.'
+          body: 'These Terms and Conditions (“Terms”) govern your access to and use of the website https://dhotels.co/ and all pages, content, features and functionalities made available through it (collectively, the “Website”).\n\nThe Website is operated by Dhumavati Consulting LLP (“Dhumavati”, “we”, “us” or “our”).\n\nBy accessing, browsing or using the Website, you acknowledge that you have read, understood and agreed to be bound by these Terms. If you do not agree with these Terms, you should discontinue your use of the Website.'
         },
         {
           title: 'Definitions',
@@ -239,7 +239,7 @@ const LegalCenterPage = () => {
         },
         {
           title: 'Contact Information',
-          body: 'For questions concerning these Terms, you may contact Dhumavati Consulting LLP through the contact details provided on the Website.\n\nDhumavati Consulting LLP\nWebsite: https://dhacquisitions.co/'
+          body: 'For questions concerning these Terms, you may contact Dhumavati Consulting LLP through the contact details provided on the Website.\n\nDhumavati Consulting LLP\nWebsite: https://dhotels.co/'
         }
       ]
     },
@@ -250,7 +250,7 @@ const LegalCenterPage = () => {
       sections: [
         {
           title: 'Scope & Preamble',
-          body: 'This Cookies Policy (“Policy”) explains how Dhumavati Consulting LLP (“Dhumavati”, “we”, “us” or “our”) uses cookies and similar technologies when you access or use our website https://dhacquisitions.co/ (“Website”).\n\nThis Policy should be read together with our Privacy Policy and Terms & Conditions available on the Website. It explains what cookies are, the types of cookies we may use, the purposes for which we use them and the choices available to you in relation to such cookies.\n\nBy continuing to use the Website, you acknowledge the use of cookies in accordance with this Policy, subject to any choices or preferences made by you through the cookie consent mechanism made available on the Website.'
+          body: 'This Cookies Policy (“Policy”) explains how Dhumavati Consulting LLP (“Dhumavati”, “we”, “us” or “our”) uses cookies and similar technologies when you access or use our website https://dhotels.co/ (“Website”).\n\nThis Policy should be read together with our Privacy Policy and Terms & Conditions available on the Website. It explains what cookies are, the types of cookies we may use, the purposes for which we use them and the choices available to you in relation to such cookies.\n\nBy continuing to use the Website, you acknowledge the use of cookies in accordance with this Policy, subject to any choices or preferences made by you through the cookie consent mechanism made available on the Website.'
         },
         {
           title: 'What Are Cookies?',
@@ -306,7 +306,7 @@ const LegalCenterPage = () => {
         },
         {
           title: 'Contact Us',
-          body: 'If you have any questions, concerns or requests relating to this Policy or the use of Cookies on the Website, you may contact us at:\n\nDhumavati Consulting LLP (DHAcquisitions.co)\nEmail: support@dhacquisitions.co\nTelephone: +91 86558 11111\nBusiness Hours: 10:00 AM to 7:00 PM'
+          body: 'If you have any questions, concerns or requests relating to this Policy or the use of Cookies on the Website, you may contact us at:\n\nDhumavati Consulting LLP (DHotels.co)\nEmail: support@dhotels.co\nTelephone: +91 86558 11111\nBusiness Hours: 10:00 AM to 7:00 PM'
         },
         {
           title: 'Governing Law & Jurisdiction',
@@ -321,7 +321,7 @@ const LegalCenterPage = () => {
       sections: [
         {
           title: 'General Refund Guidelines',
-          body: 'At DHAcquisitions.co, all payments made for unlocking seller contact details or premium listing features are generally considered final and non-refundable, as the service (delivery of information) is executed immediately upon successful payment.'
+          body: 'At DHotels.co, all payments made for unlocking seller contact details or premium listing features are generally considered final and non-refundable, as the service (delivery of information) is executed immediately upon successful payment.'
         },
         {
           title: 'Exceptions for Refunds',
