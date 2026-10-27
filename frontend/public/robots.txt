@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /api/*
+Allow: /api/
+Disallow: /*?prize*
+Disallow: /*?*
+Disallow: /cgi-bin/
+Disallow: /dashboard
+Disallow: /admin
+Allow: /
+
+Sitemap: https://dhacquisitions.co/sitemap.xml

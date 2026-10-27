@@ -1,0 +1,54 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: dhotels-mysql-db
+    restart: always
+    ports:
+      - "127.0.0.1:3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-root123}
+      - MYSQL_DATABASE=dhotels_portal
+    volumes:
+      - dhotels_mysql_data:/var/lib/mysql
+      - ./database/dhotels_portal.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dhotels-spring-backend
+    restart: always
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/dhotels_portal?useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-root123}
+      - JWT_SECRET=${JWT_SECRET:-9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b}
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}
+      - SPRING_MAIL_HOST=${SPRING_MAIL_HOST}
+      - SPRING_MAIL_PORT=${SPRING_MAIL_PORT}
+      - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}
+      - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}
+    volumes:
+      - ./backend/uploads:/app/uploads
+    entrypoint: java -jar app.jar --spring.mail.properties.mail.smtp.ssl.enable=true --spring.mail.properties.mail.smtp.starttls.enable=false
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dhotels-react-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  dhotels_mysql_data:

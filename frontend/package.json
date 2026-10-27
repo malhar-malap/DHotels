@@ -1,0 +1,42 @@
+{
+  "name": "dhotels-frontend",
+  "version": "1.0.0",
+  "description": "DHotels Marketplace - Hotels, Cafes & Restaurants Portal",
+  "private": true,
+  "dependencies": {
+    "axios": "^1.6.2",
+    "react": "^18.2.0",
+    "react-datepicker": "^4.24.0",
+    "react-dom": "^18.2.0",
+    "react-helmet-async": "^3.0.0",
+    "react-hot-toast": "^2.4.1",
+    "react-icons": "^4.12.0",
+    "react-router-dom": "^6.30.3",
+    "recharts": "^2.10.3"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "react-scripts": "5.0.1",
+    "tailwindcss": "^3.3.6"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "proxy": "http://localhost:8080",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

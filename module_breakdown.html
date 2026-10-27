@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Architecture & Module Breakdown Specification</title>
+  <style>
+    body {
+      font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+      color: #111111;
+      background-color: #ffffff;
+      line-height: 1.6;
+      padding: 2.5in 1.5in 1.5in 1.5in; /* Standard margins */
+    }
+
+    /* Reset for print page constraints */
+    @media screen {
+      body {
+        max-width: 8.5in;
+        margin: 0 auto;
+        padding: 1in;
+        background-color: #f1f5f9;
+      }
+      .document-container {
+        background-color: #ffffff;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        border: 1px solid #e2e8f0;
+        padding: 1in;
+      }
+    }
+
+    @media print {
+      body {
+        padding: 0;
+        margin: 0;
+        font-size: 11pt;
+      }
+      .document-container {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+    }
+
+    /* Title Block */
+    .title-block {
+      margin-bottom: 2.5rem;
+      border-bottom: 2px solid #000000;
+      padding-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 22pt;
+      font-weight: 700;
+      color: #000000;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+    }
+
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 3rem;
+    }
+
+    .meta-table th, .meta-table td {
+      border: 1px solid #cccccc;
+      padding: 8px 12px;
+      font-size: 9.5pt;
+      text-align: left;
+    }
+
+    .meta-table th {
+      background-color: #f8fafc;
+      font-weight: bold;
+      width: 25%;
+    }
+
+    /* Document Structure */
+    h2 {
+      font-size: 14pt;
+      font-weight: 700;
+      color: #000000;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #333333;
+      padding-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    h3 {
+      font-size: 12pt;
+      font-weight: 700;
+      color: #333333;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 10.5pt;
+      color: #333333;
+      margin-bottom: 1rem;
+      text-align: justify;
+    }
+
+    ul, ol {
+      margin-bottom: 1.5rem;
+      padding-left: 2rem;
+    }
+
+    li {
+      font-size: 10.5pt;
+      color: #333333;
+      margin-bottom: 0.5rem;
+    }
+
+    .strong-term {
+      font-weight: bold;
+      color: #000000;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="document-container">
+    
+    <!-- Title Page / Header -->
+    <div class="title-block">
+      <h1>Technical Specification</h1>
+      <p style="font-size: 12pt; font-weight: bold; color: #555555; margin-bottom: 0;">Platform Module Breakdown & Function Registry</p>
+    </div>
+
+    <!-- Metadata Block -->
+    <table class="meta-table">
+      <tr>
+        <th>Project Name</th>
+        <td>DHAcquisitions.co Marketplace</td>
+        <th>Document Version</th>
+        <td>1.0.0 (Release)</td>
+      </tr>
+      <tr>
+        <th>Author / Publisher</th>
+        <td>Dhumavati Consulting LLP</td>
+        <th>Date of Issue</th>
+        <td>August 13, 2026</td>
+      </tr>
+      <tr>
+        <th>Target Audience</th>
+        <td>Legal, Auditing, and Engineering Teams</td>
+        <th>Classification</th>
+        <td>Confidential / Internal Specification</td>
+      </tr>
+    </table>
+
+    <!-- Table of Contents Intro -->
+    <h2>Document Overview</h2>
+    <p>This document serves as an exhaustive technical module breakdown and feature specification of the DHAcquisitions.co platform. It outlines the core architecture layers, functional modules, payment lockers, identity verification paths, administrative portals, and the underlying DevOps configuration required to build, test, and deploy the system.</p>
+
+    <!-- Module 1 -->
+    <h2>1. Identity & Access Control Module (IAM)</h2>
+    <p>This module manages user registration, security credentials, session authorizations, and routing boundaries across multiple user categories.</p>
+    <ul>
+      <li><span class="strong-term">Multi-Role Architecture:</span> Segregates user permissions into distinct levels: Guest (unauthenticated), Registered User (buyer/seller), Recruiter (employer), and Administrator.</li>
+      <li><span class="strong-term">Cryptographic Password Hashing:</span> All password entries are encrypted using the BCrypt hashing function on the Spring Boot backend prior to persistence.</li>
+      <li><span class="strong-term">Stateless Session Verification:</span> Authenticated user requests are validated via JSON Web Tokens (JWT) transmitted securely via HTTP headers.</li>
+      <li><span class="strong-term">Authentication Guards:</span> Implements a global client-side router interceptor (<span class="strong-term">ProtectedRoute</span>) that monitors verification status. Unauthorized requests to dashboard views or listing creator paths are blocked and redirected to the login endpoint.</li>
+    </ul>
+
+    <!-- Module 2 -->
+    <h2>2. Acquisitions & Listings Marketplace Module</h2>
+    <p>This module drives the listing, indexing, filtering, and detailing of major healthcare property assets.</p>
+    <ul>
+      <li><span class="strong-term">Listing Classification:</span> Allows sellers to registry opportunities under five core healthcare categories: Hospitals, Diagnostic Centres, Pharma Companies, Dental Clinics, and Pharmacies.</li>
+      <li><span class="strong-term">Geographical Filtering:</span> Integrates dynamic lookup services fetching verified city and state lists from the backend master data tables, replacing static frontend elements.</li>
+      <li><span class="strong-term">Query Processing:</span> Multi-variable search engine supporting keyword lookups, category selection, price brackets, and region bounds.</li>
+      <li><span class="strong-term">Fractional Investments (Partial Stakes):</span> Dedicated sub-portal managing fractional share sales, featuring a deduplication engine ensuring listings are not double-counted across database search runs.</li>
+    </ul>
+
+    <!-- Module 3 -->
+    <h2>3. Careers & Talent Portal Module</h2>
+    <p>A specialized sub-marketplace allowing medical facilities to post professional vacancies and candidates to apply.</p>
+    <ul>
+      <li><span class="strong-term">Job Registry:</span> Recruiters post details including category, salary bounds (LPA), experience prerequisites, open vacancies, and application deadlines.</li>
+      <li><span class="strong-term">Application Pipeline:</span> Secure upload mechanism for candidate CVs (PDF files) with custom styled choose-file inputs, completely bypassing native browser defaults.</li>
+      <li><span class="strong-term">Recruiter Privacy Shield:</span> Masks contact email addresses of recruiters (e.g., converting to <span class="strong-term">m********@domain.com</span>) for unauthenticated visitors. Only signed-in users can view full contact information.</li>
+    </ul>
+
+    <!-- Module 4 -->
+    <h2>4. Payment Security & Data Locking Module</h2>
+    <p>Secures business broker information behind verified payment gates.</p>
+    <ul>
+      <li><span class="strong-term">Data Access Restrictions:</span> Restricts sensitive seller/broker details (FullName, email, and phone number) behind a cryptographic lock.</li>
+      <li><span class="strong-term">Razorpay Integration:</span> Connects with the Razorpay API to collect a secure fee of ₹1,000 to unlock details.</li>
+      <li><span class="strong-term">Locker Sync:</span> Listens for transaction verify callbacks. Upon approval, updates database logs to permanently link the user identity to the unlocked listing.</li>
+    </ul>
+
+    <!-- Module 5 -->
+    <h2>5. Governance & Admin Auditing Module</h2>
+    <p>Provides administrators with full overview and verification controls over platform activities.</p>
+    <ul>
+      <li><span class="strong-term">Lifecycle Governance:</span> Review, approve, reject, or delete marketplace listings and job vacancy entries.</li>
+      <li><span class="strong-term">Identity Verification (KYC):</span> Review uploaded identity documents and approve or reject user verification requests.</li>
+      <li><span class="strong-term">Bulk Account Operations:</span> Interface to handle database cleanup, including cascading user deletion that handles foreign keys (inquiries, listings, applications).</li>
+      <li><span class="strong-term">Security Audit Logging:</span> Records client activity (login events, payment transactions, identity verifications), logging actor IDs, timestamps, event details, and IP addresses.</li>
+    </ul>
+
+    <div class="page-break"></div>
+
+    <!-- Module 6 -->
+    <h2>6. System Technology Stack & Infrastructure</h2>
+    <p>Defines the systems, deployment, and deployment orchestration architecture of the platform.</p>
+    
+    <h3>6.1 Frontend Layer</h3>
+    <ul>
+      <li>React.js (Single Page Application architecture).</li>
+      <li>Tailwind CSS (utility-first UI design) and Vanilla CSS overrides for Glassmorphism.</li>
+      <li>React Router DOM (client-side routing and protected boundaries).</li>
+    </ul>
+
+    <h3>6.2 Backend Layer</h3>
+    <ul>
+      <li>Spring Boot (Java RESTful Web Service architecture).</li>
+      <li>Spring Security (authenticating JWT requests, role mapping).</li>
+      <li>Hibernate / Spring Data JPA (database relational mapping).</li>
+    </ul>
+
+    <h3>6.3 Persistence Layer</h3>
+    <ul>
+      <li>MySQL relational database engine.</li>
+      <li>Database schema maintaining Users, Listings, Jobs, Payments, and Logs.</li>
+    </ul>
+
+    <h3>6.4 Infrastructure & Delivery Pipeline</h3>
+    <ul>
+      <li>Docker (isolated containers for DB, backend service, and frontend client).</li>
+      <li>Nginx (acting as a reverse-proxy router handling SSL encryption).</li>
+      <li>GitHub Actions (.yml script configurations automating build and server-pull actions).</li>
+    </ul>
+
+  </div>
+
+</body>
+</html>
