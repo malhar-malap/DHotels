@@ -1,385 +1,170 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  FiTarget, 
-  FiEye, 
-  FiShield, 
-  FiUsers, 
-  FiCheckCircle, 
-  FiArrowRight, 
-  FiPhone, 
-  FiMail, 
-  FiFileText, 
-  FiActivity,
-  FiBriefcase,
-  FiFilePlus,
-  FiCalendar
-} from 'react-icons/fi';
+import { PiArrowRight, PiEnvelopeSimple, PiCalendarBlank, PiFileText, PiCheck } from 'react-icons/pi';
 import ScheduleCallModal from '../../components/modals/ScheduleCallModal';
 import SubmitMandateModal from '../../components/modals/SubmitMandateModal';
 import Seo from '../../components/common/Seo';
+import { CATEGORIES } from '../../utils/hospitality';
+
+const PRINCIPLES = [
+  'Connect qualified buyers, sellers, lessors, operators and investors on one trusted platform.',
+  'Keep owners’ identities and numbers private until a buyer is serious.',
+  'Review every listing before it is published.',
+  'Plan ownership transitions so guests, staff and bookings are not disrupted.',
+  'Favour well-prepared, realistic transactions over fast ones.',
+];
+
+const STEPS = [
+  { title: 'Plan', text: 'Clarify goals, price expectations and the right structure — sale, lease or profit sharing.' },
+  { title: 'Match', text: 'Put the property in front of qualified counterparties, confidentially.' },
+  { title: 'Diligence', text: 'Title, approvals, licences (FSSAI, excise, fire), financials and operating data.' },
+  { title: 'Negotiate', text: 'Agree price, terms, lock-ins and handover conditions.' },
+  { title: 'Hand over', text: 'Transfer licences, staff and supplier contracts with minimal downtime.' },
+];
+
+const AUDIENCES = [
+  { title: 'For sellers', text: 'Position the property properly, protect confidentiality and reach counterparties who can close.' },
+  { title: 'For buyers', text: 'Understand your investment goals and operating strengths before presenting opportunities.' },
+  { title: 'For owners & operators', text: 'Lease and profit-sharing structures that work for both sides over the long term.' },
+];
 
 const AboutUsPage = () => {
   const [showScheduleCall, setShowScheduleCall] = useState(false);
   const [showMandate, setShowMandate] = useState(false);
 
-  const assetClasses = [
-    {
-      title: "Hospitals",
-      desc: "Multi-speciality and speciality hospitals — navigating complex operational, clinical, and regulatory elements."
-    },
-    {
-      title: "Pharmaceutical Companies",
-      desc: "Formulation, API, contract manufacturing, nutraceuticals, and Ayurvedic manufacturers — focusing on facilities, IP, quality systems, and approvals."
-    },
-    {
-      title: "Diagnostic Centres",
-      desc: "Pathology labs, radiology, chains, and specialised testing facilities — emphasising equipment, workflows, and growth potential."
-    },
-    {
-      title: "Dental Clinics",
-      desc: "Single practices, multi-location groups, and speciality centres — supporting organised network expansion."
-    },
-    {
-      title: "Pharmacies",
-      desc: "Independent stores, hospital pharmacies, distributors, and franchise networks — addressing licensing, inventory, and supply chain needs."
-    }
-  ];
-
-  const transactionSteps = [
-    {
-      title: "Strategic Planning",
-      icon: <FiUsers className="w-6 h-6 text-[#db7c26]" />,
-      desc: "Establishing goals, structuring plans, and preparing the business for listing or acquisition."
-    },
-    {
-      title: "Confidential Matching",
-      icon: <FiFilePlus className="w-6 h-6 text-[#db7c26]" />,
-      desc: "Aligning buyers and sellers matching qualifications and maintaining strict confidentiality."
-    },
-    {
-      title: "Due Diligence & Regulatory",
-      icon: <FiShield className="w-6 h-6 text-[#db7c26]" />,
-      desc: "Navigating licenses, audit, credentials, and legal compliance workflows securely."
-    },
-    {
-      title: "Negotiation & Execution",
-      icon: <FiActivity className="w-6 h-6 text-[#db7c26]" />,
-      desc: "Structuring mutually beneficial agreements, prices, and terms across both parties."
-    },
-    {
-      title: "Operational Handover",
-      icon: <FiBriefcase className="w-6 h-6 text-[#db7c26]" />,
-      desc: "Managing transitions smoothly to ensure continuity of care and stable operations."
-    }
-  ];
-
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-[#d8572a]/5 pt-24 pb-32 font-sans text-white relative overflow-hidden">
+    <div className="bg-gray-950">
       <Seo
-        title="About Us | DHotels"
-        description="Learn about DHotels, the hospitality marketplace and advisory team helping buyers and sellers of hospitals, pharma companies, clinics and diagnostic centres across India."
+        title="About DHotels | India’s Hospitality Marketplace"
+        description="DHotels is a marketplace and advisory team for buying, selling, leasing and co-owning hotels, resorts, restaurants, cafés, bars and banquet halls across India."
         path="/about"
       />
-      
-      {/* Saffron/Gold bottom-left decorative glow (visible on scroll down) */}
-      <div className="absolute -left-48 bottom-0 w-[800px] h-[800px] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-[#db7c26]/10 via-transparent to-transparent rounded-full blur-3xl pointer-events-none -z-10"></div>
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24 relative z-10">
-        
-        {/* Title & Introduction (About Us) - Centered Heading & Layout */}
-        <div className="space-y-8 max-w-4xl mx-auto text-center">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-[#E3FCF9] text-[#3a5578] font-semibold text-sm">
-            About Us
-          </span>
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white leading-tight">
-            India's Dedicated <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f7b538] via-[#db7c26] to-[#d8572a]">
-              Hospitality Transaction Marketplace
-            </span>
-          </h1>
-          <div className="space-y-6 text-gray-300 leading-relaxed text-lg max-w-3xl mx-auto">
-            <p>
-              <strong>DHotels.co</strong> is India’s dedicated hospitality transaction marketplace, specialising in the acquisition, sale, lease, and operational transition of hospitality businesses. We focus exclusively on the hospitality sector — hospitals, pharmaceutical companies, diagnostic centres, dental clinics, pharmacies, and related assets.
-            </p>
-            <p>
-              Hospitality businesses are more than commercial assets; they are vital institutions serving patients, families, and communities. Transactions in this sector demand exceptional diligence, regulatory expertise, and operational insight to ensure continuity of care and sustainable outcomes.
-            </p>
-            <p>
-              Unlike fragmented networks and informal intermediaries common in India, DHotels.co delivers a structured, confidential, compliant, and professionally managed process. We provide end-to-end support — from transaction planning and buyer/seller matching to due diligence, regulatory coordination, negotiations, and seamless operational handovers.
-            </p>
-            <p className="font-medium text-[#db7c26]">
-              Our goal is to connect qualified stakeholders and facilitate successful transitions that strengthen India’s hospitality infrastructure.
-            </p>
+
+      {/* Intro */}
+      <section className="container-site py-16 md:py-24">
+        <p className="eyebrow eyebrow-rule">About DHotels</p>
+        <h1 className="heading-xl mt-5 max-w-4xl">A dedicated marketplace for hospitality property — and the people who run it.</h1>
+        <div className="mt-10 grid gap-8 text-lg leading-relaxed text-gray-300 md:grid-cols-2">
+          <p>
+            DHotels is India’s transaction marketplace for hospitality businesses. We help owners sell, lease or bring in profit-sharing partners for hotels, resorts, restaurants, cafés, bars and banquet halls — and help buyers and operators find properties worth their time.
+          </p>
+          <p>
+            Hotels and restaurants are not just real estate. They carry licences, teams, guest reputations and seasonal cash flows. We replace informal brokers and scattered WhatsApp forwards with a structured, confidential process — from the first listing to the final handover.
+          </p>
+        </div>
+      </section>
+
+      {/* What we cover */}
+      <section className="border-y border-white/[0.06] bg-gray-900/40 py-16 md:py-20">
+        <div className="container-site">
+          <h2 className="heading-lg">What we cover</h2>
+          <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.06] sm:grid-cols-2 lg:grid-cols-3">
+            {CATEGORIES.map(({ name, label, blurb, path, icon: Icon, dealTypes }) => (
+              <Link key={name} to={path} className="group bg-gray-950 p-7 transition-colors hover:bg-gray-900">
+                <Icon className="h-7 w-7 text-primary-400" />
+                <h3 className="mt-5 text-lg font-semibold text-gray-50 group-hover:text-primary-200">{label}</h3>
+                <p className="mt-1.5 text-sm text-gray-400">{blurb}</p>
+                <p className="mt-4 text-xs text-gray-500">{dealTypes.join(' · ')}</p>
+              </Link>
+            ))}
           </div>
         </div>
+      </section>
 
-        {/* Vision & Mission */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Vision */}
-          <div className="bg-gray-900/50 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-8 md:p-10 hover:border-[#db7c26]/20 transition-all duration-300 shadow-xl flex flex-col justify-between">
-            <div>
-              <div className="w-14 h-14 bg-[#f7b538]/20 rounded-2xl flex items-center justify-center mb-6">
-                <FiEye className="w-7 h-7 text-[#db7c26]" />
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-4">Vision</h2>
-              <div className="text-gray-300 space-y-4">
-                <p>
-                  To become India’s most trusted hospitality business transaction platform — a transparent, efficient, and professionally managed marketplace for acquisitions, sales, leases, and operational partnerships.
-                </p>
-                <p>
-                  We envision a future where hospitality entrepreneurs, investors, operators, and professionals can transact with confidence, supported by robust frameworks that protect patient care and unlock the full potential of quality assets across metros, Tier-2 cities, and regional markets.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Mission */}
-          <div className="bg-gray-900/50 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-8 md:p-10 hover:border-[#db7c26]/20 transition-all duration-300 shadow-xl flex flex-col justify-between">
-            <div>
-              <div className="w-14 h-14 bg-[#f7b538]/20 rounded-2xl flex items-center justify-center mb-6">
-                <FiTarget className="w-7 h-7 text-[#db7c26]" />
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-4">Mission</h2>
-              <p className="text-gray-300 mb-6">
-                To deliver successful hospitality transactions through commercial expertise, regulatory discipline, and deep operational understanding.
-              </p>
-              <div className="text-gray-300 space-y-3">
-                <p className="font-semibold text-[#db7c26] text-sm uppercase tracking-wider mb-2">We achieve this by:</p>
-                {[
-                  "Connecting qualified buyers, sellers, lessors, lessees, investors, and operators on a trusted platform.",
-                  "Maintaining the highest standards of confidentiality and professionalism.",
-                  "Ensuring smooth ownership transitions without disrupting patient care.",
-                  "Promoting transparency, accountability, and regulatory compliance.",
-                  "Supporting the long-term productivity and growth of hospitality assets across India."
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-3">
-                    <FiCheckCircle className="w-5 h-5 text-[#db7c26] flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">{item}</span>
-                  </div>
-                ))}
-                <p className="pt-4 border-t border-white/5 text-sm italic text-gray-400">
-                  We prioritise the right transactions — those built on realistic expectations, thorough planning, and aligned stakeholder objectives — over speed.
-                </p>
-              </div>
-            </div>
-          </div>
+      {/* Vision & mission */}
+      <section className="container-site grid gap-12 py-16 md:py-24 lg:grid-cols-2">
+        <div>
+          <p className="eyebrow">Vision</p>
+          <p className="mt-4 font-display text-2xl leading-snug text-gray-50 md:text-3xl">
+            To be India’s most trusted platform for hospitality transactions — transparent, efficient and professionally managed, from metros to Tier-2 cities and leisure destinations.
+          </p>
         </div>
+        <div>
+          <p className="eyebrow">How we work</p>
+          <ul className="mt-5 space-y-4">
+            {PRINCIPLES.map((p) => (
+              <li key={p} className="flex gap-3 text-gray-300">
+                <PiCheck className="mt-1 h-4 w-4 shrink-0 text-primary-400" /> {p}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
-        {/* Hospitality Asset Classes (Centered Grid on bottom row) */}
-        <div className="space-y-12">
-          <div className="text-center max-w-3xl mx-auto space-y-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-white">Hospitality Asset Classes</h2>
-            <p className="text-gray-400">We support transactions across key segments:</p>
-          </div>
-          <div className="flex flex-wrap justify-center gap-6">
-            {assetClasses.map((item, idx) => (
-              <div 
-                key={idx} 
-                className="bg-gray-900/50 backdrop-blur-xl border border-white/5 rounded-3xl p-8 hover:border-[#db7c26]/40 transition-all duration-300 relative group overflow-hidden w-full md:w-[calc(50%-12px)] lg:w-[calc(33.33%-16px)] min-h-[220px] flex flex-col justify-between"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-[#db7c26]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="relative z-10 space-y-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#db7c26]/10 flex items-center justify-center text-[#db7c26] font-bold text-lg">
-                    0{idx + 1}
-                  </div>
-                  <h4 className="text-xl font-bold text-white">{item.title}</h4>
-                  <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
-                </div>
+      {/* Process */}
+      <section className="border-t border-white/[0.06] py-16 md:py-24">
+        <div className="container-site">
+          <p className="eyebrow eyebrow-rule">Our process</p>
+          <h2 className="heading-lg mt-3">How a transaction comes together</h2>
+          <ol className="mt-12 grid gap-8 md:grid-cols-5">
+            {STEPS.map((s, i) => (
+              <li key={s.title} className="relative border-t border-white/10 pt-6">
+                <span className="absolute -top-px left-0 h-px w-10 bg-primary-400" />
+                <span className="font-display text-sm text-primary-400">0{i + 1}</span>
+                <h3 className="mt-2 text-lg font-semibold text-gray-50">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-gray-400">{s.text}</p>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
+            {AUDIENCES.map((a) => (
+              <div key={a.title} className="surface p-6">
+                <h3 className="font-semibold text-primary-200">{a.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-gray-400">{a.text}</p>
               </div>
             ))}
           </div>
-          <p className="text-center text-gray-400 max-w-2xl mx-auto text-sm italic pt-4">
-            We also facilitate leasing, management agreements, operator partnerships, and hybrid structures for greater flexibility.
-          </p>
         </div>
+      </section>
 
-        {/* Leadership (No Image) */}
-        <div className="bg-gray-900/50 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-8 md:p-12 max-w-4xl mx-auto text-center md:text-left relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#db7c26]/5 to-transparent opacity-40 pointer-events-none"></div>
-          <div className="relative z-10 space-y-6">
-            <span className="inline-block px-3 py-1 rounded-full bg-[#E3FCF9] text-[#3a5578] font-medium text-xs">
-              Leadership
-            </span>
-            <div className="space-y-2">
-              <h2 className="text-3xl md:text-4xl font-bold text-white">Manas Survee</h2>
-              <p className="text-[#db7c26] font-medium text-lg">Founder, DHotels.co & CEO, Dhumavati Consulting LLP</p>
-            </div>
-            <p className="text-gray-300 leading-relaxed text-base">
-              With over 16 years of experience in project development, business structuring, stakeholder management, and transaction execution, Manas brings deep expertise to hospitality M&A. His leadership is grounded in integrity, persistence, and value creation — principles essential for aligning commercial goals with regulatory and operational realities in India’s hospitality sector.
-            </p>
+      {/* Leadership */}
+      <section className="border-t border-white/[0.06] bg-gray-900/40 py-16 md:py-24">
+        <div className="container-site grid gap-10 lg:grid-cols-[1fr_1.5fr]">
+          <div>
+            <p className="eyebrow eyebrow-rule">Leadership</p>
+            <h2 className="heading-lg mt-3">Manas Survee</h2>
+            <p className="mt-2 text-primary-300">Founder, DHotels &amp; CEO, Dhumavati Consulting LLP</p>
           </div>
-        </div>
-
-        {/* Founding Philosophy */}
-        <div className="space-y-8 max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-white text-center md:text-left">Founding Philosophy</h2>
-          <div className="bg-gray-900/30 border border-white/5 rounded-3xl p-8 space-y-6 text-gray-300 leading-relaxed">
+          <div className="space-y-5 text-lg leading-relaxed text-gray-300">
             <p>
-              The idea behind DHotels.co emerged from a simple observation. India possesses thousands of hospitality assets with significant untapped potential. Many owners are seeking succession solutions, growth partners, strategic investors, operators, or exit opportunities. At the same time, there are qualified buyers and operators actively searching for opportunities.
+              With over 16 years in project development, business structuring, stakeholder management and transaction execution, Manas brings practical deal experience to hospitality M&amp;A — grounded in integrity, persistence and long-term value creation.
             </p>
             <p>
-              However, the absence of a specialised transaction platform has often made it difficult for these stakeholders to connect and transact efficiently.
-            </p>
-            <p className="font-medium text-white">
-              DHotels.co was created to bridge this gap by providing sector-specific expertise and transaction support designed exclusively for hospitality businesses.
+              DHotels began with a simple observation: India has thousands of hotels and restaurants whose owners want an exit, a successor, an operator or a growth partner — and just as many buyers looking for them, with no specialised place to meet. DHotels was built to close that gap.
             </p>
           </div>
         </div>
+      </section>
 
-        {/* Our Approach */}
-        <div className="space-y-12 max-w-4xl mx-auto">
-          <div className="space-y-4">
-            <h2 className="text-3xl font-bold text-white">Our Approach</h2>
-            <p className="text-gray-300 leading-relaxed">
-              Every mandate starts with a clear understanding of your objectives. We believe successful outcomes require more than a valuation or a marketing process. They require a deep understanding of the motivations, priorities, and constraints influencing each stakeholder.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-gray-900/50 p-6 rounded-2xl border border-white/5">
-              <h4 className="font-bold text-[#db7c26] mb-2">For Sellers</h4>
-              <p className="text-gray-400 text-sm leading-relaxed">We focus on positioning the asset appropriately, protecting confidentiality, and identifying qualified counterparties.</p>
-            </div>
-            <div className="bg-gray-900/50 p-6 rounded-2xl border border-white/5">
-              <h4 className="font-bold text-[#db7c26] mb-2">For Buyers</h4>
-              <p className="text-gray-400 text-sm leading-relaxed">We focus on understanding investment objectives, operational capabilities, and strategic goals before presenting opportunities.</p>
-            </div>
-            <div className="bg-gray-900/50 p-6 rounded-2xl border border-white/5">
-              <h4 className="font-bold text-[#db7c26] mb-2">For Lessors & Operators</h4>
-              <p className="text-gray-400 text-sm leading-relaxed">We focus on creating practical structures that support long-term success.</p>
-            </div>
-          </div>
-          
-          <p className="text-sm text-gray-400 italic text-center">
-            This disciplined approach helps improve transaction quality while reducing unnecessary delays and inefficiencies.
-          </p>
+      {/* Contact options */}
+      <section className="container-site py-16 md:py-24">
+        <div className="max-w-2xl">
+          <h2 className="heading-lg">Start with a conversation</h2>
+          <p className="lede mt-3">Whether you are selling, buying, leasing or looking for a partner, we will listen first — confidentially.</p>
         </div>
-
-        {/* Hospitality Transaction Process */}
-        <div className="space-y-12 max-w-5xl mx-auto">
-          <div className="text-center space-y-2">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#db7c26]">Structural Pipeline</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-white">Hospitality Transaction Process</h2>
-          </div>
-          
-          {/* Timeline Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 relative">
-            {transactionSteps.map((step, idx) => (
-              <div key={idx} className="relative flex flex-col items-center text-center p-6 bg-gray-900/50 border border-white/5 rounded-3xl hover:border-[#db7c26]/30 transition-all group">
-                {/* Arrow lines between items */}
-                {idx < 4 && (
-                  <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-gradient-to-r from-gray-700 to-gray-800 z-0"></div>
-                )}
-                {/* Step badge */}
-                <span className="absolute -top-3 left-6 bg-gray-800 text-[#db7c26] border border-white/10 px-2.5 py-0.5 rounded-full text-xs font-bold shadow-md">
-                  Step {idx + 1}
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          {[
+            { icon: PiEnvelopeSimple, title: 'Send a message', text: 'We reply within one business day.', action: 'Contact us', to: '/contact-us' },
+            { icon: PiCalendarBlank, title: 'Schedule a call', text: 'Pick a 30 or 60-minute slot that suits you.', action: 'Book a slot', onClick: () => setShowScheduleCall(true) },
+            { icon: PiFileText, title: 'Submit a mandate', text: 'Share what you want to buy or sell and we will outline an approach.', action: 'Submit details', onClick: () => setShowMandate(true) },
+          ].map(({ icon: Icon, title, text, action, to, onClick }) => {
+            const body = (
+              <>
+                <Icon className="h-7 w-7 text-primary-400" />
+                <h3 className="mt-6 text-lg font-semibold text-gray-50">{title}</h3>
+                <p className="mt-1.5 flex-1 text-sm text-gray-400">{text}</p>
+                <span className="mt-6 flex items-center gap-1 text-sm font-semibold text-primary-300 group-hover:text-primary-200">
+                  {action} <PiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </span>
-                
-                {/* Icon Wrapper */}
-                <div className="w-14 h-14 bg-[#db7c26]/10 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 relative z-10 shadow-lg">
-                  {step.icon}
-                </div>
-                
-                <h4 className="text-lg font-bold text-white mb-2 relative z-10">{step.title}</h4>
-                <p className="text-xs text-gray-400 leading-relaxed relative z-10">{step.desc}</p>
-              </div>
-            ))}
-          </div>
+              </>
+            );
+            const cls = 'group surface flex flex-col p-7 text-left transition-colors hover:border-primary-400/30';
+            return to
+              ? <Link key={title} to={to} className={cls}>{body}</Link>
+              : <button key={title} type="button" onClick={onClick} className={cls}>{body}</button>;
+          })}
         </div>
-
-        {/* Looking Ahead */}
-        <div className="bg-gradient-to-br from-[#d8572a]/20 to-transparent border border-[#d8572a]/30 rounded-[2.5rem] p-8 md:p-12 text-center max-w-4xl mx-auto space-y-6">
-          <h2 className="text-3xl font-bold text-white">Looking Ahead</h2>
-          <div className="space-y-4 text-gray-300 leading-relaxed text-base">
-            <p>
-              India’s hospitality sector is expected to continue expanding significantly over the coming decades. Increasing hospitality demand, rising investment activity, industry consolidation, technological advancement, and infrastructure development will create substantial transaction opportunities.
-            </p>
-            <p>
-              DHotels.co aims to play a meaningful role in this transformation by providing a trusted platform for hospitality business transactions. Our goal is not merely to facilitate deals but to help create stronger hospitality institutions capable of delivering long-term value to patients, communities, investors, and operators.
-            </p>
-          </div>
-        </div>
-
-        {/* Get in Touch / Take the next step (Redesigned White/Grey cards matching the user screenshot) */}
-        <div className="space-y-12">
-          <div className="text-center space-y-4 max-w-3xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-white">Get in Touch</h2>
-            <p className="text-gray-400 leading-relaxed text-base">
-              Every successful transaction begins with a conversation. Whether you are considering a sale, acquisition, lease, investment, or operational partnership, we are here to listen and advise — with complete confidentiality and professionalism.
-            </p>
-          </div>
-
-          {/* Dark Glassmorphic Themed Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            
-            {/* Contact Us Card */}
-            <Link 
-              to="/contact-us"
-              className="bg-gray-900/40 backdrop-blur-xl border border-white/5 rounded-[2rem] p-8 hover:border-[#db7c26]/30 hover:shadow-2xl hover:shadow-[#db7c26]/10 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between items-start text-left min-h-[260px] group"
-            >
-              <div className="space-y-6 w-full">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center shadow-lg shadow-blue-500/5">
-                  <FiMail className="w-6 h-6" />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-xl font-bold text-white">Contact us</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">
-                    Send a message and we'll respond within one business day.
-                  </p>
-                </div>
-              </div>
-              <div className="text-gray-500 group-hover:text-blue-400 transition-colors pt-6 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
-                Send Message <FiArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
-
-            {/* Schedule a Call Card */}
-            <button 
-              onClick={() => setShowScheduleCall(true)}
-              className="bg-gray-900/40 backdrop-blur-xl border border-white/5 rounded-[2rem] p-8 hover:border-[#db7c26]/30 hover:shadow-2xl hover:shadow-[#db7c26]/10 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between items-start text-left min-h-[260px] group w-full"
-            >
-              <div className="space-y-6 w-full">
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shadow-lg shadow-emerald-500/5">
-                  <FiCalendar className="w-6 h-6" />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-xl font-bold text-white">Schedule a call</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">
-                    Book a time that works for you — 30 or 60-minute slots available.
-                  </p>
-                </div>
-              </div>
-              <div className="text-gray-500 group-hover:text-emerald-400 transition-colors pt-6 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
-                Book Slot <FiArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </button>
-
-            {/* Submit Your Mandate Card */}
-            <button 
-              onClick={() => setShowMandate(true)}
-              className="bg-gray-900/40 backdrop-blur-xl border border-white/5 rounded-[2rem] p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between items-start text-left min-h-[260px] group w-full"
-            >
-              <div className="space-y-6 w-full">
-                <div className="w-12 h-12 rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20 flex items-center justify-center shadow-lg shadow-orange-500/5">
-                  <FiFileText className="w-6 h-6" />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-xl font-bold text-white">Submit your mandate</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">
-                    Share your objectives and we'll outline a tailored approach.
-                  </p>
-                </div>
-              </div>
-              <div className="text-gray-500 group-hover:text-orange-400 transition-colors pt-6 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
-                Submit Details <FiArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </button>
-
-          </div>
-        </div>
-
-      </div>
+      </section>
 
       {showScheduleCall && <ScheduleCallModal onClose={() => setShowScheduleCall(false)} />}
       {showMandate && <SubmitMandateModal onClose={() => setShowMandate(false)} />}

@@ -8,4 +8,4 @@ Disallow: /dashboard
 Disallow: /admin
 Allow: /
 
-Sitemap: https://dhacquisitions.co/sitemap.xml
+Sitemap: https://dhotels.co/sitemap.xml

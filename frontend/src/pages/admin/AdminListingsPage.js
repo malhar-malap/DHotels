@@ -90,24 +90,30 @@ const AdminListingsPage = () => {
   };
 
   // Actions
-  const handleApprove = (id) => {
-    setApproveModalId(id);
-    setApproveUniqueCode('');
-    setApproveImageUrl('');
+  const handleApprove = (id, initialCode = '', initialImage = '') => {
+    try {
+      setApproveModalId(id);
+      setApproveUniqueCode(initialCode || '');
+      setApproveImageUrl(initialImage || '');
+    } catch (err) {
+      console.error('Error opening approval modal:', err);
+      toast.error('Could not open approval modal');
+    }
   };
 
   const handleApproveImageUpload = async (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
     setUploadingImage(true);
     try {
       const response = await mediaAPI.upload(file);
-      const url = response.data.data || response.data;
+      const url = response.data?.data || response.data;
       setApproveImageUrl(url);
       toast.success('Image uploaded');
     } catch (error) {
-      toast.error('Image upload failed');
-      console.error(error);
+      const msg = error?.response?.data?.message || error?.message || 'Image upload failed';
+      toast.error(msg);
+      console.error('Image upload failed:', error);
     }
     setUploadingImage(false);
   };
@@ -123,7 +129,11 @@ const AdminListingsPage = () => {
       setApproveUniqueCode('');
       setApproveImageUrl('');
       fetchListings();
-    } catch (error) { toast.error('Failed to approve'); }
+    } catch (error) {
+      console.error('Approval failed:', error);
+      const msg = error?.response?.data?.message || error?.message || 'Failed to approve listing';
+      toast.error(msg);
+    }
     setActionLoading(null);
   };
 
@@ -131,12 +141,16 @@ const AdminListingsPage = () => {
     if (!rejectReason.trim()) { toast.error('Please provide a rejection reason'); return; }
     setActionLoading(rejectModalId);
     try {
-      await adminAPI.rejectListing(rejectModalId, rejectReason);
+      await adminAPI.rejectListing(rejectModalId, rejectReason.trim());
       toast.success('Listing rejected');
       setRejectModalId(null);
       setRejectReason('');
       fetchListings();
-    } catch (error) { toast.error('Failed to reject'); }
+    } catch (error) {
+      console.error('Reject failed:', error);
+      const msg = error?.response?.data?.message || error?.message || 'Failed to reject listing';
+      toast.error(msg);
+    }
     setActionLoading(null);
   };
 
@@ -279,7 +293,7 @@ const AdminListingsPage = () => {
               {showPendingSection ? 'Audit Pipeline' : 'Asset Repository'}
             </h1>
             <p className="text-ethereal-on-surface-variant font-medium mt-1">
-              Currently indexing <span className="text-ethereal-on-surface">{totalElements}</span> medical configurations
+              Currently indexing <span className="text-ethereal-on-surface">{totalElements}</span> listings
             </p>
           </div>
           
@@ -366,7 +380,7 @@ const AdminListingsPage = () => {
                     <button onClick={() => setDetailModalId(listing.id)} className="p-2.5 md:p-3 rounded-2xl bg-ethereal-surface text-ethereal-on-surface-variant hover:text-blue-600 hover:bg-blue-50 transition-all">
                       <FiEye className="w-4 h-4 md:w-5 md:h-5" />
                     </button>
-                    <button onClick={() => handleApprove(listing.id)} disabled={actionLoading === listing.id} className="p-2.5 md:p-3 rounded-2xl bg-ethereal-surface text-[#db7c26] hover:bg-[#E3FCF9] transition-all">
+                    <button onClick={() => handleApprove(listing.id)} disabled={actionLoading === listing.id} className="p-2.5 md:p-3 rounded-2xl bg-ethereal-surface text-primary-400 hover:bg-primary-400/10 transition-all">
                       <FiCheck className="w-4 h-4 md:w-5 md:h-5" />
                     </button>
                     <button onClick={() => { setRejectModalId(listing.id); setRejectReason(''); }} className="p-2.5 md:p-3 rounded-2xl bg-ethereal-surface text-rose-500 hover:bg-rose-50 transition-all">
@@ -441,7 +455,7 @@ const AdminListingsPage = () => {
                           <div className="flex items-center justify-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
                             <button onClick={() => setDetailModalId(listing.id)} className="p-2 rounded-xl bg-gray-900 text-ethereal-on-surface-variant hover:text-blue-600 hover:shadow-lg transition-all"><FiEye size={16} /></button>
                             {(listing.status === 'PENDING' || listing.status === 'REJECTED') && (
-                              <button onClick={() => handleApprove(listing.id)} disabled={actionLoading === listing.id} className="p-2 rounded-xl bg-gray-900 text-[#db7c26] hover:shadow-lg transition-all"><FiCheck size={16} /></button>
+                              <button onClick={() => handleApprove(listing.id)} disabled={actionLoading === listing.id} className="p-2 rounded-xl bg-gray-900 text-primary-400 hover:shadow-lg transition-all"><FiCheck size={16} /></button>
                             )}
                             {listing.status !== 'REJECTED' && (
                               <button onClick={() => { setRejectModalId(listing.id); setRejectReason(''); }} className="p-2 rounded-xl bg-gray-900 text-rose-500 hover:shadow-lg transition-all"><FiX size={16} /></button>
@@ -571,7 +585,7 @@ const AdminListingsPage = () => {
                   value={approveUniqueCode}
                   onChange={(e) => setApproveUniqueCode(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter' && approveUniqueCode.trim() && approveImageUrl) handleApproveConfirm(); }}
-                  placeholder="e.g. DH-HOS-001"
+                  placeholder="e.g. DH-HOTEL-001"
                   autoFocus
                   className="w-full px-6 py-5 bg-ethereal-surface border border-transparent rounded-[1.5rem] focus:bg-gray-900 focus:ring-4 focus:ring-ethereal-primary/20 transition-all outline-none text-lg font-bold tracking-wider"
                 />
@@ -582,7 +596,7 @@ const AdminListingsPage = () => {
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-ethereal-primary opacity-60">Sample Image</label>
                 {approveImageUrl ? (
                   <div className="relative group">
-                    <img src={approveImageUrl.startsWith('http') ? approveImageUrl : `https://dhacquisitions.co${approveImageUrl.startsWith('/') ? '' : '/'}${approveImageUrl}`} alt="Sample" className="w-full h-48 object-cover rounded-[1.2rem] border border-ethereal-surface" />
+                    <img src={approveImageUrl.startsWith('http') ? approveImageUrl : (approveImageUrl.startsWith('/') ? approveImageUrl : `/${approveImageUrl}`)} alt="Sample" className="w-full h-48 object-cover rounded-[1.2rem] border border-ethereal-surface" />
                     <button onClick={() => setApproveImageUrl('')}
                       className="absolute top-3 right-3 p-2 bg-gray-900/80 text-white rounded-xl hover:bg-rose-600 transition-all opacity-0 group-hover:opacity-100">
                       <FiX className="w-4 h-4" />
@@ -615,7 +629,7 @@ const AdminListingsPage = () => {
               <button onClick={() => { setApproveModalId(null); setApproveImageUrl(''); }}
                 className="btn-ethereal-secondary">Cancel</button>
               <button onClick={handleApproveConfirm} disabled={actionLoading === approveModalId || uploadingImage}
-                className="px-8 py-4 bg-[#db7c26] text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-[#3a5578] shadow-xl shadow-[#db7c26]/20 disabled:opacity-50 transition-all">
+                className="px-8 py-4 bg-primary-500 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-primary-700 shadow-xl shadow-primary-400/20 disabled:opacity-50 transition-all">
                 {actionLoading === approveModalId ? 'Processing...' : 'Approve & Publish'}
               </button>
             </div>
@@ -630,10 +644,26 @@ const AdminListingsPage = () => {
           onClose={() => setDetailModalId(null)}
           onUpdated={fetchListings}
           onVerifyClick={(listing) => {
-            setDetailModalId(null);
-            setVerifyingListing(listing);
+            try {
+              setDetailModalId(null);
+              const initialCode = listing?.uniqueCode || '';
+              const initialImg = (listing?.images && listing.images.length > 0) ? listing.images[0] : '';
+              handleApprove(listing.id, initialCode, initialImg);
+            } catch (err) {
+              console.error('Failed to initiate verification:', err);
+              toast.error('Failed to initiate listing verification');
+            }
           }}
-          onReject={handleReject}
+          onRejectClick={(listing) => {
+            try {
+              setDetailModalId(null);
+              setRejectModalId(listing.id);
+              setRejectReason('');
+            } catch (err) {
+              console.error('Failed to initiate rejection:', err);
+              toast.error('Failed to initiate rejection');
+            }
+          }}
         />
       )}
       

@@ -23,7 +23,7 @@ public class SitemapController {
         this.sitemapService = sitemapService;
     }
 
-    // Served publicly at https://dhacquisitions.co/sitemap.xml via the Nginx proxy
+    // Served publicly at https://dhotels.co/sitemap.xml via the Nginx proxy
     @GetMapping(value = "/sitemap.xml", produces = MediaType.APPLICATION_XML_VALUE)
     @Operation(summary = "XML sitemap", description = "Static pages plus every active listing and job")
     public ResponseEntity<String> getSitemap() {

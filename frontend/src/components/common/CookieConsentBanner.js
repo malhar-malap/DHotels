@@ -15,7 +15,7 @@ const CookieConsentBanner = () => {
     if (isBot) return;
 
     // Check if user has already made a cookie choice
-    const cookieConsent = localStorage.getItem('dhacquisitions_cookie_consent');
+    const cookieConsent = localStorage.getItem('dhotels_cookie_consent');
     if (!cookieConsent) {
       // Delay showing slightly for a smooth entrance and to not fight the initial load
       const timer = setTimeout(() => {
@@ -26,12 +26,12 @@ const CookieConsentBanner = () => {
   }, [isBot]);
 
   const handleAccept = () => {
-    localStorage.setItem('dhacquisitions_cookie_consent', 'accepted');
+    localStorage.setItem('dhotels_cookie_consent', 'accepted');
     setIsVisible(false);
   };
 
   const handleDecline = () => {
-    localStorage.setItem('dhacquisitions_cookie_consent', 'declined');
+    localStorage.setItem('dhotels_cookie_consent', 'declined');
     setIsVisible(false);
   };
 
@@ -43,13 +43,13 @@ const CookieConsentBanner = () => {
       role="region"
       aria-label="Cookie consent banner"
     >
-      <div className="bg-[#121620]/95 border border-white/10 rounded-2xl p-5 shadow-2xl backdrop-blur-xl relative overflow-hidden flex flex-col gap-4">
+      <div className="bg-gray-950/95 border border-white/10 rounded-2xl p-5 shadow-2xl backdrop-blur-xl relative overflow-hidden flex flex-col gap-4">
         {/* Decorative Top Amber Accent Line */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 via-[#db7c26] to-amber-500" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 via-primary-400 to-primary-500" />
 
         {/* Content Row */}
         <div className="flex items-start gap-3.5">
-          <div className="w-10 h-10 rounded-xl bg-[#db7c26]/15 border border-[#db7c26]/30 flex items-center justify-center text-[#db7c26] shrink-0 text-lg shadow-inner">
+          <div className="w-10 h-10 rounded-xl bg-primary-500/15 border border-primary-400/30 flex items-center justify-center text-primary-400 shrink-0 text-lg shadow-inner">
             🍪
           </div>
           <div className="space-y-1">
@@ -60,7 +60,7 @@ const CookieConsentBanner = () => {
               We use cookies to ensure platform security, analyze traffic, and enhance your browsing experience.{' '}
               <Link 
                 to="/cookies" 
-                className="text-[#db7c26] hover:text-orange-400 underline font-semibold transition-colors"
+                className="text-primary-400 hover:text-primary-400 underline font-semibold transition-colors"
               >
                 Cookie Policy
               </Link>
@@ -80,7 +80,7 @@ const CookieConsentBanner = () => {
           <button
             type="button"
             onClick={handleAccept}
-            className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white transition-all text-xs font-bold shadow-md shadow-orange-500/20 flex items-center gap-1"
+            className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-primary-500 to-primary-500 hover:from-primary-600 hover:to-primary-600 text-white transition-all text-xs font-bold shadow-md shadow-primary-500/20 flex items-center gap-1"
           >
             <FiCheck className="w-3.5 h-3.5" /> Accept All
           </button>

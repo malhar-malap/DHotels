@@ -30,7 +30,7 @@ const DashboardLayout = ({ children, activeTab = 'Overview' }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-[#d8572a]/10 flex">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-primary-500/10 flex">
       {/* Sidebar Overlay for Mobile */}
       {!isSidebarOpen && (
         <button 
@@ -57,16 +57,16 @@ const DashboardLayout = ({ children, activeTab = 'Overview' }) => {
           <div className="p-8 pb-4">
             <div className="flex items-center justify-between mb-8 lg:hidden">
               <span className="font-black text-xl text-white">Menu</span>
-              <button onClick={() => setIsSidebarOpen(false)} className="text-[#e5e7eb]"><FiX className="w-6 h-6" /></button>
+              <button onClick={() => setIsSidebarOpen(false)} className="text-gray-200"><FiX className="w-6 h-6" /></button>
             </div>
             
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#d8572a] to-[#d8572a] flex items-center justify-center text-white shadow-sm">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-500 flex items-center justify-center text-white shadow-sm">
                 <FiUser className="w-6 h-6" />
               </div>
               <div className="overflow-hidden">
                 <h3 className="font-black text-sm text-white break-all">{user?.fullName || 'Health Professional'}</h3>
-                <p className="text-[10px] font-bold text-[#db7c26] uppercase tracking-widest break-all">{user?.email || 'Member'}</p>
+                <p className="text-[10px] font-bold text-primary-400 uppercase tracking-widest break-all">{user?.email || 'Member'}</p>
               </div>
             </div>
           </div>
@@ -79,7 +79,7 @@ const DashboardLayout = ({ children, activeTab = 'Overview' }) => {
                 <Link 
                   key={item.title} 
                   to={item.href}
-                  className={`flex items-center gap-4 px-4 py-3.5 rounded-xl transition-colors duration-300 group ${isActive ? 'bg-cyan-500/10 text-cyan-400' : 'hover:bg-cyan-500/5 text-[#e5e7eb] hover:text-cyan-400'}`}
+                  className={`flex items-center gap-4 px-4 py-3.5 rounded-xl transition-colors duration-300 group ${isActive ? 'bg-cyan-500/10 text-cyan-400' : 'hover:bg-cyan-500/5 text-gray-200 hover:text-cyan-400'}`}
                 >
                   <item.icon className={`w-5 h-5 ${isActive ? 'text-cyan-400' : 'text-gray-500 group-hover:text-cyan-400'} transition-colors`} />
                   <span className="font-bold text-xs uppercase tracking-widest">{item.title}</span>

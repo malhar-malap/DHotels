@@ -160,7 +160,7 @@ const AdminJobDetailModal = ({ jobId, onClose, onUpdated }) => {
                 <div className="p-6 bg-ethereal-surface rounded-[2rem] border border-transparent hover:border-ethereal-primary/10 transition-all">
                   <p className="text-[9px] font-black text-ethereal-on-surface-variant uppercase tracking-[0.2em] mb-4 flex items-center gap-2 opacity-40"><FiDollarSign className="w-3.5 h-3.5" /> Quota (LPA)</p>
                   <p className="text-base font-black text-ethereal-on-surface tracking-tight">{job.salaryMinLpa} — {job.salaryMaxLpa}</p>
-                  <p className="text-[10px] font-medium text-[#db7c26] uppercase tracking-widest mt-1">Guaranteed Base</p>
+                  <p className="text-[10px] font-medium text-primary-400 uppercase tracking-widest mt-1">Guaranteed Base</p>
                 </div>
               </div>
 
@@ -185,7 +185,7 @@ const AdminJobDetailModal = ({ jobId, onClose, onUpdated }) => {
                   <div className="space-y-6">
                     <h4 className="text-[11px] font-black text-ethereal-on-surface uppercase tracking-[0.3em]">Strategic Domain</h4>
                     <div className="bg-ethereal-surface rounded-[2rem] p-8 text-ethereal-on-surface-variant text-sm font-medium leading-relaxed">
-                      {job.specialisation || 'General Clinical Practice'}
+                      {job.specialisation || 'General'}
                     </div>
                   </div>
                 </div>
@@ -281,7 +281,7 @@ const AdminJobDetailModal = ({ jobId, onClose, onUpdated }) => {
           <div className="flex gap-4">
             {job.status === 'PENDING' && (
               <button onClick={handleApprove}
-                className="px-10 py-5 bg-[#db7c26] text-white rounded-[1.5rem] hover:bg-[#3a5578] shadow-xl shadow-[#db7c26]/20 transition-all font-black text-[10px] uppercase tracking-[widest] flex items-center gap-3">
+                className="px-10 py-5 bg-primary-500 text-white rounded-[1.5rem] hover:bg-primary-700 shadow-xl shadow-primary-400/20 transition-all font-black text-[10px] uppercase tracking-[widest] flex items-center gap-3">
                 <FiCheck className="w-4 h-4" /> Validate Requirement
               </button>
             )}

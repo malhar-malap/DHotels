@@ -2,12 +2,13 @@ import React from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import DashboardLayout from './DashboardLayout';
 import { useAuth } from '../../context/AuthContext';
+import ErrorBoundary from '../common/ErrorBoundary';
 
 const AdminLayout = () => {
   const { user, isAuthenticated, loading } = useAuth();
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-900"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#d8572a]"></div></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-gray-900"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div></div>;
   }
 
   if (!isAuthenticated) {
@@ -20,7 +21,9 @@ const AdminLayout = () => {
 
   return (
     <DashboardLayout activeTab="Admin Panel">
-      <Outlet />
+      <ErrorBoundary>
+        <Outlet />
+      </ErrorBoundary>
     </DashboardLayout>
   );
 };

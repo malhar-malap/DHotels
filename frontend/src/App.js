@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Layout Components
 import Header from './components/layout/Header';
@@ -8,48 +9,50 @@ import Footer from './components/layout/Footer';
 import AdminLayout from './components/layout/AdminLayout';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 
-// Main Pages
+// Main Pages (home loads eagerly; every other page is code-split into its own chunk)
 import HomePage from './pages/home/HomePage';
-import AboutUsPage from './pages/home/AboutUsPage';
-import ContactUsPage from './pages/home/ContactUsPage';
+const AboutUsPage = lazy(() => import('./pages/home/AboutUsPage'));
+const ContactUsPage = lazy(() => import('./pages/home/ContactUsPage'));
 
-import LegalCenterPage from './pages/legal/LegalCenterPage';
-import LoginPage from './pages/auth/LoginPage';
-import RegisterPage from './pages/auth/RegisterPage';
-import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
-import ResetPasswordPage from './pages/auth/ResetPasswordPage';
-import ListingsPage from './pages/marketplace/ListingsPage';
-import ListingDetailPage from './pages/marketplace/ListingDetailPage';
-import CreateListingPage from './pages/marketplace/CreateListingPage';
-import PartialPropertiesPage from './pages/marketplace/PartialPropertiesPage';
-import BlogsPage from './pages/marketplace/BlogsPage';
-import SeoLandingPage from './pages/marketplace/SeoLandingPage';
-import JobsPage from './pages/jobs/JobsPage';
-import JobDetailPage from './pages/jobs/JobDetailPage';
-import CreateJobPage from './pages/jobs/CreateJobPage';
-import DashboardPage from './pages/dashboard/DashboardPage';
-import NotFoundPage from './pages/NotFoundPage';
+const LegalCenterPage = lazy(() => import('./pages/legal/LegalCenterPage'));
+const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage'));
+const ListingsPage = lazy(() => import('./pages/marketplace/ListingsPage'));
+const ListingDetailPage = lazy(() => import('./pages/marketplace/ListingDetailPage'));
+const CreateListingPage = lazy(() => import('./pages/marketplace/CreateListingPage'));
+const PartialPropertiesPage = lazy(() => import('./pages/marketplace/PartialPropertiesPage'));
+const BlogsPage = lazy(() => import('./pages/marketplace/BlogsPage'));
+const BlogArticlePage = lazy(() => import('./pages/marketplace/BlogArticlePage'));
+const SeoLandingPage = lazy(() => import('./pages/marketplace/SeoLandingPage'));
+const JobsPage = lazy(() => import('./pages/jobs/JobsPage'));
+const JobDetailPage = lazy(() => import('./pages/jobs/JobDetailPage'));
+const CreateJobPage = lazy(() => import('./pages/jobs/CreateJobPage'));
+const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+import { seoData } from './pages/marketplace/seoData';
+import { CATEGORIES } from './utils/hospitality';
 
 // Admin Pages
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminListingsPage from './pages/admin/AdminListingsPage';
-import AdminJobsPage from './pages/admin/AdminJobsPage';
-import AdminUsersPage from './pages/admin/AdminUsersPage';
-import AdminVerificationsPage from './pages/admin/AdminVerificationsPage';
-import AdminPaymentsPage from './pages/admin/AdminPaymentsPage';
-import AdminContactMessagesPage from './pages/admin/AdminContactMessagesPage';
-import AdminLogsPage from './pages/admin/AdminLogsPage';
-import AdminConsultationsPage from './pages/admin/AdminConsultationsPage';
-import AdminMandatesPage from './pages/admin/AdminMandatesPage';
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminListingsPage = lazy(() => import('./pages/admin/AdminListingsPage'));
+const AdminJobsPage = lazy(() => import('./pages/admin/AdminJobsPage'));
+const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
+const AdminVerificationsPage = lazy(() => import('./pages/admin/AdminVerificationsPage'));
+const AdminPaymentsPage = lazy(() => import('./pages/admin/AdminPaymentsPage'));
+const AdminContactMessagesPage = lazy(() => import('./pages/admin/AdminContactMessagesPage'));
+const AdminLogsPage = lazy(() => import('./pages/admin/AdminLogsPage'));
+const AdminConsultationsPage = lazy(() => import('./pages/admin/AdminConsultationsPage'));
+const AdminMandatesPage = lazy(() => import('./pages/admin/AdminMandatesPage'));
 
 // Additional Pages (remaining placeholders)
-import {
-  MyListingsPage,
-  MyInquiriesPage,
-  MyJobsPage,
-  MyApplicationsPage,
-  ProfilePage
-} from './pages/RemainingPages';
+const remaining = (name) => lazy(() => import('./pages/RemainingPages').then((m) => ({ default: m[name] })));
+const MyListingsPage = remaining('MyListingsPage');
+const MyInquiriesPage = remaining('MyInquiriesPage');
+const MyJobsPage = remaining('MyJobsPage');
+const MyApplicationsPage = remaining('MyApplicationsPage');
+const ProfilePage = remaining('ProfilePage');
 
 // Context
 import { AuthProvider } from './context/AuthContext';
@@ -65,7 +68,7 @@ function App() {
       <ScrollToTop />
       <DisclaimerModal />
       <CookieConsentBanner />
-      <div className="min-h-screen flex flex-col bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-[#d8572a]/10">
+      <div className="min-h-screen flex flex-col bg-gray-950">
         <Toaster 
           position="top-right"
           containerStyle={{
@@ -75,20 +78,22 @@ function App() {
           toastOptions={{
             duration: 4000,
             style: {
-              background: 'rgba(30, 41, 59, 0.9)',
-              color: '#fff',
+              background: '#131D22',
+              color: '#F4F6F5',
               border: '1px solid rgba(255, 255, 255, 0.08)',
-              backdropFilter: 'blur(8px)',
               fontSize: '14px',
-              fontWeight: '600',
-              borderRadius: '12px',
-              padding: '12px 18px',
+              fontWeight: '500',
+              borderRadius: '14px',
+              padding: '12px 16px',
             },
+            success: { iconTheme: { primary: '#C9A25A', secondary: '#091013' } },
           }}
         />
         <Header />
         <main className="flex-grow pt-16">
-          <Routes>
+          <ErrorBoundary>
+            <Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center"><span className="h-8 w-8 animate-spin rounded-full border-2 border-gray-700 border-t-primary-400" /></div>}>
+            <Routes>
             {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutUsPage />} />
@@ -105,27 +110,24 @@ function App() {
             
             {/* Marketplace Routes */}
             <Route path="/listings" element={<ListingsPage />} />
-            <Route path="/hospitals-for-sale-india" element={<ListingsPage />} />
-            <Route path="/pharma-companies-for-sale-india" element={<ListingsPage />} />
-            <Route path="/diagnostic-centers-for-sale-india" element={<ListingsPage />} />
-            <Route path="/dental-clinics-for-sale-india" element={<ListingsPage />} />
-            <Route path="/pharmacies-for-sale-india" element={<ListingsPage />} />
+            {CATEGORIES.map((c) => (
+              <Route key={c.path} path={c.path} element={<ListingsPage />} />
+            ))}
             <Route path="/listings/:id" element={<ListingDetailPage />} />
             <Route path="/partial-properties" element={<PartialPropertiesPage />} />
             
             {/* Blogs & SEO Landing Pages */}
             <Route path="/blogs" element={<BlogsPage />} />
-            <Route path="/hospitals-for-sale-maharashtra" element={<SeoLandingPage pathKey="hospitals-maharashtra" />} />
-            <Route path="/pharma-companies-for-sale-maharashtra" element={<SeoLandingPage pathKey="pharma-maharashtra" />} />
-            <Route path="/hospitals-for-sale-bangalore" element={<SeoLandingPage pathKey="hospitals-bangalore" />} />
-            <Route path="/hospitals-for-sale-delhi" element={<SeoLandingPage pathKey="hospitals-delhi" />} />
-            <Route path="/hospitals-for-sale-pune" element={<SeoLandingPage pathKey="hospitals-pune" />} />
+            <Route path="/blogs/:slug" element={<BlogArticlePage />} />
+            {Object.keys(seoData).map((pathKey) => (
+              <Route key={pathKey} path={`/${pathKey}`} element={<SeoLandingPage pathKey={pathKey} />} />
+            ))}
             
             {/* Jobs Routes */}
             <Route path="/jobs" element={<JobsPage />} />
             <Route path="/jobs/:id" element={<JobDetailPage />} />
-            <Route path="/healthcare-jobs-india" element={<JobsPage />} />
-            <Route path="/healthcare-jobs-india/:id" element={<JobDetailPage />} />
+            <Route path="/hospitality-jobs-india" element={<JobsPage />} />
+            <Route path="/hospitality-jobs-india/:id" element={<JobDetailPage />} />
             
             {/* Private/Protected Routes (Require authentication) */}
             <Route element={<ProtectedRoute />}>
@@ -133,8 +135,8 @@ function App() {
               <Route path="/listings/:id/edit" element={<CreateListingPage />} />
               <Route path="/jobs/create" element={<CreateJobPage />} />
               <Route path="/jobs/:id/edit" element={<CreateJobPage />} />
-              <Route path="/healthcare-jobs-india/create" element={<CreateJobPage />} />
-              <Route path="/healthcare-jobs-india/:id/edit" element={<CreateJobPage />} />
+              <Route path="/hospitality-jobs-india/create" element={<CreateJobPage />} />
+              <Route path="/hospitality-jobs-india/:id/edit" element={<CreateJobPage />} />
               
               {/* Dashboard Routes */}
               <Route path="/dashboard" element={<DashboardPage />} />
@@ -162,7 +164,9 @@ function App() {
             {/* Catch-all 404 */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
-        </main>
+            </Suspense>
+        </ErrorBoundary>
+      </main>
         <Footer />
       </div>
     </Router>

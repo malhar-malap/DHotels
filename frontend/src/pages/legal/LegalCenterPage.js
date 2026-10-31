@@ -4,10 +4,10 @@ import { FiShield, FiFileText, FiRefreshCcw, FiArrowLeft, FiInfo, FiSliders } fr
 import Seo from '../../components/common/Seo';
 
 const LEGAL_SEO = {
-  privacy: { path: '/privacy', title: 'Privacy Policy | DH Acquisitions', description: 'How DH Acquisitions collects, uses and protects your personal data when you use our healthcare marketplace.' },
-  terms: { path: '/terms', title: 'Terms of Service | DH Acquisitions', description: 'The terms and conditions that govern use of the DH Acquisitions healthcare marketplace, listings and services.' },
-  cookies: { path: '/cookies', title: 'Cookies Policy | DH Acquisitions', description: 'How DH Acquisitions uses cookies and similar technologies, and how you can manage your cookie preferences.' },
-  refund: { path: '/refund-policy', title: 'Refund Policy | DH Acquisitions', description: 'Refund terms for payments made on the DH Acquisitions healthcare marketplace, including contact access purchases.' }
+  privacy: { path: '/privacy', title: 'Privacy Policy | DHotels', description: 'How DHotels collects, uses and protects your personal data when you use our hospitality marketplace.' },
+  terms: { path: '/terms', title: 'Terms of Service | DHotels', description: 'The terms and conditions that govern use of the DHotels hospitality marketplace, listings and services.' },
+  cookies: { path: '/cookies', title: 'Cookies Policy | DHotels', description: 'How DHotels uses cookies and similar technologies, and how you can manage your cookie preferences.' },
+  refund: { path: '/refund-policy', title: 'Refund Policy | DHotels', description: 'Refund terms for payments made on the DHotels hospitality marketplace, including contact access purchases.' }
 };
 
 const LegalCenterPage = () => {
@@ -373,7 +373,7 @@ const LegalCenterPage = () => {
   }, [activeData]);
 
   return (
-    <div className="min-h-screen bg-[#0b0c0e] bg-mesh relative pb-24 pt-24 text-gray-100" style={{ overflowX: 'clip' }}>
+    <div className="min-h-screen bg-gray-950 bg-mesh relative pb-24 pt-24 text-gray-100" style={{ overflowX: 'clip' }}>
       <Seo
         title={LEGAL_SEO[activeTab].title}
         description={LEGAL_SEO[activeTab].description}
@@ -383,29 +383,29 @@ const LegalCenterPage = () => {
       {/* Scroll Progress Indicator */}
       <div className="fixed top-0 left-0 right-0 h-[3px] bg-gray-900 z-50">
         <div 
-          className="h-full bg-gradient-to-r from-orange-500 to-amber-500 transition-all duration-100 ease-out shadow-[0_0_8px_rgba(249,115,22,0.4)]" 
+          className="h-full bg-gradient-to-r from-primary-500 to-primary-500 transition-all duration-100 ease-out shadow-[0_0_8px_rgba(249,115,22,0.4)]" 
           style={{ width: `${scrollPercent}%` }}
         />
       </div>
 
       {/* Decorative glows */}
-      <div className="absolute top-0 left-0 right-0 h-[400px] bg-gradient-to-b from-orange-500/5 to-transparent pointer-events-none z-0" />
-      <div className="absolute top-[20%] right-[-10%] w-[350px] h-[350px] bg-orange-500/5 rounded-full blur-[100px] pointer-events-none z-0" />
+      <div className="absolute top-0 left-0 right-0 h-[400px] bg-gradient-to-b from-primary-500/5 to-transparent pointer-events-none z-0" />
+      <div className="absolute top-[20%] right-[-10%] w-[350px] h-[350px] bg-primary-500/5 rounded-full blur-[100px] pointer-events-none z-0" />
       <div className="absolute bottom-[20%] left-[-10%] w-[350px] h-[350px] bg-amber-500/5 rounded-full blur-[100px] pointer-events-none z-0" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Back Link */}
         <div className="mb-8">
-          <Link to="/" className="inline-flex items-center text-xs font-bold text-gray-400 hover:text-orange-400 uppercase tracking-widest transition-colors gap-2">
+          <Link to="/" className="inline-flex items-center text-xs font-bold text-gray-400 hover:text-primary-400 uppercase tracking-widest transition-colors gap-2">
             <FiArrowLeft className="w-4 h-4" /> Back to Home
           </Link>
         </div>
 
         {/* Hero Section */}
         <div className="mb-10 relative p-6 md:p-10 bg-gray-900/40 border border-gray-800/80 rounded-3xl overflow-hidden backdrop-blur-md">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/5 rounded-full blur-[100px] pointer-events-none" />
-          <span className="text-orange-500 font-extrabold uppercase tracking-widest text-[10px] bg-orange-500/10 px-3.5 py-1 rounded-full border border-orange-500/20">{activeData.subtitle}</span>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/5 rounded-full blur-[100px] pointer-events-none" />
+          <span className="text-primary-500 font-extrabold uppercase tracking-widest text-[10px] bg-primary-500/10 px-3.5 py-1 rounded-full border border-primary-500/20">{activeData.subtitle}</span>
           <h1 className="text-3xl md:text-5xl font-black text-gray-100 tracking-tight mt-5 mb-4 leading-none">
             {activeData.title}
           </h1>
@@ -433,11 +433,11 @@ const LegalCenterPage = () => {
                         onClick={() => handleTabChange(tab.id)}
                         className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl font-bold transition-all duration-300 text-xs uppercase tracking-wider ${
                           isActive 
-                            ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/10' 
+                            ? 'bg-gradient-to-r from-primary-500 to-primary-500 text-white shadow-lg shadow-primary-500/10' 
                             : 'text-gray-400 hover:bg-white/5 hover:text-gray-200'
                         }`}
                       >
-                        <tab.icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-orange-500'}`} />
+                        <tab.icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-primary-500'}`} />
                         {tab.label}
                       </button>
                       
@@ -459,7 +459,7 @@ const LegalCenterPage = () => {
                                 }}
                                 className={`block text-left w-full text-[11px] font-bold leading-relaxed transition-all truncate ${
                                   isHeadingActive 
-                                    ? 'text-orange-400 pl-1 translate-x-0.5' 
+                                    ? 'text-primary-400 pl-1 translate-x-0.5' 
                                     : 'text-gray-500 hover:text-gray-300'
                                 }`}
                               >
@@ -481,14 +481,14 @@ const LegalCenterPage = () => {
             
             {/* Executive Summary Card */}
             <div className="p-6 bg-gradient-to-b from-gray-900/60 to-gray-950/60 border border-gray-805 rounded-3xl shadow-xl backdrop-blur-md relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-orange-500 to-amber-500" />
-              <h3 className="text-[10px] font-black text-orange-400 uppercase tracking-widest flex items-center gap-2 mb-4">
-                <FiInfo className="w-4 h-4 text-orange-500" /> Document Executive Summary
+              <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-primary-500 to-primary-500" />
+              <h3 className="text-[10px] font-black text-primary-400 uppercase tracking-widest flex items-center gap-2 mb-4">
+                <FiInfo className="w-4 h-4 text-primary-500" /> Document Executive Summary
               </h3>
               <ul className="space-y-3 text-gray-300 text-xs md:text-sm font-medium leading-relaxed">
                 {executiveSummaries[activeTab].map((item, idx) => (
                   <li key={idx} className="flex items-start gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-2 shrink-0 animate-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary-500 mt-2 shrink-0 animate-pulse" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -512,13 +512,13 @@ const LegalCenterPage = () => {
                   return (
                     <div key={index} id={`section-${index}`} className="group scroll-mt-28 transition-all">
                       {isCallout ? (
-                        <div className="p-6 bg-gradient-to-r from-orange-500/5 to-amber-500/5 border border-orange-500/10 rounded-2xl shadow-inner relative overflow-hidden">
-                          <div className="absolute top-0 bottom-0 left-0 w-[4px] bg-gradient-to-b from-orange-500 to-amber-500" />
+                        <div className="p-6 bg-gradient-to-r from-primary-500/5 to-primary-500/5 border border-primary-500/10 rounded-2xl shadow-inner relative overflow-hidden">
+                          <div className="absolute top-0 bottom-0 left-0 w-[4px] bg-gradient-to-b from-primary-500 to-primary-500" />
                           <div className="flex items-center gap-4 mb-3">
-                            <div className="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center font-extrabold text-xs">
+                            <div className="w-8 h-8 rounded-lg bg-primary-500/20 text-primary-400 flex items-center justify-center font-extrabold text-xs">
                               ⚠️
                             </div>
-                            <h2 className="text-base md:text-lg font-black text-orange-400 uppercase tracking-wide">{section.title} (Key Notice)</h2>
+                            <h2 className="text-base md:text-lg font-black text-primary-400 uppercase tracking-wide">{section.title} (Key Notice)</h2>
                           </div>
                           <div className="pl-12 text-gray-300 text-sm md:text-base leading-relaxed font-medium">
                             <p className="whitespace-pre-line">{section.body}</p>
@@ -527,10 +527,10 @@ const LegalCenterPage = () => {
                       ) : (
                         <div>
                           <div className="flex items-center gap-4 mb-4">
-                            <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 flex items-center justify-center font-black text-sm group-hover:bg-orange-500/20 transition-all duration-300 shadow-sm">
+                            <div className="w-10 h-10 rounded-xl bg-primary-500/10 border border-primary-500/20 text-primary-400 flex items-center justify-center font-black text-sm group-hover:bg-primary-500/20 transition-all duration-300 shadow-sm">
                               {sectionNumber}
                             </div>
-                            <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight group-hover:text-orange-400 transition-colors duration-300">{section.title}</h2>
+                            <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight group-hover:text-primary-400 transition-colors duration-300">{section.title}</h2>
                           </div>
                           <div className="pl-14 text-gray-400 leading-relaxed text-sm md:text-base font-medium space-y-4">
                             <p className="whitespace-pre-line">{section.body}</p>

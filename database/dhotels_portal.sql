@@ -172,6 +172,7 @@ CREATE TABLE hospitality_property_details (
     number_of_rooms INT NULL,               -- Hotels only
     plot_area_sqft DECIMAL(12, 2) NULL,     -- Hotels only
     constructed_area_sqft DECIMAL(12, 2) NULL, -- Hotels only
+    title_type VARCHAR(50) NULL,            -- Hotels only (Freehold / Leasehold)
     carpet_area_sqft DECIMAL(12, 2) NULL,   -- Restaurants, Cafe, Banquet halls, Restaurants and Bar, Resorts
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

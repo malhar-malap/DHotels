@@ -7,6 +7,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +19,9 @@ public class ContactMessageService {
     
     private final ContactMessageRepository contactMessageRepository;
     private final EmailService emailService;
+
+    @Value("${app.notification-email}")
+    private String notificationEmail;
 
     @Autowired
     public ContactMessageService(ContactMessageRepository contactMessageRepository, EmailService emailService) {
@@ -40,7 +44,7 @@ public class ContactMessageService {
         // Send email notification to admin (non-blocking, don't fail if email fails)
         try {
             emailService.sendContactMessageNotification(
-                "d@dhacquisitions.co",
+                notificationEmail,
                 request.getName(),
                 request.getEmail(),
                 request.getPhone(),

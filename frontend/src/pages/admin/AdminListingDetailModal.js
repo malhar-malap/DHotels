@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { adminAPI, masterAPI, mediaAPI } from '../../services/api';
 import { formatPrice } from '../../utils/formatPrice';
 import toast from 'react-hot-toast';
-import { FiX, FiEdit2, FiSave, FiMapPin, FiDollarSign, FiCalendar, FiUser, FiMail, FiUpload, FiCheck } from 'react-icons/fi';
+import { FiX, FiEdit2, FiSave, FiMapPin, FiDollarSign, FiCalendar, FiUser, FiMail, FiUpload, FiCheck, FiImage, FiAlertCircle } from 'react-icons/fi';
 
-const AdminListingDetailModal = ({ listingId, onClose, onUpdated, onVerifyClick }) => {
+const AdminListingDetailModal = ({ listingId, onClose, onUpdated, onVerifyClick, onRejectClick, onReject }) => {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -67,8 +67,29 @@ const AdminListingDetailModal = ({ listingId, onClose, onUpdated, onVerifyClick 
   };
 
   const handleApprove = () => {
-    if (onVerifyClick && listing) {
-      onVerifyClick(listing);
+    try {
+      if (typeof onVerifyClick === 'function' && listing) {
+        onVerifyClick(listing);
+      } else {
+        toast.error('Listing verification handler is unavailable');
+      }
+    } catch (err) {
+      console.error('Failed to initiate listing verification:', err);
+      toast.error('An unexpected error occurred while initiating verification');
+    }
+  };
+
+  const handleReject = () => {
+    try {
+      const rejectHandler = onRejectClick || onReject;
+      if (typeof rejectHandler === 'function' && listing) {
+        rejectHandler(listing);
+      } else {
+        toast.error('Listing rejection handler is unavailable');
+      }
+    } catch (err) {
+      console.error('Failed to initiate listing rejection:', err);
+      toast.error('An unexpected error occurred while initiating rejection');
     }
   };
 
@@ -269,7 +290,7 @@ const AdminListingDetailModal = ({ listingId, onClose, onUpdated, onVerifyClick 
             const currencyFields = ['annualRevenue', 'annualTurnover', 'askingPrice'];
             const areaFields = ['landAreaSqft', 'carpetAreaSqft', 'plotAreaSqft', 'constructedAreaSqft'];
             const percentFields = ['stakePercentage'];
-            const hiddenKeys = ['id', 'listingId', 'listing', 'createdAt', 'updatedAt', 'hospitalType', 'equipmentType'];
+            const hiddenKeys = ['id', 'listingId', 'listing', 'createdAt', 'updatedAt', 'listingId'];
 
             const displayableEntries = Object.entries(listing.categoryDetails).filter(([key, value]) => {
               if (hiddenKeys.includes(key)) return false;
@@ -315,6 +336,30 @@ const AdminListingDetailModal = ({ listingId, onClose, onUpdated, onVerifyClick 
             );
           })()}
 
+          {/* Asset Imagery */}
+          {listing.images && listing.images.length > 0 && (
+            <div className="pt-8 border-t border-ethereal-surface">
+              <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-ethereal-on-surface-variant mb-6 flex items-center gap-3">
+                <FiImage className="w-4 h-4 text-ethereal-primary" /> Listing Imagery ({listing.images.length})
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {listing.images.map((img, idx) => (
+                  <div key={idx} className="relative rounded-2xl overflow-hidden border border-ethereal-surface aspect-video bg-gray-800">
+                    <img
+                      src={img.startsWith('http') ? img : img.startsWith('/') ? img : `/${img}`}
+                      alt={`Listing asset ${idx + 1}`}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                    {idx === 0 && (
+                      <span className="absolute top-2 left-2 px-2 py-0.5 bg-black/70 text-white text-[8px] font-bold uppercase rounded tracking-wider">Primary</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Invalidation Log */}
           {listing.rejectionReason && (
             <div className="bg-rose-50/50 border border-rose-100 rounded-[1.5rem] p-8 animate-fadeIn">
@@ -334,11 +379,28 @@ const AdminListingDetailModal = ({ listingId, onClose, onUpdated, onVerifyClick 
         {/* Dynamic Footer Actions */}
         {!editing && listing.status === 'PENDING' && (
           <div className="shrink-0 bg-ethereal-surface px-10 py-8 border-t border-ethereal-surface">
-            <div className="flex justify-end">
-              <button onClick={handleApprove}
-                className="px-10 py-5 bg-[#db7c26] text-white rounded-[1.5rem] hover:bg-[#3a5578] shadow-xl shadow-[#db7c26]/20 transition-all font-black text-[10px] uppercase tracking-widest">
-                Validate Listing
-              </button>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant opacity-60">
+                Action Required: Pending Verification
+              </span>
+              <div className="flex items-center gap-4">
+                {(onRejectClick || onReject) && (
+                  <button
+                    type="button"
+                    onClick={handleReject}
+                    className="px-8 py-5 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-[1.5rem] hover:bg-rose-500 hover:text-white transition-all font-black text-[10px] uppercase tracking-widest shadow-sm"
+                  >
+                    Reject Listing
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={handleApprove}
+                  className="px-10 py-5 bg-primary-500 text-white rounded-[1.5rem] hover:bg-primary-700 shadow-xl shadow-primary-400/20 transition-all font-black text-[10px] uppercase tracking-widest"
+                >
+                  Validate Listing
+                </button>
+              </div>
             </div>
           </div>
         )}

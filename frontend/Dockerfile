@@ -19,6 +19,7 @@ COPY --from=build /app/build /usr/share/nginx/html
 
 # Copy a custom Nginx configuration to handle React routing and backend API proxying
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx-security-headers.conf /etc/nginx/snippets/security-headers.conf
 
 # Expose port 80 for public access
 EXPOSE 80

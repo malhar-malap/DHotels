@@ -111,11 +111,11 @@ const AdminUserDetailModal = ({ userId, onClose, onUpdated }) => {
       <div className="glass-card bg-gray-900/95 rounded-[3rem] border-none shadow-2xl w-full max-w-5xl h-[96vh] flex flex-col overflow-hidden animate-scaleIn">
         {/* Identity Header */}
         <div className="bg-gradient-to-r from-gray-800 to-gray-900 px-8 py-5 text-white relative flex items-center justify-between shrink-0 overflow-hidden border-b border-white/5">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#db7c26]/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#db7c26]/5 rounded-full -ml-24 -mb-24 blur-2xl"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary-500/5 rounded-full -ml-24 -mb-24 blur-2xl"></div>
           
           <div className="flex items-center gap-5 relative z-10">
-            <div className="w-14 h-14 bg-[#db7c26]/10 border border-[#db7c26]/20 text-[#db7c26] rounded-2xl flex items-center justify-center text-2xl font-black shadow-lg">
+            <div className="w-14 h-14 bg-primary-500/10 border border-primary-400/20 text-primary-400 rounded-2xl flex items-center justify-center text-2xl font-black shadow-lg">
               {profile.fullName?.charAt(0)}
             </div>
             <div>
@@ -139,17 +139,17 @@ const AdminUserDetailModal = ({ userId, onClose, onUpdated }) => {
         <div className="flex border-b border-white/5 px-8 bg-gray-950 shrink-0">
           <button onClick={() => setActiveTab('profile')}
             className={`py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative ${
-              activeTab === 'profile' ? 'text-[#db7c26]' : 'text-gray-400 opacity-60 hover:opacity-100'
+              activeTab === 'profile' ? 'text-primary-400' : 'text-gray-400 opacity-60 hover:opacity-100'
             }`}>
             Identity Schematic
-            {activeTab === 'profile' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#db7c26]" />}
+            {activeTab === 'profile' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500" />}
           </button>
           <button onClick={() => setActiveTab('roles')}
             className={`ml-10 py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative ${
-              activeTab === 'roles' ? 'text-[#db7c26]' : 'text-gray-400 opacity-60 hover:opacity-100'
+              activeTab === 'roles' ? 'text-primary-400' : 'text-gray-400 opacity-60 hover:opacity-100'
             }`}>
             Protocol Privileges
-            {activeTab === 'roles' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#db7c26]" />}
+            {activeTab === 'roles' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500" />}
           </button>
         </div>
 
@@ -159,7 +159,7 @@ const AdminUserDetailModal = ({ userId, onClose, onUpdated }) => {
             <div className="space-y-12 animate-fadeIn">
               {/* Communication Matrix */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex items-center gap-6 p-6 bg-ethereal-surface rounded-[2rem] border border-transparent hover:border-[#db7c26]/20 transition-all">
+                <div className="flex items-center gap-6 p-6 bg-ethereal-surface rounded-[2rem] border border-transparent hover:border-primary-400/20 transition-all">
                   <div className="w-14 h-14 bg-gray-900 rounded-[1.2rem] flex items-center justify-center text-blue-500 shadow-sm">
                     <FiMail className="w-6 h-6 opacity-60" />
                   </div>
@@ -168,7 +168,7 @@ const AdminUserDetailModal = ({ userId, onClose, onUpdated }) => {
                     <p className="text-base font-black text-ethereal-on-surface tracking-tight lowercase">{profile.email}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-6 p-6 bg-ethereal-surface rounded-[2rem] border border-transparent hover:border-[#db7c26]/20 transition-all">
+                <div className="flex items-center gap-6 p-6 bg-ethereal-surface rounded-[2rem] border border-transparent hover:border-primary-400/20 transition-all">
                   <div className="w-14 h-14 bg-gray-900 rounded-[1.2rem] flex items-center justify-center text-purple-500 shadow-sm">
                     <FiPhone className="w-6 h-6 opacity-60" />
                   </div>
@@ -177,8 +177,8 @@ const AdminUserDetailModal = ({ userId, onClose, onUpdated }) => {
                     <p className="text-base font-black text-ethereal-on-surface tracking-tight">{profile.mobileNumber || 'Not provisioned'}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-6 p-6 bg-ethereal-surface rounded-[2rem] border border-transparent hover:border-[#db7c26]/20 transition-all">
-                  <div className="w-14 h-14 bg-gray-900 rounded-[1.2rem] flex items-center justify-center text-[#d8572a] shadow-sm">
+                <div className="flex items-center gap-6 p-6 bg-ethereal-surface rounded-[2rem] border border-transparent hover:border-primary-400/20 transition-all">
+                  <div className="w-14 h-14 bg-gray-900 rounded-[1.2rem] flex items-center justify-center text-primary-300 shadow-sm">
                     <FiMapPin className="w-6 h-6 opacity-60" />
                   </div>
                   <div>
@@ -186,7 +186,7 @@ const AdminUserDetailModal = ({ userId, onClose, onUpdated }) => {
                     <p className="text-base font-black text-ethereal-on-surface tracking-tight">{profile.city ? `${profile.city}, ${profile.state}` : 'Unknown'}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-6 p-6 bg-ethereal-surface rounded-[2rem] border border-transparent hover:border-[#db7c26]/20 transition-all">
+                <div className="flex items-center gap-6 p-6 bg-ethereal-surface rounded-[2rem] border border-transparent hover:border-primary-400/20 transition-all">
                   <div className="w-14 h-14 bg-gray-900 rounded-[1.2rem] flex items-center justify-center text-amber-500 shadow-sm">
                     <FiShield className="w-6 h-6 opacity-60" />
                   </div>
@@ -200,7 +200,7 @@ const AdminUserDetailModal = ({ userId, onClose, onUpdated }) => {
               {/* Engagement Analytics */}
               <div className="space-y-6">
                 <h3 className="section-label tracking-[0.2em] flex items-center gap-3">
-                  <FiActivity className="text-[#db7c26]" /> Platform Volumetrics
+                  <FiActivity className="text-primary-400" /> Platform Volumetrics
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   {[
@@ -226,7 +226,7 @@ const AdminUserDetailModal = ({ userId, onClose, onUpdated }) => {
                   </button>
                 ) : (
                   <button onClick={() => handleStatusChange('activate')} disabled={actionLoading}
-                    className="px-8 py-4 bg-[#E3FCF9] text-[#db7c26] rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-[#f7b538]/20 transition-all flex items-center gap-3 border border-[#f7b538]/20/50">
+                    className="px-8 py-4 bg-primary-400/10 text-primary-400 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-primary-300/20 transition-all flex items-center gap-3 border border-primary-300/20/50">
                     <FiCheck className="w-4 h-4" /> Restore Access
                   </button>
                 )}
@@ -256,12 +256,12 @@ const AdminUserDetailModal = ({ userId, onClose, onUpdated }) => {
                   <button key={role} onClick={() => handleToggleRole(role)}
                     className={`p-6 rounded-[2rem] border-2 text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-between group ${
                       selectedRoles.includes(role) 
-                        ? 'border-[#db7c26] bg-[#db7c26]/5 text-[#db7c26] shadow-sm' 
-                        : 'border-ethereal-surface text-ethereal-on-surface-variant opacity-60 hover:opacity-100 hover:border-[#db7c26]/20 bg-gray-900'
+                        ? 'border-primary-400 bg-primary-500/5 text-primary-400 shadow-sm' 
+                        : 'border-ethereal-surface text-ethereal-on-surface-variant opacity-60 hover:opacity-100 hover:border-primary-400/20 bg-gray-900'
                     }`}>
                     {role.replace('_', ' ')}
                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                      selectedRoles.includes(role) ? 'bg-[#db7c26] border-[#db7c26] text-white' : 'border-ethereal-surface'
+                      selectedRoles.includes(role) ? 'bg-primary-500 border-primary-400 text-white' : 'border-ethereal-surface'
                     }`}>
                       {selectedRoles.includes(role) && <FiCheck className="w-3 h-3" />}
                     </div>
@@ -271,7 +271,7 @@ const AdminUserDetailModal = ({ userId, onClose, onUpdated }) => {
 
               <div className="pt-10 border-t border-ethereal-surface flex justify-end">
                 <button onClick={handleSaveRoles} disabled={actionLoading}
-                  className="px-10 py-5 bg-[#db7c26] text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-[#db7c26]/20 hover:bg-[#c56a1e] transition-all disabled:opacity-50">
+                  className="px-10 py-5 bg-primary-500 text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-primary-400/20 hover:bg-primary-700 transition-all disabled:opacity-50">
                   {actionLoading ? 'Syncing...' : 'Update Authorization'}
                 </button>
               </div>
@@ -301,7 +301,7 @@ const AdminUserDetailModal = ({ userId, onClose, onUpdated }) => {
                 <textarea
                   value={actionReason}
                   onChange={(e) => setActionReason(e.target.value)}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-[#db7c26]"
+                  className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-primary-400"
                   placeholder="Enter reason..."
                   rows="3"
                 />
@@ -319,7 +319,7 @@ const AdminUserDetailModal = ({ userId, onClose, onUpdated }) => {
                 onClick={executeStatusChange}
                 disabled={actionLoading}
                 className={`px-6 py-2 rounded-xl text-sm font-bold text-white transition-colors ${
-                  confirmAction === 'delete' ? 'bg-red-500 hover:bg-red-600' : 'bg-[#db7c26] hover:bg-[#c56a1e]'
+                  confirmAction === 'delete' ? 'bg-red-500 hover:bg-red-600' : 'bg-primary-500 hover:bg-primary-700'
                 }`}
               >
                 {actionLoading ? 'Processing...' : 'Confirm'}

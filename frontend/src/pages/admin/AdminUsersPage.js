@@ -194,7 +194,7 @@ const AdminUsersPage = () => {
                             <p className="font-bold text-ethereal-on-surface flex items-center gap-2 cursor-pointer group-hover:text-ethereal-primary transition-all duration-300"
                               onClick={() => setSelectedUserId(user.id)}>
                               {user.fullName}
-                              {user.isVerifiedBuyer && <FiCheckCircle className="text-[#d8572a] w-4 h-4 shadow-sm" title="Validated Entity" />}
+                              {user.isVerifiedBuyer && <FiCheckCircle className="text-primary-300 w-4 h-4 shadow-sm" title="Validated Entity" />}
                             </p>
                             <p className="text-[11px] font-medium text-ethereal-on-surface-variant opacity-50 lowercase tracking-wide">{user.email}</p>
                           </div>
