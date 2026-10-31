@@ -33,7 +33,7 @@ const PlaceholderPage = ({ title, description, linkText, linkHref }) => (
 export const CreateListingPage = () => (
   <PlaceholderPage
     title="Create Listing"
-    description="Create a new marketplace listing for your hospital, pharma company, or diagnostic center."
+    description="List your hotel, resort, restaurant, café, bar or banquet hall for sale or lease."
     linkText="Back to Dashboard"
     linkHref="/dashboard"
   />
@@ -456,7 +456,7 @@ export const MyInquiriesPage = () => {
 export const CreateJobPage = () => (
   <PlaceholderPage
     title="Post a Job"
-    description="Create a new job posting to hire healthcare professionals."
+    description="Create a job posting to hire hospitality professionals."
     linkText="Back to Dashboard"
     linkHref="/dashboard"
   />
@@ -522,7 +522,7 @@ export const MyJobsPage = () => {
             <span className="section-label mb-2 block tracking-widest">Recruitment</span>
             <h1 className="text-4xl lg:text-5xl display-title">My Job Postings</h1>
           </div>
-          <Link to="/healthcare-jobs-india/create" className="btn-ethereal-primary shadow-xl">
+          <Link to="/hospitality-jobs-india/create" className="btn-ethereal-primary shadow-xl">
             Post New Job
           </Link>
         </div>
@@ -530,8 +530,8 @@ export const MyJobsPage = () => {
         {jobs.length === 0 ? (
           <div className="bg-gray-800/40 backdrop-blur-xl border border-white/5 shadow-2xl p-20 text-center rounded-3xl animate-fadeIn">
             <h3 className="text-2xl font-bold text-ethereal-on-surface mb-2">Build your team</h3>
-            <p className="text-ethereal-on-surface-variant mb-8">You haven't posted any jobs yet. Start hiring healthcare professionals today.</p>
-            <Link to="/healthcare-jobs-india/create" className="text-ethereal-primary font-bold hover:underline">Post your first job</Link>
+            <p className="text-ethereal-on-surface-variant mb-8">You haven't posted any jobs yet. Start hiring hospitality professionals today.</p>
+            <Link to="/hospitality-jobs-india/create" className="text-ethereal-primary font-bold hover:underline">Post your first job</Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -568,7 +568,7 @@ export const MyJobsPage = () => {
 
                 <div className="flex gap-4 relative z-10">
                   <Link 
-                    to={`/healthcare-jobs-india/${job.id}/edit`} 
+                    to={`/hospitality-jobs-india/${job.id}/edit`} 
                     className="flex-1 flex items-center justify-center py-4 rounded-2xl bg-gray-900/50 border border-white/5 text-white font-bold hover:bg-ethereal-primary hover:border-ethereal-primary transition-all duration-300 group/btn shadow-md"
                   >
                     Manage
@@ -739,7 +739,7 @@ export const MyApplicationsPage = () => {
                           </div>
                           {app.cvUrl && (
                             <a 
-                              href={`https://dhacquisitions.co${app.cvUrl.replace('/api/listings/media/', '/api/uploads/')}`} 
+                              href={app.cvUrl.replace('/api/listings/media/', '/api/uploads/')} 
                               target="_blank" 
                               rel="noopener noreferrer" 
                               className="px-6 py-2 bg-ethereal-surface-low border border-ethereal-primary/20 text-ethereal-primary font-bold rounded-xl hover:bg-ethereal-primary hover:text-white transition-all duration-300 flex items-center gap-2"
@@ -754,7 +754,7 @@ export const MyApplicationsPage = () => {
                         <div className="flex lg:flex-col items-stretch gap-3 lg:w-48 lg:border-l border-ethereal-outline-variant/30 lg:pl-8 pt-8 lg:pt-0">
                           <button 
                             onClick={() => handleStatusChange(app.id, 'ACCEPTED')} 
-                            className="flex-1 bg-ethereal-secondary text-white py-3 rounded-2xl font-bold shadow-lg shadow-[#d8572a]/10 hover:shadow-[#d8572a]/20 hover:scale-[1.02] transition-all"
+                            className="flex-1 bg-ethereal-secondary text-white py-3 rounded-2xl font-bold shadow-lg shadow-primary-500/10 hover:shadow-primary-500/20 hover:scale-[1.02] transition-all"
                           >
                             Shortlist
                           </button>
@@ -1089,28 +1089,28 @@ export const ProfilePage = () => {
 export const AdminListings = () => (
   <PlaceholderPage
     title="Listings Administration"
-    description="Full lifecycle management for clinical assets and marketplace listings. Review, moderate, and authorize clinical inventory listings for global distribution."
+    description="Review, moderate and approve hospitality listings before they go live."
   />
 );
 
 export const AdminJobs = () => (
   <PlaceholderPage
     title="Human Capital Management"
-    description="Strategic oversight of healthcare recruitment listings. Approve specialized clinical roles and ensure vetting compliance for hospital staffing."
+    description="Review and approve hospitality job postings."
   />
 );
 
 export const AdminUsers = () => (
   <PlaceholderPage
     title="Identity Ecosystem"
-    description="Administrative control over the healthcare professional directory. Monitor verified practitioners, clinical organizations, and strategic buyers."
+    description="Manage buyers, sellers, employers and job seekers on the platform."
   />
 );
 
 export const AdminVerifications = () => (
   <PlaceholderPage
     title="KYC & Integrity Suite"
-    description="Critical verification gateway for buyer authorization. Review Aadhar credentials and clinical certifications to maintain ecosystem trust."
+    description="Review buyer identity documents to keep the marketplace trustworthy."
   />
 );
 

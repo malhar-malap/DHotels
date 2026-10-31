@@ -268,7 +268,7 @@ const AdminJobsPage = () => {
                           </button>
                           {job.status === 'PENDING' && (
                             <>
-                              <button onClick={() => handleApprove(job.id)} disabled={actionLoading === job.id} className="p-2 rounded-xl bg-gray-900 text-[#db7c26] hover:shadow-lg transition-all">
+                              <button onClick={() => handleApprove(job.id)} disabled={actionLoading === job.id} className="p-2 rounded-xl bg-gray-900 text-primary-400 hover:shadow-lg transition-all">
                                 <FiCheck className="w-4 h-4" />
                               </button>
                               <button onClick={() => { setRejectModalId(job.id); setRejectReason(''); }} className="p-2 rounded-xl bg-gray-900 text-rose-500 hover:shadow-lg transition-all">

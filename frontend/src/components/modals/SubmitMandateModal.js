@@ -74,7 +74,7 @@ const SubmitMandateModal = ({ onClose }) => {
             <FiX className="w-6 h-6" />
           </button>
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-[#db7c26]/20 flex items-center justify-center text-[#db7c26]">
+            <div className="w-10 h-10 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400">
               <FiFileText className="w-5 h-5" />
             </div>
             <h2 className="text-2xl font-bold text-white">Submit Mandate</h2>
@@ -105,7 +105,7 @@ const SubmitMandateModal = ({ onClose }) => {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg pl-10 px-4 py-2.5 focus:outline-none focus:border-[#db7c26]"
+                    className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg pl-10 px-4 py-2.5 focus:outline-none focus:border-primary-400"
                     placeholder="John Doe"
                   />
                 </div>
@@ -122,7 +122,7 @@ const SubmitMandateModal = ({ onClose }) => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg pl-10 px-4 py-2.5 focus:outline-none focus:border-[#db7c26]"
+                    className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg pl-10 px-4 py-2.5 focus:outline-none focus:border-primary-400"
                     placeholder="john@example.com"
                   />
                 </div>
@@ -139,7 +139,7 @@ const SubmitMandateModal = ({ onClose }) => {
                     name="phone"
                     value={formData.phone}
                     onChange={handlePhoneChange}
-                    className="w-full bg-gray-800 border border-gray-700 text-white rounded-r-lg px-4 py-2.5 focus:outline-none focus:border-[#db7c26]"
+                    className="w-full bg-gray-800 border border-gray-700 text-white rounded-r-lg px-4 py-2.5 focus:outline-none focus:border-primary-400"
                     placeholder="9876543210"
                   />
                 </div>
@@ -156,7 +156,7 @@ const SubmitMandateModal = ({ onClose }) => {
                     value={formData.objectives}
                     onChange={handleChange}
                     rows="6"
-                    className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg pl-10 px-4 py-2.5 focus:outline-none focus:border-[#db7c26] resize-none"
+                    className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg pl-10 px-4 py-2.5 focus:outline-none focus:border-primary-400 resize-none"
                     placeholder="Describe your acquisition or divestiture objectives, preferred geography, budget range, and any specific requirements..."
                   ></textarea>
                 </div>
@@ -165,7 +165,7 @@ const SubmitMandateModal = ({ onClose }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-[#db7c26] to-[#d8572a] hover:from-[#c26d21] hover:to-[#be4c24] text-white font-medium py-3 rounded-lg transition-all shadow-lg hover:shadow-[#db7c26]/20 disabled:opacity-70 flex justify-center items-center mt-6"
+                className="w-full bg-gradient-to-r from-primary-400 to-primary-500 hover:from-primary-700 hover:to-primary-700 text-white font-medium py-3 rounded-lg transition-all shadow-lg hover:shadow-primary-400/20 disabled:opacity-70 flex justify-center items-center mt-6"
               >
                 {loading ? 'Submitting...' : 'Submit Mandate'}
               </button>

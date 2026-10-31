@@ -73,6 +73,7 @@ public class ListingService {
             listings = listingRepository.searchListingsByCodeOrId(
                 request.getCategoryId(),
                 request.getDealTypeId(),
+                blankToNull(request.getDealTypeName()),
                 request.getCityId(),
                 null, // stateId
                 request.getCityName(),
@@ -87,6 +88,7 @@ public class ListingService {
             listings = listingRepository.searchListings(
                 request.getCategoryId(),
                 request.getDealTypeId(),
+                blankToNull(request.getDealTypeName()),
                 request.getCityId(),
                 null, // stateId
                 request.getCityName(),
@@ -145,6 +147,8 @@ public class ListingService {
         
         DealType dealType = dealTypeRepository.findById(request.getDealTypeId())
                 .orElseThrow(() -> new RuntimeException("Deal type not found"));
+        
+        validateCategorySpecifics(category, dealType, request);
         
         // City is now a string entered manually and city entity is optional
         
@@ -214,6 +218,7 @@ public class ListingService {
                     .orElseThrow(() -> new RuntimeException("Deal type not found"));
             listing.setDealType(dealType);
         }
+        validateCategorySpecifics(listing.getCategory(), listing.getDealType(), request);
         
         listing.setStatus(Listing.ListingStatus.PENDING); // Reset to pending after update
         
@@ -330,11 +335,53 @@ public class ListingService {
         HospitalityPropertyDetail propertyDetail = hospitalityPropertyDetailRepository.findByListingId(listing.getId())
                 .orElseGet(HospitalityPropertyDetail::new);
         propertyDetail.setListing(listing);
-        propertyDetail.setNumberOfRooms(request.getNumberOfRooms());
-        propertyDetail.setPlotAreaSqft(request.getPlotAreaSqft());
-        propertyDetail.setConstructedAreaSqft(request.getConstructedAreaSqft());
-        propertyDetail.setCarpetAreaSqft(request.getCarpetAreaSqft());
+        // Only keep the fields that apply to the category, so switching category never leaves stale specs
+        if (isHotel(listing.getCategory())) {
+            propertyDetail.setNumberOfRooms(request.getNumberOfRooms());
+            propertyDetail.setPlotAreaSqft(request.getPlotAreaSqft());
+            propertyDetail.setConstructedAreaSqft(request.getConstructedAreaSqft());
+            propertyDetail.setTitleType(blankToNull(request.getTitleType()));
+            propertyDetail.setCarpetAreaSqft(null);
+        } else {
+            propertyDetail.setNumberOfRooms(null);
+            propertyDetail.setPlotAreaSqft(null);
+            propertyDetail.setConstructedAreaSqft(null);
+            propertyDetail.setTitleType(null);
+            propertyDetail.setCarpetAreaSqft(request.getCarpetAreaSqft());
+        }
         hospitalityPropertyDetailRepository.save(propertyDetail);
+    }
+    
+    private static boolean isHotel(Category category) {
+        return category != null && category.getName() != null
+                && category.getName().trim().equalsIgnoreCase("Hotels");
+    }
+    
+    private static String blankToNull(String value) {
+        return value == null || value.trim().isEmpty() ? null : value.trim();
+    }
+    
+    /**
+     * Hotels need rooms, plot area and constructed area; every other category needs carpet area.
+     * The deal type must also belong to the chosen category (e.g. Profit Sharing is Hotels-only).
+     */
+    private void validateCategorySpecifics(Category category, DealType dealType, ListingDTO.ListingRequest request) {
+        if (dealType.getCategory() != null && !dealType.getCategory().getId().equals(category.getId())) {
+            throw new IllegalArgumentException("Deal type '" + dealType.getName() + "' is not available for " + category.getName());
+        }
+        if (isHotel(category)) {
+            if (request.getNumberOfRooms() == null || request.getNumberOfRooms() < 1) {
+                throw new IllegalArgumentException("Number of rooms is required for hotels");
+            }
+            if (request.getPlotAreaSqft() == null || request.getPlotAreaSqft().signum() <= 0) {
+                throw new IllegalArgumentException("Plot area is required for hotels");
+            }
+            if (request.getConstructedAreaSqft() == null || request.getConstructedAreaSqft().signum() <= 0) {
+                throw new IllegalArgumentException("Constructed area is required for hotels");
+            }
+        } else if (request.getCarpetAreaSqft() == null || request.getCarpetAreaSqft().signum() <= 0) {
+            throw new IllegalArgumentException("Carpet area is required for " + category.getName());
+        }
     }
     
     private ListingDTO.ListingSummaryResponse mapToSummaryResponse(Listing listing) {

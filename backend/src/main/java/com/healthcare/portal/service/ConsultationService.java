@@ -5,6 +5,7 @@ import com.healthcare.portal.dto.PageResponse;
 import com.healthcare.portal.entity.ConsultationRequest;
 import com.healthcare.portal.repository.ConsultationRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -20,6 +21,9 @@ public class ConsultationService {
 
     private final ConsultationRequestRepository repository;
     private final EmailService emailService;
+
+    @Value("${app.notification-email}")
+    private String notificationEmail;
 
     @Autowired
     public ConsultationService(ConsultationRequestRepository repository, EmailService emailService) {
@@ -45,7 +49,7 @@ public class ConsultationService {
         entity = repository.save(entity);
 
         emailService.sendConsultationNotification(
-                "d@dhacquisitions.co",
+                notificationEmail,
                 request.getName(),
                 request.getEmail(),
                 request.getPhone(),

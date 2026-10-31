@@ -5,6 +5,7 @@ import com.healthcare.portal.dto.PageResponse;
 import com.healthcare.portal.entity.MandateSubmission;
 import com.healthcare.portal.repository.MandateSubmissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -19,6 +20,9 @@ public class MandateService {
 
     private final MandateSubmissionRepository repository;
     private final EmailService emailService;
+
+    @Value("${app.notification-email}")
+    private String notificationEmail;
 
     @Autowired
     public MandateService(MandateSubmissionRepository repository, EmailService emailService) {
@@ -38,7 +42,7 @@ public class MandateService {
         entity = repository.save(entity);
 
         emailService.sendMandateNotification(
-                "d@dhacquisitions.co",
+                notificationEmail,
                 request.getName(),
                 request.getEmail(),
                 request.getPhone(),

@@ -56,10 +56,10 @@ const ContactUsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-[#d8572a]/10 py-16">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-primary-500/10 py-16">
       <Seo
         title="Contact Us | DHotels"
-        description="Get in touch with DHotels to buy, sell or value a hospital, pharma company, diagnostic centre or other hospitality property in India."
+        description="Get in touch with DHotels to buy, sell, lease or value a hotel, resort, restaurant, café, bar or banquet hall in India."
         path="/contact-us"
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -70,8 +70,8 @@ const ContactUsPage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
           {/* Contact Form / Success State */}
-          <div className="bg-gray-900/50 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-white/5 hover:border-[#d8572a]/30 transition-all duration-500 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#d8572a] to-[#db7c26] opacity-[0.03] rounded-full blur-3xl group-hover:opacity-[0.1] transition-opacity duration-500 pointer-events-none"></div>
+          <div className="bg-gray-900/50 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-white/5 hover:border-primary-500/30 transition-all duration-500 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500 to-primary-400 opacity-[0.03] rounded-full blur-3xl group-hover:opacity-[0.1] transition-opacity duration-500 pointer-events-none"></div>
             {submitted ? (
               <div className="flex flex-col items-center justify-center text-center py-12">
                 <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-6">
@@ -103,7 +103,7 @@ const ContactUsPage = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className="w-full px-5 py-4 bg-gray-900/40 border border-white/10 text-white rounded-2xl focus:ring-2 focus:ring-[#d8572a] focus:border-[#d8572a]/50 hover:border-white/20 outline-none transition-all duration-300 placeholder-gray-500"
+                      className="w-full px-5 py-4 bg-gray-900/40 border border-white/10 text-white rounded-2xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500/50 hover:border-white/20 outline-none transition-all duration-300 placeholder-gray-500"
                       placeholder="John Doe"
                     />
                   </div>
@@ -114,7 +114,7 @@ const ContactUsPage = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className="w-full px-5 py-4 bg-gray-900/40 border border-white/10 text-white rounded-2xl focus:ring-2 focus:ring-[#d8572a] focus:border-[#d8572a]/50 hover:border-white/20 outline-none transition-all duration-300 placeholder-gray-500"
+                      className="w-full px-5 py-4 bg-gray-900/40 border border-white/10 text-white rounded-2xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500/50 hover:border-white/20 outline-none transition-all duration-300 placeholder-gray-500"
                       placeholder="john@example.com"
                     />
                   </div>
@@ -125,7 +125,7 @@ const ContactUsPage = () => {
                       name="subject"
                       value={formData.subject}
                       onChange={handleChange}
-                      className="w-full px-5 py-4 bg-gray-900/40 border border-white/10 text-white rounded-2xl focus:ring-2 focus:ring-[#d8572a] focus:border-[#d8572a]/50 hover:border-white/20 outline-none transition-all duration-300 placeholder-gray-500"
+                      className="w-full px-5 py-4 bg-gray-900/40 border border-white/10 text-white rounded-2xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500/50 hover:border-white/20 outline-none transition-all duration-300 placeholder-gray-500"
                       placeholder="How can we help?"
                     />
                   </div>
@@ -136,14 +136,14 @@ const ContactUsPage = () => {
                       name="message"
                       value={formData.message}
                       onChange={handleChange}
-                      className="w-full px-5 py-4 bg-gray-900/40 border border-white/10 text-white rounded-2xl focus:ring-2 focus:ring-[#d8572a] focus:border-[#d8572a]/50 hover:border-white/20 outline-none transition-all duration-300 placeholder-gray-500"
+                      className="w-full px-5 py-4 bg-gray-900/40 border border-white/10 text-white rounded-2xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500/50 hover:border-white/20 outline-none transition-all duration-300 placeholder-gray-500"
                       placeholder="Tell us more about your inquiry..."
                     ></textarea>
                   </div>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-gradient-to-r from-[#d8572a] to-[#db7c26] hover:from-[#db7c26] hover:to-[#f7b538] text-white font-bold py-4 rounded-2xl transition-all duration-300 shadow-[0_0_20px_rgba(216,87,42,0.3)] hover:shadow-[0_0_30px_rgba(216,87,42,0.5)] hover:-translate-y-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-gradient-to-r from-primary-500 to-primary-400 hover:from-primary-400 hover:to-primary-300 text-white font-bold py-4 rounded-2xl transition-all duration-300 shadow-[0_0_20px_rgba(216,87,42,0.3)] hover:shadow-[0_0_30px_rgba(216,87,42,0.5)] hover:-translate-y-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? (
                       <>
@@ -164,24 +164,24 @@ const ContactUsPage = () => {
 
           {/* Contact Information */}
           <div className="space-y-8">
-            <div className="bg-gray-900/50 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-white/5 hover:border-[#d8572a]/30 transition-all duration-500 h-full flex flex-col justify-start relative overflow-hidden group">
-              <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-[#d8572a] to-[#db7c26] opacity-[0.03] rounded-full blur-3xl group-hover:opacity-[0.1] transition-opacity duration-500 pointer-events-none"></div>
+            <div className="bg-gray-900/50 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-white/5 hover:border-primary-500/30 transition-all duration-500 h-full flex flex-col justify-start relative overflow-hidden group">
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-primary-500 to-primary-400 opacity-[0.03] rounded-full blur-3xl group-hover:opacity-[0.1] transition-opacity duration-500 pointer-events-none"></div>
               <h2 className="text-2xl font-bold text-gray-100 mb-8 relative z-10">Contact Information</h2>
               
               <div className="space-y-8 relative z-10">
                 <div className="flex items-start gap-5 group/item">
-                  <div className="w-14 h-14 bg-gray-900/40 border border-white/5 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover/item:border-[#d8572a]/50 group-hover/item:shadow-[0_0_20px_rgba(216,87,42,0.3)] transition-all duration-300">
-                    <FiMail className="w-6 h-6 text-[#d8572a] group-hover/item:scale-110 transition-transform duration-300" />
+                  <div className="w-14 h-14 bg-gray-900/40 border border-white/5 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover/item:border-primary-500/50 group-hover/item:shadow-[0_0_20px_rgba(216,87,42,0.3)] transition-all duration-300">
+                    <FiMail className="w-6 h-6 text-primary-300 group-hover/item:scale-110 transition-transform duration-300" />
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-gray-100 mb-1 tracking-wider uppercase">Email</h3>
-                    <p className="text-gray-400 font-medium hover:text-[#d8572a] transition-colors cursor-pointer">support@dhotels.co</p>
+                    <p className="text-gray-400 font-medium hover:text-primary-300 transition-colors cursor-pointer">support@dhotels.co</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-5 group/item">
-                  <div className="w-14 h-14 bg-gray-900/40 border border-white/5 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover/item:border-[#d8572a]/50 group-hover/item:shadow-[0_0_20px_rgba(216,87,42,0.3)] transition-all duration-300">
-                    <FiMapPin className="w-6 h-6 text-[#d8572a] group-hover/item:scale-110 transition-transform duration-300" />
+                  <div className="w-14 h-14 bg-gray-900/40 border border-white/5 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover/item:border-primary-500/50 group-hover/item:shadow-[0_0_20px_rgba(216,87,42,0.3)] transition-all duration-300">
+                    <FiMapPin className="w-6 h-6 text-primary-300 group-hover/item:scale-110 transition-transform duration-300" />
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-gray-100 mb-1 tracking-wider uppercase">Location</h3>

@@ -47,6 +47,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
            "l.status = 'ACTIVE' AND " +
            "(:categoryId IS NULL OR c.id = :categoryId) AND " +
            "(:dealTypeId IS NULL OR dt.id = :dealTypeId) AND " +
+           "(:dealTypeName IS NULL OR LOWER(dt.name) = LOWER(:dealTypeName)) AND " +
            "(:cityId IS NULL OR city.id = :cityId) AND " +
            "(:stateId IS NULL OR s.id = :stateId) AND " +
            "(:cityName IS NULL OR LOWER(l.cityName) LIKE LOWER(CONCAT('%', :cityName, '%')) OR LOWER(city.name) LIKE LOWER(CONCAT('%', :cityName, '%'))) AND " +
@@ -56,6 +57,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
            "(:keyword IS NULL OR LOWER(CONCAT(COALESCE(l.title, ''), ' ', COALESCE(l.shortDescription, ''), ' ', COALESCE(l.detailedDescription, ''), ' ', COALESCE(c.name, ''), ' ', COALESCE(l.cityName, ''), ' ', COALESCE(dt.name, ''))) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Listing> searchListings(@Param("categoryId") Long categoryId,
                                  @Param("dealTypeId") Long dealTypeId,
+                                 @Param("dealTypeName") String dealTypeName,
                                  @Param("cityId") Long cityId,
                                  @Param("stateId") Long stateId,
                                  @Param("cityName") String cityName,
@@ -69,6 +71,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
            "l.status = 'ACTIVE' AND " +
            "(:categoryId IS NULL OR c.id = :categoryId) AND " +
            "(:dealTypeId IS NULL OR dt.id = :dealTypeId) AND " +
+           "(:dealTypeName IS NULL OR LOWER(dt.name) = LOWER(:dealTypeName)) AND " +
            "(:cityId IS NULL OR city.id = :cityId) AND " +
            "(:stateId IS NULL OR s.id = :stateId) AND " +
            "(:cityName IS NULL OR LOWER(l.cityName) LIKE LOWER(CONCAT('%', :cityName, '%')) OR LOWER(city.name) LIKE LOWER(CONCAT('%', :cityName, '%'))) AND " +
@@ -78,6 +81,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
            "(:keyword IS NULL OR (LOWER(l.uniqueCode) LIKE LOWER(CONCAT('%', :keyword, '%')) OR (l.uniqueCode IS NULL AND :numericKeyword IS NOT NULL AND l.id = :numericKeyword)))")
     Page<Listing> searchListingsByCodeOrId(@Param("categoryId") Long categoryId,
                                            @Param("dealTypeId") Long dealTypeId,
+                                           @Param("dealTypeName") String dealTypeName,
                                            @Param("cityId") Long cityId,
                                            @Param("stateId") Long stateId,
                                            @Param("cityName") String cityName,

@@ -177,7 +177,7 @@ const AdminVerificationsPage = () => {
                     </div>
                     <div className="glass-card px-8 py-4 rounded-[1.5rem] border-none flex flex-col items-end">
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant opacity-40">Queue Volume</span>
-                        <span className="text-3xl font-black text-orange-500 tracking-tighter">{totalElements}</span>
+                        <span className="text-3xl font-black text-primary-500 tracking-tighter">{totalElements}</span>
                     </div>
                 </div>
 
@@ -270,7 +270,7 @@ const AdminVerificationsPage = () => {
                     ) : verifications.length === 0 ? (
                         <div className="p-32 text-center">
                             <div className="w-24 h-24 bg-ethereal-surface-low rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
-                                <FiCheckCircle className="w-10 h-10 text-[#d8572a] opacity-40" />
+                                <FiCheckCircle className="w-10 h-10 text-primary-300 opacity-40" />
                             </div>
                             <h3 className="text-2xl font-bold text-ethereal-on-surface uppercase tracking-tight">Queue Depleted</h3>
                             <p className="text-ethereal-on-surface-variant font-medium mt-2">All administrative obligations have been fulfilled.</p>
@@ -331,7 +331,7 @@ const AdminVerificationsPage = () => {
                                                     <div className="flex items-center justify-center gap-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-500 md:translate-x-4 md:group-hover:translate-x-0">
                                                         <button onClick={() => handleApprove(req.id)}
                                                                 disabled={actionLoading === req.id}
-                                                                className="flex items-center gap-2 px-5 py-2.5 bg-[#db7c26] text-white rounded-[1.2rem] hover:bg-[#3a5578] shadow-lg shadow-[#db7c26]/20 transition-all font-black text-[10px] uppercase tracking-widest disabled:opacity-50">
+                                                                className="flex items-center gap-2 px-5 py-2.5 bg-primary-500 text-white rounded-[1.2rem] hover:bg-primary-700 shadow-lg shadow-primary-400/20 transition-all font-black text-[10px] uppercase tracking-widest disabled:opacity-50">
                                                             <FiCheckCircle className="w-4 h-4" />
                                                             Validate
                                                         </button>

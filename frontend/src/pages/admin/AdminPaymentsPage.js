@@ -137,7 +137,7 @@ const AdminPaymentsPage = () => {
     const getStatusStyle = (status) => {
         switch (status) {
             case 'PAID':
-                return 'bg-[#E3FCF9] text-[#3a5578] border-[#f7b538]/50';
+                return 'bg-primary-400/10 text-primary-300 border-primary-300/50';
             case 'FAILED':
                 return 'bg-rose-50 text-rose-700 border-rose-200/50';
             default:
@@ -180,13 +180,13 @@ const AdminPaymentsPage = () => {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                         <div className="glass-card p-6 rounded-[1.5rem] border-none">
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="p-2.5 rounded-xl bg-[#f7b538]/20/50 text-[#db7c26]">
+                                <div className="p-2.5 rounded-xl bg-primary-300/20/50 text-primary-400">
                                     <FiCreditCard size={18} />
                                 </div>
                                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant">Total Volume</span>
                             </div>
                             <h3 className="text-2xl font-black text-ethereal-on-surface">{formatCurrency(stats.totalRevenuePaise)}</h3>
-                            <p className="text-[10px] uppercase tracking-widest text-[#db7c26] mt-1">{stats.successfulPayments} Successful Transactions</p>
+                            <p className="text-[10px] uppercase tracking-widest text-primary-400 mt-1">{stats.successfulPayments} Successful Transactions</p>
                         </div>
                         <div className="glass-card p-6 rounded-[1.5rem] border-none">
                             <div className="flex items-center gap-3 mb-4">

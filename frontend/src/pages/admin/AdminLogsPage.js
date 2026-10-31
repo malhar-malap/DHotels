@@ -117,7 +117,7 @@ const AdminLogsPage = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <div className="flex items-center gap-4 mb-3">
-              <Link to="/admin" className="p-2 rounded-xl bg-gray-900/50 text-[#c9c9c9] hover:text-[#db7c26] transition-all duration-300">
+              <Link to="/admin" className="p-2 rounded-xl bg-gray-900/50 text-gray-300 hover:text-primary-400 transition-all duration-300">
                 <FiArrowLeft className="w-5 h-5" />
               </Link>
               <span className="section-label tracking-[0.2em]">Governance Module</span>
@@ -140,7 +140,7 @@ const AdminLogsPage = () => {
                   value={filters.user}
                   onChange={handleFilterChange}
                   placeholder="e.g. 42 or Manas" 
-                  className="w-full pl-10 pr-4 py-3 bg-gray-900/50 border border-gray-700/50 rounded-xl focus:outline-none focus:border-[#db7c26] text-gray-200 text-sm"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-900/50 border border-gray-700/50 rounded-xl focus:outline-none focus:border-primary-400 text-gray-200 text-sm"
                 />
               </div>
             </div>
@@ -154,7 +154,7 @@ const AdminLogsPage = () => {
                   value={filters.action}
                   onChange={handleFilterChange}
                   placeholder="e.g. VERIFY_PAYMENT" 
-                  className="w-full pl-10 pr-4 py-3 bg-gray-900/50 border border-gray-700/50 rounded-xl focus:outline-none focus:border-[#db7c26] text-gray-200 text-sm"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-900/50 border border-gray-700/50 rounded-xl focus:outline-none focus:border-primary-400 text-gray-200 text-sm"
                 />
               </div>
             </div>
@@ -167,14 +167,14 @@ const AdminLogsPage = () => {
                   type="date" 
                   value={fromDate} 
                   onChange={(e) => setFromDate(e.target.value)}
-                  className="w-1/2 px-3 py-3 bg-gray-900/50 border border-gray-700/50 rounded-xl focus:outline-none focus:border-[#db7c26] text-gray-200 text-xs" 
+                  className="w-1/2 px-3 py-3 bg-gray-900/50 border border-gray-700/50 rounded-xl focus:outline-none focus:border-primary-400 text-gray-200 text-xs" 
                   placeholder="From"
                 />
                 <input 
                   type="date" 
                   value={toDate} 
                   onChange={(e) => setToDate(e.target.value)}
-                  className="w-1/2 px-3 py-3 bg-gray-900/50 border border-gray-700/50 rounded-xl focus:outline-none focus:border-[#db7c26] text-gray-200 text-xs" 
+                  className="w-1/2 px-3 py-3 bg-gray-900/50 border border-gray-700/50 rounded-xl focus:outline-none focus:border-primary-400 text-gray-200 text-xs" 
                   placeholder="To"
                 />
               </div>
@@ -185,7 +185,7 @@ const AdminLogsPage = () => {
               <label className="block text-xs font-medium text-gray-400 mb-1">Preset Ranges</label>
               <select 
                 onChange={(e) => handlePresetChange(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700/50 rounded-xl text-xs font-black uppercase tracking-widest text-[#c9c9c9] outline-none focus:border-[#db7c26] cursor-pointer"
+                className="w-full px-4 py-3 bg-gray-900/50 border border-gray-700/50 rounded-xl text-xs font-black uppercase tracking-widest text-gray-300 outline-none focus:border-primary-400 cursor-pointer"
               >
                 <option value="">Preset Ranges</option>
                 <option value="24h">Last 24 Hours</option>
@@ -225,7 +225,7 @@ const AdminLogsPage = () => {
                   <tr>
                     <td colSpan="6" className="p-8 text-center text-gray-400">
                       <div className="flex justify-center items-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#db7c26]"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-400"></div>
                       </div>
                     </td>
                   </tr>
@@ -248,7 +248,7 @@ const AdminLogsPage = () => {
                         </div>
                       </td>
                       <td className="p-4">
-                        <span className="px-2 py-1 bg-[#db7c26]/10 text-[#db7c26] border border-[#db7c26]/20 text-[10px] font-black uppercase tracking-wider rounded-lg">
+                        <span className="px-2 py-1 bg-primary-500/10 text-primary-400 border border-primary-400/20 text-[10px] font-black uppercase tracking-wider rounded-lg">
                           {log.action}
                         </span>
                       </td>

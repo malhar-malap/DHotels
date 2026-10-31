@@ -29,9 +29,9 @@ const DashboardPage = () => {
 
   const quickActions = [
     { title: 'Post Listing', icon: FiPlus, href: '/listings/create', color: 'from-blue-500 to-indigo-600' },
-    { title: 'Post Job', icon: FiBriefcase, href: '/healthcare-jobs-india/create', color: 'from-purple-500 to-pink-600' },
-    { title: 'Browse', icon: FiEye, href: '/listings', color: 'from-[#d8572a] to-[#db7c26]' },
-    { title: 'Find Jobs', icon: FiFileText, href: '/healthcare-jobs-india', color: 'from-orange-500 to-red-600' },
+    { title: 'Post Job', icon: FiBriefcase, href: '/hospitality-jobs-india/create', color: 'from-purple-500 to-pink-600' },
+    { title: 'Browse', icon: FiEye, href: '/listings', color: 'from-primary-500 to-primary-400' },
+    { title: 'Find Jobs', icon: FiFileText, href: '/hospitality-jobs-india', color: 'from-primary-500 to-red-600' },
   ];
 
   return (
@@ -41,10 +41,10 @@ const DashboardPage = () => {
           {/* Welcome Header */}
           <section className="animate-fadeIn">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tighter leading-none mb-4">
-              Hello, <span className="text-gradient underline decoration-[#d8572a]/20">{user?.fullName?.split(' ')[0]}</span>
+              Hello, <span className="text-gradient underline decoration-primary-500/20">{user?.fullName?.split(' ')[0]}</span>
             </h1>
-            <p className="text-sm font-bold text-[#e5e7eb] opacity-60 max-w-2xl tracking-tight leading-relaxed">
-              Your institutional command center is active. Monitor your healthcare ecosystem, track analytics, and manage stakeholder inquiries.
+            <p className="text-sm font-bold text-gray-200 opacity-60 max-w-2xl tracking-tight leading-relaxed">
+              Your institutional command center is active. Track your listings, unlocked contacts and enquiries in one place.
             </p>
           </section>
 
@@ -78,7 +78,7 @@ const DashboardPage = () => {
               </div>
               
               <div className="glass-card overflow-hidden shadow-2xl relative border border-white/5 bg-gray-800/40 backdrop-blur-xl rounded-[2.5rem]">
-                <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#d8572a]/20 rounded-full blur-[80px] pointer-events-none" />
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary-600/20 rounded-full blur-[80px] pointer-events-none" />
                 <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px] pointer-events-none" />
                 <div className="p-8 md:p-12 space-y-10 relative z-10">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -89,7 +89,7 @@ const DashboardPage = () => {
                         </div>
                         <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Institutional Email</p>
                       </div>
-                      <p className="font-black text-white text-sm tracking-tight truncate pl-14" title={user?.email}>{user?.email || 'unassigned@dhacquisitions.com'}</p>
+                      <p className="font-black text-white text-sm tracking-tight truncate pl-14" title={user?.email}>{user?.email || '—'}</p>
                     </div>
                     
                     <div className="space-y-2 bg-gray-900/50 p-6 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
@@ -104,14 +104,14 @@ const DashboardPage = () => {
                     
                     <div className="md:col-span-2 space-y-4 bg-gray-900/50 p-6 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
                       <div className="flex items-center gap-4 mb-2">
-                        <div className="w-10 h-10 rounded-xl bg-[#d8572a]/20 text-[#d8572a] flex items-center justify-center shadow-[0_0_15px_rgba(216,87,42,0.3)]">
+                        <div className="w-10 h-10 rounded-xl bg-primary-600/20 text-primary-300 flex items-center justify-center shadow-[0_0_15px_rgba(216,87,42,0.3)]">
                           <FiShield className="w-5 h-5" />
                         </div>
                         <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Authorization Nodes</p>
                       </div>
                       <div className="flex flex-wrap gap-3 pl-14 pt-1">
                         {Array.from(new Set(user?.roles || [])).map(role => (
-                          <span key={role} className="px-4 py-2 bg-[#d8572a]/10 border border-[#d8572a]/30 text-[#db7c26] text-[10px] font-black uppercase tracking-widest rounded-xl shadow-[0_0_10px_rgba(216,87,42,0.2)]">
+                          <span key={role} className="px-4 py-2 bg-primary-600/10 border border-primary-500/30 text-primary-400 text-[10px] font-black uppercase tracking-widest rounded-xl shadow-[0_0_10px_rgba(216,87,42,0.2)]">
                             {role}
                           </span>
                         ))}
@@ -126,19 +126,19 @@ const DashboardPage = () => {
             <section className="space-y-6">
               <h2 className="text-xl font-black text-white tracking-tight px-2 uppercase tracking-[0.1em]">Protocol Check</h2>
               <div className="glass-card p-8 md:p-10 h-fit shadow-2xl relative overflow-hidden group border border-white/5 bg-gray-800/40 backdrop-blur-xl rounded-[2.5rem]">
-                 <div className="absolute -top-20 -right-20 w-48 h-48 bg-orange-500/10 rounded-full blur-[60px] pointer-events-none" />
+                 <div className="absolute -top-20 -right-20 w-48 h-48 bg-primary-500/10 rounded-full blur-[60px] pointer-events-none" />
                  <div className={`absolute inset-0 opacity-[0.02] transition-opacity duration-700 pointer-events-none flex items-center justify-center`}>
                     <FiShield className="w-64 h-64" />
                  </div>
                  
                  <div className="relative z-10 flex flex-col h-full">
                     <div className="flex items-center justify-between mb-10">
-                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(216,87,42,0.3)] transition-transform group-hover:scale-110 duration-500 ${verification?.status === 'APPROVED' ? 'bg-[#d8572a]/20 text-[#db7c26] border border-[#d8572a]/30' : 'bg-orange-500/20 text-orange-400 border border-orange-500/30'}`}>
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(216,87,42,0.3)] transition-transform group-hover:scale-110 duration-500 ${verification?.status === 'APPROVED' ? 'bg-primary-600/20 text-primary-400 border border-primary-500/30' : 'bg-primary-500/20 text-primary-400 border border-primary-500/30'}`}>
                         <FiShield className="w-7 h-7" />
                       </div>
                       <div className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full border border-white/10 backdrop-blur-md ${
                         verification?.status === 'APPROVED' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-                        verification?.status === 'PENDING' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' :
+                        verification?.status === 'PENDING' ? 'bg-primary-500/10 text-primary-400 border-primary-500/20' :
                         verification?.status === 'REJECTED' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
                         'bg-gray-800 text-gray-400 border-gray-700'
                       }`}>
@@ -155,7 +155,7 @@ const DashboardPage = () => {
                           className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-black text-white transition-all uppercase tracking-widest group/btn shadow-lg"
                         >
                           Initiate Protocol
-                          <FiActivity className="w-4 h-4 text-[#db7c26] group-hover/btn:scale-110 transition-transform" />
+                          <FiActivity className="w-4 h-4 text-primary-400 group-hover/btn:scale-110 transition-transform" />
                         </button>
                       </div>
                     ) : (
@@ -181,7 +181,7 @@ const DashboardPage = () => {
                         
                         <div className="pt-6 mt-auto border-t border-white/5">
                            <div className="w-full h-1.5 bg-gray-900 rounded-full overflow-hidden shadow-inner">
-                              <div className={`h-full transition-all duration-1000 relative ${verification?.status === 'APPROVED' ? 'w-full bg-[#d8572a]' : verification?.status === 'PENDING' ? 'w-2/3 bg-orange-500' : 'w-1/3 bg-red-500'}`}>
+                              <div className={`h-full transition-all duration-1000 relative ${verification?.status === 'APPROVED' ? 'w-full bg-primary-600' : verification?.status === 'PENDING' ? 'w-2/3 bg-primary-500' : 'w-1/3 bg-red-500'}`}>
                                 <div className="absolute inset-0 bg-white/20 w-full animate-pulse"></div>
                               </div>
                            </div>

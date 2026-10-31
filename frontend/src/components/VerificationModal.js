@@ -84,15 +84,15 @@ const VerificationModal = ({ isOpen, onClose, onSuccess }) => {
               <label 
                 htmlFor="file-upload" 
                 className={`flex flex-col items-center justify-center w-full min-h-[160px] border-2 border-dashed rounded-[2rem] transition-all cursor-pointer ${
-                  file ? 'bg-[#E3FCF9]/50 border-[#f7b538]' : 'bg-ethereal-surface-low border-ethereal-outline-variant/30 hover:bg-gray-900 hover:border-ethereal-primary/50'
+                  file ? 'bg-primary-400/50 border-primary-300' : 'bg-ethereal-surface-low border-ethereal-outline-variant/30 hover:bg-gray-900 hover:border-ethereal-primary/50'
                 }`}
               >
                 <div className="flex flex-col items-center p-6 text-center">
-                  <FiUploadCloud className={`w-10 h-10 mb-4 transition-colors ${file ? 'text-[#d8572a]' : 'text-ethereal-primary opacity-40 group-hover:opacity-100'}`} />
+                  <FiUploadCloud className={`w-10 h-10 mb-4 transition-colors ${file ? 'text-primary-300' : 'text-ethereal-primary opacity-40 group-hover:opacity-100'}`} />
                   {file ? (
                     <div className="animate-fadeIn">
-                      <p className="text-sm font-black text-[#db7c26] mb-1">{file.name}</p>
-                      <p className="text-[10px] font-bold text-[#d8572a] uppercase tracking-widest">Archetype Selected</p>
+                      <p className="text-sm font-black text-primary-400 mb-1">{file.name}</p>
+                      <p className="text-[10px] font-bold text-primary-300 uppercase tracking-widest">Archetype Selected</p>
                     </div>
                   ) : (
                     <>

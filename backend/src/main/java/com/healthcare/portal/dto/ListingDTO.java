@@ -27,6 +27,7 @@ public class ListingDTO {
 
         @NotNull(message = "Asking price is required")
         @Positive(message = "Asking price must be positive")
+        @DecimalMax(value = "9999999999999.99", message = "Asking price is too large")
         private BigDecimal askingPrice;
         
         private Boolean priceNegotiable = true;
@@ -47,6 +48,8 @@ public class ListingDTO {
         private Integer numberOfRooms;
         private BigDecimal plotAreaSqft;
         private BigDecimal constructedAreaSqft;
+        @Size(max = 50, message = "Title type must not exceed 50 characters")
+        private String titleType;
         private BigDecimal carpetAreaSqft;
 
         public String getTitle() { return title; }
@@ -78,6 +81,8 @@ public class ListingDTO {
         public void setPlotAreaSqft(BigDecimal plotAreaSqft) { this.plotAreaSqft = plotAreaSqft; }
         public BigDecimal getConstructedAreaSqft() { return constructedAreaSqft; }
         public void setConstructedAreaSqft(BigDecimal constructedAreaSqft) { this.constructedAreaSqft = constructedAreaSqft; }
+        public String getTitleType() { return titleType; }
+        public void setTitleType(String titleType) { this.titleType = titleType; }
         public BigDecimal getCarpetAreaSqft() { return carpetAreaSqft; }
         public void setCarpetAreaSqft(BigDecimal carpetAreaSqft) { this.carpetAreaSqft = carpetAreaSqft; }
     }
@@ -105,7 +110,7 @@ public class ListingDTO {
         private LocalDateTime updatedAt;
         private LocalDateTime expiresAt;
         private List<String> images;
-        private Object categoryDetails; // Can be HospitalDetail, PharmaDetail, etc.
+        private Object categoryDetails; // HospitalityPropertyDetail (rooms, areas, title type)
         private SellerInfo seller;
 
         public Long getId() { return id; }
@@ -262,6 +267,8 @@ public class ListingDTO {
     public static class ListingSearchRequest {
         private Long categoryId;
         private Long dealTypeId;
+        // Deal types are defined per category, so cross-category filters ("For Sale") match by name
+        private String dealTypeName;
         private Long cityId;
         private Long stateId;
         private String cityName;
@@ -278,6 +285,8 @@ public class ListingDTO {
         public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
         public Long getDealTypeId() { return dealTypeId; }
         public void setDealTypeId(Long dealTypeId) { this.dealTypeId = dealTypeId; }
+        public String getDealTypeName() { return dealTypeName; }
+        public void setDealTypeName(String dealTypeName) { this.dealTypeName = dealTypeName; }
         public Long getCityId() { return cityId; }
         public void setCityId(Long cityId) { this.cityId = cityId; }
         public Long getStateId() { return stateId; }

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 /**
  * HospitalityPropertyDetail Entity - Category-specific specifications for hospitality assets:
- * - Hotels: numberOfRooms, plotAreaSqft, constructedAreaSqft
+ * - Hotels: numberOfRooms, plotAreaSqft, constructedAreaSqft, titleType
  * - Restaurants, Cafe, Banquet halls, Restaurants and Bar, Resorts: carpetAreaSqft
  */
 @Entity
@@ -31,6 +31,10 @@ public class HospitalityPropertyDetail {
     
     @Column(name = "constructed_area_sqft", precision = 12, scale = 2)
     private BigDecimal constructedAreaSqft;
+
+    // Ownership title of the hotel property, e.g. Freehold / Leasehold
+    @Column(name = "title_type", length = 50)
+    private String titleType;
     
     // Shared Area for Restaurants, Cafe, Banquet halls, Restaurants and Bar, Resorts
     @Column(name = "carpet_area_sqft", precision = 12, scale = 2)
@@ -56,6 +60,9 @@ public class HospitalityPropertyDetail {
     
     public BigDecimal getConstructedAreaSqft() { return constructedAreaSqft; }
     public void setConstructedAreaSqft(BigDecimal constructedAreaSqft) { this.constructedAreaSqft = constructedAreaSqft; }
+    
+    public String getTitleType() { return titleType; }
+    public void setTitleType(String titleType) { this.titleType = titleType; }
     
     public BigDecimal getCarpetAreaSqft() { return carpetAreaSqft; }
     public void setCarpetAreaSqft(BigDecimal carpetAreaSqft) { this.carpetAreaSqft = carpetAreaSqft; }

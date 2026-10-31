@@ -78,7 +78,7 @@ const CreateJobPage = () => {
     if (jobCategories.length === 0) return;
     
     const userId = user?.id || 'guest';
-    const draftKey = isEditMode ? `dhealth_job_draft_edit_${userId}_${id}` : `dhealth_job_draft_new_${userId}`;
+    const draftKey = isEditMode ? `dhotels_job_draft_edit_${userId}_${id}` : `dhotels_job_draft_new_${userId}`;
     const savedDraft = localStorage.getItem(draftKey);
     if (savedDraft) {
       try {
@@ -110,7 +110,7 @@ const CreateJobPage = () => {
     if (!hasData) return;
 
     const userId = user?.id || 'guest';
-    const draftKey = isEditMode ? `dhealth_job_draft_edit_${userId}_${id}` : `dhealth_job_draft_new_${userId}`;
+    const draftKey = isEditMode ? `dhotels_job_draft_edit_${userId}_${id}` : `dhotels_job_draft_new_${userId}`;
     
     const delayDebounce = setTimeout(() => {
       localStorage.setItem(draftKey, JSON.stringify({
@@ -153,7 +153,7 @@ const CreateJobPage = () => {
   };
 
   const handleDiscardDraft = () => {
-    const draftKey = isEditMode ? `dhealth_job_draft_edit_${user?.id || 'guest'}_${id}` : `dhealth_job_draft_new_${user?.id || 'guest'}`;
+    const draftKey = isEditMode ? `dhotels_job_draft_edit_${user?.id || 'guest'}_${id}` : `dhotels_job_draft_new_${user?.id || 'guest'}`;
     localStorage.removeItem(draftKey);
     setShowRestoreBanner(false);
     toast.success("Draft discarded.");
@@ -218,7 +218,7 @@ const CreateJobPage = () => {
         toast.success('Job posted successfully! Please wait for admins to review and approve it.', { duration: 5000 });
       }
       
-      const draftKey = isEditMode ? `dhealth_job_draft_edit_${user?.id || 'guest'}_${numericId}` : `dhealth_job_draft_new_${user?.id || 'guest'}`;
+      const draftKey = isEditMode ? `dhotels_job_draft_edit_${user?.id || 'guest'}_${numericId}` : `dhotels_job_draft_new_${user?.id || 'guest'}`;
       localStorage.removeItem(draftKey);
       
       setTimeout(() => navigate('/dashboard'), 2000);
@@ -234,25 +234,13 @@ const CreateJobPage = () => {
 
   const getJobCategoryIcon = (name) => {
     const normalized = name?.toLowerCase() || '';
-    if (normalized.includes('doctor') || normalized.includes('physician') || normalized.includes('medical officer')) {
-      return 'FaUserMd';
-    }
-    if (normalized.includes('nurse') || normalized.includes('nursing')) {
-      return 'FaUserNurse';
-    }
-    if (normalized.includes('pharmacist') || normalized.includes('pharmacy') || normalized.includes('chemist')) {
-      return 'FaPills';
-    }
-    if (normalized.includes('lab') || normalized.includes('technician') || normalized.includes('patholog') || normalized.includes('diagnost')) {
-      return 'FaMicroscope';
-    }
-    if (normalized.includes('admin') || normalized.includes('manager') || normalized.includes('management') || normalized.includes('hr')) {
-      return 'FaBriefcase';
-    }
-    if (normalized.includes('receptionist') || normalized.includes('front desk') || normalized.includes('tele')) {
-      return 'FaPhone';
-    }
-    return 'FaStethoscope';
+    if (normalized.includes('chef') || normalized.includes('cook')) return 'FaUtensils';
+    if (normalized.includes('bartender') || normalized.includes('mixolog')) return 'FaCocktail';
+    if (normalized.includes('barista')) return 'FaCoffee';
+    if (normalized.includes('manager')) return 'FaBriefcase';
+    if (normalized.includes('front desk') || normalized.includes('concierge') || normalized.includes('service')) return 'FaConciergeBell';
+    if (normalized.includes('housekeeping') || normalized.includes('maintenance')) return 'FaBroom';
+    return 'FaHotel';
   };
 
   const renderJobCategoryIcon = (iconName, className) => {
@@ -303,7 +291,7 @@ const CreateJobPage = () => {
     },
     description: {
       title: "Job Overview",
-      text: "Describe responsibilities, working hours, clinical setups, and growth opportunities. Detail makes you stand out."
+      text: "Describe responsibilities, shifts, covers or room count, and growth opportunities. Detail makes you stand out."
     },
     salaryMinLpa: {
       title: "Salary Range (LPA)",
@@ -319,14 +307,14 @@ const CreateJobPage = () => {
     }
   };
 
-  const inputClass = "w-full px-4 py-3 bg-gray-900/60 border border-gray-700/60 rounded-xl focus:ring-2 focus:ring-orange-500/80 focus:border-transparent outline-none transition-all duration-300 text-gray-200 placeholder-gray-500 backdrop-blur-sm shadow-inner";
+  const inputClass = "w-full px-4 py-3 bg-gray-900/60 border border-gray-700/60 rounded-xl focus:ring-2 focus:ring-primary-500/80 focus:border-transparent outline-none transition-all duration-300 text-gray-200 placeholder-gray-500 backdrop-blur-sm shadow-inner";
   const labelClass = "block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2";
 
   return (
-    <div className="min-h-screen bg-[#0b0c0e] bg-mesh relative pt-12 pb-0 text-gray-100 flex flex-col" style={{ overflowX: 'clip' }}>
+    <div className="min-h-screen bg-gray-950 bg-mesh relative pt-12 pb-0 text-gray-100 flex flex-col" style={{ overflowX: 'clip' }}>
       {/* Decorative glow elements */}
-      <div className="absolute top-0 left-0 right-0 h-[400px] bg-gradient-to-b from-orange-500/5 to-transparent pointer-events-none z-0" />
-      <div className="absolute top-[20%] right-[-10%] w-[350px] h-[350px] bg-orange-500/5 rounded-full blur-[100px] pointer-events-none z-0" />
+      <div className="absolute top-0 left-0 right-0 h-[400px] bg-gradient-to-b from-primary-500/5 to-transparent pointer-events-none z-0" />
+      <div className="absolute top-[20%] right-[-10%] w-[350px] h-[350px] bg-primary-500/5 rounded-full blur-[100px] pointer-events-none z-0" />
       <div className="absolute bottom-[20%] left-[-10%] w-[350px] h-[350px] bg-amber-500/5 rounded-full blur-[100px] pointer-events-none z-0" />
 
       <div className="max-w-7xl w-full mx-auto px-4 md:px-8 relative z-10 flex-grow pb-12">
@@ -336,7 +324,7 @@ const CreateJobPage = () => {
           <div>
             <button 
               onClick={() => navigate(-1)} 
-              className="group flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-orange-400 mb-3 transition uppercase tracking-wider"
+              className="group flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-primary-400 mb-3 transition uppercase tracking-wider"
             >
               <Icons.FaChevronLeft className="group-hover:-translate-x-1 transition-transform" /> Back to Dashboard
             </button>
@@ -349,13 +337,13 @@ const CreateJobPage = () => {
             <p className="text-gray-500 text-sm mt-1.5 flex items-center gap-2">
               <span>⏱️ Estimated completion: 3 minutes</span>
               <span className="text-gray-700">•</span>
-              <span>Find qualified healthcare professionals</span>
+              <span>Find chefs, managers and front-of-house talent</span>
             </p>
           </div>
           
           {/* Top completeness badge */}
           <div className="bg-gray-900/60 border border-gray-800 rounded-2xl px-5 py-3 flex items-center gap-4 self-start md:self-auto backdrop-blur-sm">
-            <div className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse" />
+            <div className="w-2.5 h-2.5 rounded-full bg-primary-500 animate-pulse" />
             <div>
               <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Completeness</p>
               <p className="text-sm font-bold text-gray-200">{getCompletionPercentage()}% Done</p>
@@ -365,9 +353,9 @@ const CreateJobPage = () => {
 
         {/* Restore Draft Banner */}
         {showRestoreBanner && (
-          <div className="mb-8 bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/30 rounded-2xl p-5 md:p-6 backdrop-blur-md flex flex-col md:flex-row items-center justify-between gap-4 animate-fadeIn">
+          <div className="mb-8 bg-gradient-to-r from-primary-500/10 to-primary-500/10 border border-primary-500/30 rounded-2xl p-5 md:p-6 backdrop-blur-md flex flex-col md:flex-row items-center justify-between gap-4 animate-fadeIn">
             <div className="flex items-center gap-4 text-center md:text-left">
-              <div className="w-12 h-12 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center text-xl shrink-0">
+              <div className="w-12 h-12 rounded-full bg-primary-500/20 text-primary-400 flex items-center justify-center text-xl shrink-0">
                 ✨
               </div>
               <div>
@@ -384,7 +372,7 @@ const CreateJobPage = () => {
               </button>
               <button 
                 onClick={handleRestoreDraft}
-                className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-orange-500/10 transition"
+                className="px-5 py-2.5 bg-primary-500 hover:bg-primary-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-primary-500/10 transition"
               >
                 Restore Draft
               </button>
@@ -400,9 +388,9 @@ const CreateJobPage = () => {
             
             {/* Dynamic Focus Tips Box */}
             <div className="bg-gradient-to-b from-gray-900/80 to-gray-950/80 border border-gray-800 rounded-3xl p-6 shadow-xl backdrop-blur-md relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 rounded-full blur-2xl" />
-              <h3 className="text-xs font-bold text-orange-400 uppercase tracking-widest flex items-center gap-2 mb-3">
-                <Icons.FaInfoCircle className="text-orange-500" /> {FOCUS_TIPS[activeFocus]?.title || FOCUS_TIPS.general.title}
+              <div className="absolute top-0 right-0 w-24 h-24 bg-primary-500/5 rounded-full blur-2xl" />
+              <h3 className="text-xs font-bold text-primary-400 uppercase tracking-widest flex items-center gap-2 mb-3">
+                <Icons.FaInfoCircle className="text-primary-500" /> {FOCUS_TIPS[activeFocus]?.title || FOCUS_TIPS.general.title}
               </h3>
               <p className="text-gray-300 text-sm leading-relaxed transition-all duration-300">
                 {FOCUS_TIPS[activeFocus]?.text || FOCUS_TIPS.general.text}
@@ -428,10 +416,10 @@ const CreateJobPage = () => {
                   <div 
                     className={`h-full rounded-full transition-all duration-700 ${
                       getCompletionPercentage() < 40 
-                        ? 'bg-gradient-to-r from-red-500 to-orange-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' 
+                        ? 'bg-gradient-to-r from-red-500 to-primary-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]' 
                         : getCompletionPercentage() < 75 
-                        ? 'bg-gradient-to-r from-orange-500 to-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.3)]' 
-                        : 'bg-gradient-to-r from-amber-500 to-green-500 shadow-[0_0_10px_rgba(34,197,94,0.3)]'
+                        ? 'bg-gradient-to-r from-primary-500 to-primary-500 shadow-[0_0_10px_rgba(245,158,11,0.3)]' 
+                        : 'bg-gradient-to-r from-primary-500 to-green-500 shadow-[0_0_10px_rgba(34,197,94,0.3)]'
                     }`}
                     style={{ width: `${getCompletionPercentage()}%` }}
                   />
@@ -458,13 +446,13 @@ const CreateJobPage = () => {
             {/* Recruiter benefits & FAQ */}
             <div className="bg-gray-900/60 border border-gray-800/80 rounded-3xl p-6 shadow-xl backdrop-blur-md space-y-6">
               <div>
-                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Recruiting on DHealth</h3>
+                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Recruiting on DHotels</h3>
                 <div className="space-y-4">
                   <div className="flex gap-3">
                     <div className="text-lg">🧑‍⚕️</div>
                     <div>
-                      <p className="text-xs font-bold text-gray-200">Verified Healthcare Profiles</p>
-                      <p className="text-[10px] text-gray-500 leading-normal">Reach qualified doctors, nurses, pharmacists, and administrative experts.</p>
+                      <p className="text-xs font-bold text-gray-200">Hospitality Talent</p>
+                      <p className="text-[10px] text-gray-500 leading-normal">Reach chefs, F&B, front office and housekeeping professionals.</p>
                     </div>
                   </div>
                   <div className="flex gap-3">
@@ -523,10 +511,10 @@ const CreateJobPage = () => {
                   <span className="text-2xl shrink-0">🔒</span>
                   <div>
                     <h3 className="text-base text-amber-200 font-bold">Authentication Required</h3>
-                    <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">Please register or log in to post job requirements to our medical network.</p>
+                    <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">Please register or log in to post job requirements to our hospitality network.</p>
                     <div className="flex gap-3 mt-4">
-                      <Link to="/login" className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-xl transition">Login</Link>
-                      <Link to="/register" className="px-4 py-2 border border-orange-500/30 hover:border-orange-500 text-orange-400 hover:bg-orange-500/5 text-xs font-bold rounded-xl transition">Sign Up</Link>
+                      <Link to="/login" className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white text-xs font-bold rounded-xl transition">Login</Link>
+                      <Link to="/register" className="px-4 py-2 border border-primary-500/30 hover:border-primary-500 text-primary-400 hover:bg-primary-500/5 text-xs font-bold rounded-xl transition">Sign Up</Link>
                     </div>
                   </div>
                 </div>
@@ -538,7 +526,7 @@ const CreateJobPage = () => {
               {/* Stepper Inside Form Column Header */}
               <div className="bg-gray-900/30 border border-gray-800/80 rounded-3xl p-6 backdrop-blur-md shadow-lg">
                 <div className="mb-4">
-                  <span className="text-[10px] uppercase font-bold tracking-widest text-orange-500">Guided Workflow</span>
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-primary-500">Guided Workflow</span>
                   <h2 className="text-lg font-bold text-gray-100 mt-1">Recruiting Milestones</h2>
                 </div>
                 
@@ -560,7 +548,7 @@ const CreateJobPage = () => {
                           onClick={() => scrollToSection(step.ref)}
                           className={`flex items-center gap-2 text-left transition-all duration-300 focus:outline-none ${
                             isActive
-                              ? 'text-orange-400 font-bold scale-102'
+                              ? 'text-primary-400 font-bold scale-102'
                               : 'text-gray-500 hover:text-gray-300'
                           }`}
                         >
@@ -568,7 +556,7 @@ const CreateJobPage = () => {
                             isCompleted
                               ? 'bg-green-500 border-green-500 text-white shadow-[0_0_8px_rgba(34,197,94,0.2)]'
                               : isActive
-                              ? 'bg-orange-500 border-orange-500 text-white shadow-[0_0_8px_rgba(249,115,22,0.2)]'
+                              ? 'bg-primary-500 border-primary-500 text-white shadow-[0_0_8px_rgba(249,115,22,0.2)]'
                               : 'bg-gray-950 border-gray-800 text-gray-500'
                           }`}>
                             {isCompleted ? '✓' : step.id}
@@ -646,12 +634,12 @@ const CreateJobPage = () => {
                             }}
                             className={`flex flex-col items-center justify-center p-4 rounded-2xl border text-center transition-all duration-300 ${
                               isSelected
-                                ? 'bg-gradient-to-b from-orange-500/10 to-amber-500/10 border-orange-500/80 text-orange-400 shadow-[0_4px_20px_rgba(249,115,22,0.12)] scale-[1.03]'
+                                ? 'bg-gradient-to-b from-primary-500/10 to-primary-500/10 border-primary-500/80 text-primary-400 shadow-[0_4px_20px_rgba(249,115,22,0.12)] scale-[1.03]'
                                 : 'bg-gray-950/40 border-gray-800 text-gray-500 hover:border-gray-700 hover:text-gray-300 hover:scale-[1.01]'
                             }`}
                           >
                             <div className={`p-2.5 rounded-xl mb-2.5 text-2xl transition-all duration-300 ${
-                              isSelected ? 'bg-orange-500/20 text-orange-400' : 'bg-gray-900/60 text-gray-600'
+                              isSelected ? 'bg-primary-500/20 text-primary-400' : 'bg-gray-900/60 text-gray-600'
                             }`}>
                               {renderJobCategoryIcon(iconName)}
                             </div>
@@ -701,7 +689,7 @@ const CreateJobPage = () => {
                             }}
                             className={`px-3 py-2 border text-[11px] font-bold uppercase tracking-wider rounded-xl transition duration-300 ${
                               isSelected
-                                ? 'bg-orange-500 text-white border-orange-500'
+                                ? 'bg-primary-500 text-white border-primary-500'
                                 : 'bg-gray-950/40 border-gray-800 text-gray-400 hover:border-gray-700'
                             }`}
                           >
@@ -751,7 +739,7 @@ const CreateJobPage = () => {
                             }}
                             className={`px-3 py-2 border text-[10px] font-bold uppercase tracking-wider rounded-xl transition duration-300 ${
                               isSelected
-                                ? 'bg-orange-500 text-white border-orange-500'
+                                ? 'bg-primary-500 text-white border-primary-500'
                                 : 'bg-gray-950/40 border-gray-800 text-gray-400 hover:border-gray-700'
                             }`}
                           >
@@ -878,7 +866,7 @@ const CreateJobPage = () => {
                   <span className="text-2xl">📝</span>
                   <div>
                     <h3 className="text-lg font-bold text-gray-100">Job Description</h3>
-                    <p className="text-xs text-gray-500">Provide job summary details, key clinical tasks, and operational schedules</p>
+                    <p className="text-xs text-gray-500">Provide job summary details, key responsibilities, and shift schedules</p>
                   </div>
                 </div>
 
@@ -895,7 +883,7 @@ const CreateJobPage = () => {
                     required
                     maxLength="3000" 
                     onFocus={() => setActiveFocus('description')}
-                    placeholder="Describe clinical responsibilities, outpatient/inpatient volumes, shifts, call schedule details, nurse support setups, and key organizational requirements..." 
+                    placeholder="Describe responsibilities, outlet or property size, shift pattern, team you will lead, and must-have skills..." 
                     className={inputClass} 
                   />
                 </div>
@@ -907,9 +895,9 @@ const CreateJobPage = () => {
                 className="bg-gray-900/40 border border-gray-800/80 rounded-3xl p-6 md:p-8 space-y-6 shadow-xl backdrop-blur-md scroll-mt-6 transition-all duration-300 focus-within:border-gray-700"
               >
                 <div className="flex items-center gap-3 pb-4 border-b border-gray-800/80">
-                  <span className="text-2xl text-orange-400">💰</span>
+                  <span className="text-2xl text-primary-400">💰</span>
                   <div>
-                    <h3 className="text-lg font-bold text-orange-400 uppercase tracking-widest text-sm">Terms & Compensation</h3>
+                    <h3 className="text-lg font-bold text-primary-400 uppercase tracking-widest text-sm">Terms & Compensation</h3>
                     <p className="text-xs text-gray-500">Define salary scales, total openings, deadlines, and applicant routing</p>
                   </div>
                 </div>
@@ -987,7 +975,7 @@ const CreateJobPage = () => {
                       onChange={handleChange}
                       required 
                       onFocus={() => setActiveFocus('contactEmail')}
-                      placeholder="recruitment@hospital.com" 
+                      placeholder="careers@yourhotel.com" 
                       className={inputClass} 
                     />
                   </div>
@@ -1002,7 +990,7 @@ const CreateJobPage = () => {
       </div>
 
       {/* Sticky Bottom Action Bar */}
-      <div className="sticky bottom-0 w-full z-40 bg-[#0d0e12]/95 backdrop-blur-md border-t border-gray-800/80 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] py-4 px-4 md:px-8 shrink-0">
+      <div className="sticky bottom-0 w-full z-40 bg-gray-950/95 backdrop-blur-md border-t border-gray-800/80 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] py-4 px-4 md:px-8 shrink-0">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Left: Completeness Score */}
           <div className="flex items-center gap-4">
@@ -1014,7 +1002,7 @@ const CreateJobPage = () => {
                   cx="24" 
                   cy="24" 
                   r="20" 
-                  className="stroke-orange-500 transition-all duration-500" 
+                  className="stroke-primary-500 transition-all duration-500" 
                   strokeWidth="4" 
                   fill="transparent"
                   strokeDasharray={125.6} 
@@ -1036,7 +1024,7 @@ const CreateJobPage = () => {
             <button
               type="button"
               onClick={() => {
-                const draftKey = isEditMode ? `dhealth_job_draft_edit_${user?.id || 'guest'}_${id}` : `dhealth_job_draft_new_${user?.id || 'guest'}`;
+                const draftKey = isEditMode ? `dhotels_job_draft_edit_${user?.id || 'guest'}_${id}` : `dhotels_job_draft_new_${user?.id || 'guest'}`;
                 localStorage.setItem(draftKey, JSON.stringify({
                   data: formData,
                   timestamp: new Date().toISOString()
@@ -1098,7 +1086,7 @@ const CreateJobPage = () => {
                 }
               }}
               disabled={loading}
-              className="px-8 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold rounded-xl shadow-lg hover:from-orange-600 hover:to-amber-600 hover:shadow-orange-500/10 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-xs uppercase tracking-wider"
+              className="px-8 py-3 bg-gradient-to-r from-primary-500 to-primary-500 text-white font-bold rounded-xl shadow-lg hover:from-primary-600 hover:to-primary-600 hover:shadow-primary-500/10 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-xs uppercase tracking-wider"
             >
               {loading ? (
                 <>

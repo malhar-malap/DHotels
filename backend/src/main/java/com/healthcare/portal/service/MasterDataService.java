@@ -77,14 +77,6 @@ public class MasterDataService {
                 .collect(Collectors.toList());
     }
     
-    public List<Object> getAllEquipmentTypes() {
-        return java.util.Collections.emptyList();
-    }
-    
-    public List<Object> getAllHospitalTypes() {
-        return java.util.Collections.emptyList();
-    }
-    
     private ListingDTO.CategoryDTO mapToCategoryDTO(Category category) {
         ListingDTO.CategoryDTO dto = new ListingDTO.CategoryDTO();
         dto.setId(category.getId());

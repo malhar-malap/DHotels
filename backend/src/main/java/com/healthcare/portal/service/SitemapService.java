@@ -5,6 +5,7 @@ import com.healthcare.portal.entity.Listing;
 import com.healthcare.portal.repository.JobRepository;
 import com.healthcare.portal.repository.ListingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,16 +22,19 @@ import java.util.stream.Collectors;
 @Service
 public class SitemapService {
 
-    private static final String SITE_URL = "https://dhacquisitions.co";
+    @Value("${app.site-url}")
+    private String siteUrl;
 
     // Public, indexable frontend routes
     private static final List<String> STATIC_PATHS = List.of(
             "/", "/about", "/contact-us", "/blogs", "/listings",
-            "/hospitals-for-sale-india", "/pharma-companies-for-sale-india", "/diagnostic-centers-for-sale-india",
-            "/dental-clinics-for-sale-india", "/pharmacies-for-sale-india", "/partial-properties",
-            "/healthcare-jobs-india",
-            "/hospitals-for-sale-maharashtra", "/pharma-companies-for-sale-maharashtra",
-            "/hospitals-for-sale-bangalore", "/hospitals-for-sale-delhi", "/hospitals-for-sale-pune",
+            "/hotels-for-sale-india", "/restaurants-for-sale-india", "/cafes-for-sale-india",
+            "/banquet-halls-for-sale-india", "/restaurant-and-bar-for-sale-india", "/resorts-for-sale-india",
+            "/partial-properties", "/hospitality-jobs-india",
+            "/hotels-for-sale-goa", "/hotels-for-sale-maharashtra", "/restaurants-for-sale-mumbai",
+            "/resorts-for-sale-kerala", "/banquet-halls-for-sale-delhi",
+            "/blogs/how-to-buy-a-hotel-in-india", "/blogs/how-to-value-a-hotel-or-restaurant",
+            "/blogs/restaurant-takeover-checklist-india", "/blogs/hotel-profit-sharing-agreements-explained",
             "/terms", "/privacy", "/cookies", "/refund-policy"
     );
 
@@ -64,7 +68,7 @@ public class SitemapService {
 
         for (Job job : jobRepository.findByStatus(Job.JobStatus.ACTIVE)) {
             String slug = generateSlug(job.getTitle(), job.getCityName());
-            appendUrl(xml, "/healthcare-jobs-india/" + job.getId() + (slug.isEmpty() ? "" : "-" + slug),
+            appendUrl(xml, "/hospitality-jobs-india/" + job.getId() + (slug.isEmpty() ? "" : "-" + slug),
                     lastModified(job.getUpdatedAt(), job.getCreatedAt()));
         }
 
@@ -73,7 +77,7 @@ public class SitemapService {
     }
 
     private void appendUrl(StringBuilder xml, String path, LocalDateTime lastMod) {
-        xml.append("  <url>\n    <loc>").append(escapeXml(SITE_URL + path)).append("</loc>\n");
+        xml.append("  <url>\n    <loc>").append(escapeXml(siteUrl + path)).append("</loc>\n");
         if (lastMod != null) {
             xml.append("    <lastmod>").append(lastMod.toLocalDate()).append("</lastmod>\n");
         }

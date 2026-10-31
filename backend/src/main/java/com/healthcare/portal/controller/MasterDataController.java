@@ -80,16 +80,4 @@ public class MasterDataController {
         List<JobDTO.JobCategoryDTO> categories = masterDataService.getAllJobCategories();
         return ResponseEntity.ok(ApiResponse.success(categories));
     }
-    
-    @GetMapping("/equipment-types")
-    @Operation(summary = "Get all equipment types", description = "Returns list of equipment types")
-    public ResponseEntity<ApiResponse<List<Object>>> getAllEquipmentTypes() {
-        return ResponseEntity.ok(ApiResponse.success(java.util.Collections.emptyList()));
-    }
-    
-    @GetMapping("/hospital-types")
-    @Operation(summary = "Get all hospital types", description = "Returns list of hospital types")
-    public ResponseEntity<ApiResponse<List<Object>>> getAllHospitalTypes() {
-        return ResponseEntity.ok(ApiResponse.success(java.util.Collections.emptyList()));
-    }
 }

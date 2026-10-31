@@ -38,13 +38,13 @@ const AdminDashboard = () => {
 
   const statCards = [
     { title: 'Total Network Users', value: stats?.totalUsers || 0, icon: FiUsers, gradient: 'from-blue-500/20 to-indigo-500/20', accent: 'text-blue-600', label: stats?.newUsersToday ? `+${stats.newUsersToday} recently` : 'Stable growth' },
-    { title: 'Active Listings', value: stats?.activeListings || 0, icon: FiList, gradient: 'from-[#d8572a]/20 to-[#d8572a]/20', accent: 'text-[#db7c26]', label: stats?.pendingListings ? `${stats.pendingListings} pending review` : 'All caught up' },
+    { title: 'Active Listings', value: stats?.activeListings || 0, icon: FiList, gradient: 'from-primary-500/20 to-primary-500/20', accent: 'text-primary-400', label: stats?.pendingListings ? `${stats.pendingListings} pending review` : 'All caught up' },
     { title: 'Career Opportunities', value: stats?.activeJobs || 0, icon: FiBriefcase, gradient: 'from-purple-500/20 to-pink-500/20', accent: 'text-purple-600', label: stats?.pendingJobs ? `${stats.pendingJobs} processing` : 'Optimized flow' },
-    { title: 'Strategic Inquiries', value: stats?.inquiriesToday || 0, icon: FiMail, gradient: 'from-orange-500/20 to-red-500/20', accent: 'text-orange-600', label: '24h activity' }
+    { title: 'Strategic Inquiries', value: stats?.inquiriesToday || 0, icon: FiMail, gradient: 'from-primary-500/20 to-red-500/20', accent: 'text-primary-600', label: '24h activity' }
   ];
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-[#d8572a]/10 py-12 px-4 md:px-8">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-primary-500/10 py-12 px-4 md:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-12">
           <span className="section-label mb-2 block tracking-[0.2em]">Administrative Control</span>
@@ -79,10 +79,10 @@ const AdminDashboard = () => {
             <div className="grid gap-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 md:p-6 bg-gray-900/50 border border-white/5 rounded-3xl group hover:bg-gray-800/80 hover:border-white/10 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden">
                 <div className="flex items-center gap-4 md:gap-5">
-                  <div className="p-4 rounded-2xl bg-orange-500/20 text-orange-400 border border-orange-500/20"><FiCheckSquare size={22} /></div>
+                  <div className="p-4 rounded-2xl bg-primary-500/20 text-primary-400 border border-primary-500/20"><FiCheckSquare size={22} /></div>
                   <div>
                     <p className="font-bold text-ethereal-on-surface text-sm md:text-base">Listings Vetting</p>
-                    <p className="text-xs font-medium text-ethereal-on-surface-variant opacity-60 leading-relaxed">{stats?.pendingListings || 0} assets awaiting clinical verification</p>
+                    <p className="text-xs font-medium text-ethereal-on-surface-variant opacity-60 leading-relaxed">{stats?.pendingListings || 0} listings awaiting review</p>
                   </div>
                 </div>
                 <Link to="/admin/listings?status=PENDING" className="btn-ethereal-secondary !px-6 !py-2.5 text-xs font-black w-full sm:w-auto text-center">Verify</Link>
@@ -116,7 +116,7 @@ const AdminDashboard = () => {
               {[
                 { label: 'New Entities', value: stats?.newUsersToday, color: 'bg-green-500' },
                 { label: 'Asset Intake', value: stats?.newListingsToday, color: 'bg-blue-500' },
-                { label: 'Network Inquiries', value: stats?.inquiriesToday, color: 'bg-orange-500' },
+                { label: 'Network Inquiries', value: stats?.inquiriesToday, color: 'bg-primary-500' },
                 { label: 'Talent Moves', value: stats?.applicationsToday, color: 'bg-purple-500' },
                 { label: 'Weekly Growth', value: stats?.newUsersWeek, color: 'bg-pink-500' },
               ].map((item) => (
@@ -147,7 +147,7 @@ const AdminDashboard = () => {
               {[
                 { to: '/admin/listings', icon: FiList, label: 'Asset Library', color: 'from-blue-500 to-indigo-600' },
                 { to: '/admin/jobs', icon: FiBriefcase, label: 'Talent Pool', color: 'from-purple-500 to-pink-600' },
-                { to: '/admin/users', icon: FiUsers, label: 'Entity Directory', color: 'from-[#d8572a] to-[#db7c26]' },
+                { to: '/admin/users', icon: FiUsers, label: 'Entity Directory', color: 'from-primary-500 to-primary-400' },
                 { to: '/admin/payments', icon: FiCreditCard, label: 'Financial Core', color: 'from-emerald-500 to-teal-600' },
                 { to: '/admin/logs', icon: FiShield, label: 'System Logs', color: 'from-slate-500 to-gray-600' },
               ].map((link) => (
@@ -175,7 +175,7 @@ const AdminDashboard = () => {
               {[
                 { to: '/admin/contact-messages', icon: FiMail, label: 'Contact Messages', color: 'from-cyan-500 to-blue-600', badge: commStats.newMessages },
                 { to: '/admin/consultations', icon: FiPhone, label: 'Call Requests', color: 'from-green-500 to-emerald-600', badge: commStats.pendingConsultations },
-                { to: '/admin/mandates', icon: FiFileText, label: 'Mandates', color: 'from-amber-500 to-orange-600', badge: commStats.newMandates },
+                { to: '/admin/mandates', icon: FiFileText, label: 'Mandates', color: 'from-primary-500 to-primary-600', badge: commStats.newMandates },
               ].map((link) => (
                 <Link 
                     key={link.label} 

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
-export const SITE_URL = 'https://dhacquisitions.co';
-export const SITE_NAME = 'DH Acquisitions';
+export const SITE_URL = 'https://dhotels.co';
+export const SITE_NAME = 'DHotels';
 const DEFAULT_IMAGE = `${SITE_URL}/images/logo.png`;
 
 // Turns a relative path (e.g. /api/uploads/x.jpg) into an absolute URL for crawlers & link previews

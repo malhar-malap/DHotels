@@ -20,10 +20,10 @@ const RegisterPage = () => {
   const otpInputs = useRef([]);
 
   const roleOptions = [
-    { value: 'SELLER', label: 'Seller / Lister', description: 'Post healthcare businesses for sale' },
+    { value: 'SELLER', label: 'Seller / Lister', description: 'List hotels, restaurants or venues for sale or lease' },
     { value: 'BUYER', label: 'Buyer / Investor', description: 'Browse listings and send inquiries' },
-    { value: 'EMPLOYER', label: 'Employer', description: 'Post healthcare job openings' },
-    { value: 'JOB_SEEKER', label: 'Job Seeker', description: 'Find and apply for healthcare jobs' }
+    { value: 'EMPLOYER', label: 'Employer', description: 'Post hospitality job openings' },
+    { value: 'JOB_SEEKER', label: 'Job Seeker', description: 'Find and apply for hospitality jobs' }
   ];
 
   const validateStep1 = () => {
@@ -159,11 +159,11 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0c0e] bg-mesh relative w-full flex items-center justify-center py-12 px-4 md:px-8 text-gray-100 overflow-hidden">
-      <Seo title="Create an Account | DH Acquisitions" path="/register" noindex />
+    <div className="min-h-screen bg-gray-950 bg-mesh relative w-full flex items-center justify-center py-12 px-4 md:px-8 text-gray-100 overflow-hidden">
+      <Seo title="Create an Account | DHotels" path="/register" noindex />
       {/* Decorative glow elements */}
-      <div className="absolute top-0 left-0 right-0 h-[400px] bg-gradient-to-b from-orange-500/5 to-transparent pointer-events-none z-0" />
-      <div className="absolute top-[20%] right-[-10%] w-[350px] h-[350px] bg-orange-500/5 rounded-full blur-[100px] pointer-events-none z-0" />
+      <div className="absolute top-0 left-0 right-0 h-[400px] bg-gradient-to-b from-primary-500/5 to-transparent pointer-events-none z-0" />
+      <div className="absolute top-[20%] right-[-10%] w-[350px] h-[350px] bg-primary-500/5 rounded-full blur-[100px] pointer-events-none z-0" />
       <div className="absolute bottom-[20%] left-[-10%] w-[350px] h-[350px] bg-amber-500/5 rounded-full blur-[100px] pointer-events-none z-0" />
 
       <div className="max-w-md w-full relative z-10">
@@ -172,9 +172,9 @@ const RegisterPage = () => {
             <img src="/images/logo.png" alt="Logo" className="w-12 h-12 object-contain mb-3 transition-transform hover:scale-105" />
           </Link>
           <h2 className="mt-4 text-3xl font-black text-gray-100 tracking-tighter leading-none">
-            Create an <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">Account</span>
+            Create an <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-500">Account</span>
           </h2>
-          <p className="mt-3 text-xs font-bold text-gray-500">Join our healthcare network today.</p>
+          <p className="mt-3 text-xs font-bold text-gray-500">Join India’s hospitality marketplace.</p>
         </div>
 
         {/* Stepper */}
@@ -186,7 +186,7 @@ const RegisterPage = () => {
           ].map((s, i) => (
             <React.Fragment key={s.n}>
               <div className="flex flex-col items-center gap-1.5">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black transition-all duration-500 ${step >= s.n ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20 scale-110' : 'bg-gray-900/50 border border-gray-800 text-gray-500 opacity-40'}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black transition-all duration-500 ${step >= s.n ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20 scale-110' : 'bg-gray-900/50 border border-gray-800 text-gray-500 opacity-40'}`}>
                   {step > s.n ? <FiCheckCircle className="w-4 h-4" /> : s.n}
                 </div>
                 <span className={`text-[8px] font-bold uppercase tracking-widest transition-opacity duration-300 ${step >= s.n ? 'text-gray-200 opacity-100' : 'text-gray-500 opacity-40'}`}>
@@ -195,7 +195,7 @@ const RegisterPage = () => {
               </div>
               {i < 2 && (
                 <div className="w-12 h-[1px] mx-3 mb-4 bg-gray-800">
-                  <div className={`h-full transition-all duration-700 ${step > s.n ? 'bg-orange-500' : 'bg-gray-800'}`} />
+                  <div className={`h-full transition-all duration-700 ${step > s.n ? 'bg-primary-500' : 'bg-gray-800'}`} />
                 </div>
               )}
             </React.Fragment>
@@ -203,21 +203,21 @@ const RegisterPage = () => {
         </div>
 
         <div className="bg-gray-900/40 border border-gray-800/80 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur-md relative overflow-hidden transition-all duration-300 focus-within:border-gray-700">
-          <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-orange-500 to-amber-500" />
+          <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-primary-500 to-primary-500" />
 
           {step === 1 && (
             <div className="space-y-4 animate-fadeIn">
               <div className="space-y-1">
                 <label htmlFor="fullName" className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Full Legal Name</label>
                 <div className="relative">
-                  <FiUser className="absolute left-4 top-3.5 text-orange-500/80 w-4 h-4" />
+                  <FiUser className="absolute left-4 top-3.5 text-primary-500/80 w-4 h-4" />
                   <input 
                     id="fullName" 
                     name="fullName" 
                     type="text" 
                     value={formData.fullName} 
                     onChange={handleChange} 
-                    className={`w-full pl-12 pr-4 py-3 bg-gray-950/40 border border-gray-800/80 rounded-xl text-gray-200 placeholder-gray-600 font-bold focus:ring-2 focus:ring-orange-500/80 focus:border-transparent outline-none transition-all duration-300 shadow-inner backdrop-blur-sm ${errors.fullName ? 'border-red-500/50 focus:ring-red-500/50' : ''}`}
+                    className={`w-full pl-12 pr-4 py-3 bg-gray-950/40 border border-gray-800/80 rounded-xl text-gray-200 placeholder-gray-600 font-bold focus:ring-2 focus:ring-primary-500/80 focus:border-transparent outline-none transition-all duration-300 shadow-inner backdrop-blur-sm ${errors.fullName ? 'border-red-500/50 focus:ring-red-500/50' : ''}`}
                     placeholder="E.g., Dr. John Smith" 
                   />
                 </div>
@@ -227,14 +227,14 @@ const RegisterPage = () => {
               <div className="space-y-1">
                 <label htmlFor="mobileNumber" className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Contact number</label>
                 <div className="relative">
-                  <FiPhone className="absolute left-4 top-3.5 text-orange-500/80 w-4 h-4" />
+                  <FiPhone className="absolute left-4 top-3.5 text-primary-500/80 w-4 h-4" />
                   <input 
                     id="mobileNumber" 
                     name="mobileNumber" 
                     type="tel" 
                     value={formData.mobileNumber} 
                     onChange={handleChange} 
-                    className={`w-full pl-12 pr-4 py-3 bg-gray-950/40 border border-gray-800/80 rounded-xl text-gray-200 placeholder-gray-600 font-bold focus:ring-2 focus:ring-orange-500/80 focus:border-transparent outline-none transition-all duration-300 shadow-inner backdrop-blur-sm ${errors.mobileNumber ? 'border-red-500/50 focus:ring-red-500/50' : ''}`}
+                    className={`w-full pl-12 pr-4 py-3 bg-gray-950/40 border border-gray-800/80 rounded-xl text-gray-200 placeholder-gray-600 font-bold focus:ring-2 focus:ring-primary-500/80 focus:border-transparent outline-none transition-all duration-300 shadow-inner backdrop-blur-sm ${errors.mobileNumber ? 'border-red-500/50 focus:ring-red-500/50' : ''}`}
                     placeholder="9876543210" 
                     maxLength="10" 
                   />
@@ -245,15 +245,15 @@ const RegisterPage = () => {
               <div className="space-y-1">
                 <label htmlFor="email" className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Email id</label>
                 <div className="relative">
-                  <FiMail className="absolute left-4 top-3.5 text-orange-500/80 w-4 h-4" />
+                  <FiMail className="absolute left-4 top-3.5 text-primary-500/80 w-4 h-4" />
                   <input 
                     id="email" 
                     name="email" 
                     type="email" 
                     value={formData.email} 
                     onChange={handleChange} 
-                    className={`w-full pl-12 pr-4 py-3 bg-gray-950/40 border border-gray-800/80 rounded-xl text-gray-200 placeholder-gray-600 font-bold focus:ring-2 focus:ring-orange-500/80 focus:border-transparent outline-none transition-all duration-300 shadow-inner backdrop-blur-sm ${errors.email ? 'border-red-500/50 focus:ring-red-500/50' : ''}`}
-                    placeholder="john.smith@hospital.com" 
+                    className={`w-full pl-12 pr-4 py-3 bg-gray-950/40 border border-gray-800/80 rounded-xl text-gray-200 placeholder-gray-600 font-bold focus:ring-2 focus:ring-primary-500/80 focus:border-transparent outline-none transition-all duration-300 shadow-inner backdrop-blur-sm ${errors.email ? 'border-red-500/50 focus:ring-red-500/50' : ''}`}
+                    placeholder="you@yourhotel.com" 
                   />
                 </div>
                 {errors.email && <p className="text-[10px] font-bold text-red-400 uppercase tracking-wider">{errors.email}</p>}
@@ -262,17 +262,17 @@ const RegisterPage = () => {
               <div className="space-y-1">
                 <label htmlFor="password" className="text-xs font-bold text-gray-400 uppercase tracking-wider block">password</label>
                 <div className="relative">
-                  <FiLock className="absolute left-4 top-3.5 text-orange-500/80 w-4 h-4" />
+                  <FiLock className="absolute left-4 top-3.5 text-primary-500/80 w-4 h-4" />
                   <input 
                     id="password" 
                     name="password" 
                     type={showPassword ? 'text' : 'password'} 
                     value={formData.password} 
                     onChange={handleChange} 
-                    className={`w-full pl-12 pr-10 py-3 bg-gray-950/40 border border-gray-800/80 rounded-xl text-gray-200 placeholder-gray-600 font-bold focus:ring-2 focus:ring-orange-500/80 focus:border-transparent outline-none transition-all duration-300 shadow-inner backdrop-blur-sm ${errors.password ? 'border-red-500/50 focus:ring-red-500/50' : ''}`}
+                    className={`w-full pl-12 pr-10 py-3 bg-gray-950/40 border border-gray-800/80 rounded-xl text-gray-200 placeholder-gray-600 font-bold focus:ring-2 focus:ring-primary-500/80 focus:border-transparent outline-none transition-all duration-300 shadow-inner backdrop-blur-sm ${errors.password ? 'border-red-500/50 focus:ring-red-500/50' : ''}`}
                     placeholder="••••••••" 
                   />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3 text-amber-500 hover:text-orange-500 transition-colors">
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3 text-amber-500 hover:text-primary-500 transition-colors">
                     {showPassword ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
                   </button>
                 </div>
@@ -282,14 +282,14 @@ const RegisterPage = () => {
               <div className="space-y-1">
                 <label htmlFor="confirmPassword" className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Confirm pasword</label>
                 <div className="relative">
-                  <FiLock className="absolute left-4 top-3.5 text-orange-500/80 w-4 h-4" />
+                  <FiLock className="absolute left-4 top-3.5 text-primary-500/80 w-4 h-4" />
                   <input 
                     id="confirmPassword" 
                     name="confirmPassword" 
                     type="password" 
                     value={formData.confirmPassword} 
                     onChange={handleChange} 
-                    className={`w-full pl-12 pr-4 py-3 bg-gray-950/40 border border-gray-800/80 rounded-xl text-gray-200 placeholder-gray-600 font-bold focus:ring-2 focus:ring-orange-500/80 focus:border-transparent outline-none transition-all duration-300 shadow-inner backdrop-blur-sm ${errors.confirmPassword ? 'border-red-500/50 focus:ring-red-500/50' : ''}`}
+                    className={`w-full pl-12 pr-4 py-3 bg-gray-950/40 border border-gray-800/80 rounded-xl text-gray-200 placeholder-gray-600 font-bold focus:ring-2 focus:ring-primary-500/80 focus:border-transparent outline-none transition-all duration-300 shadow-inner backdrop-blur-sm ${errors.confirmPassword ? 'border-red-500/50 focus:ring-red-500/50' : ''}`}
                     placeholder="••••••••" 
                   />
                 </div>
@@ -300,7 +300,7 @@ const RegisterPage = () => {
                 type="button" 
                 onClick={handleNext} 
                 disabled={loading}
-                className="w-full py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold rounded-xl shadow-lg hover:from-orange-600 hover:to-amber-600 hover:shadow-orange-500/10 transition-all duration-300 flex items-center justify-center gap-2 text-xs uppercase tracking-wider mt-2 disabled:opacity-50"
+                className="w-full py-4 bg-gradient-to-r from-primary-500 to-primary-500 text-white font-bold rounded-xl shadow-lg hover:from-primary-600 hover:to-primary-600 hover:shadow-primary-500/10 transition-all duration-300 flex items-center justify-center gap-2 text-xs uppercase tracking-wider mt-2 disabled:opacity-50"
               >
                 {loading ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white" /> : 'Continue'}
               </button>
@@ -321,16 +321,16 @@ const RegisterPage = () => {
                         onClick={() => handleRoleChange(role.value)}
                         className={`text-left p-4 rounded-2xl border transition-all relative overflow-hidden group/role ${
                           isActive 
-                            ? 'bg-orange-500/10 border-orange-500 text-orange-400 shadow-[0_4px_20px_rgba(249,115,22,0.08)] scale-[1.01]' 
+                            ? 'bg-primary-500/10 border-primary-500 text-primary-400 shadow-[0_4px_20px_rgba(249,115,22,0.08)] scale-[1.01]' 
                             : 'bg-gray-950/40 border-gray-805 text-gray-500 hover:border-gray-700 hover:text-gray-300'
                         }`}
                       >
-                        <div className={`mb-2 text-lg transition-colors ${isActive ? 'text-orange-400' : 'text-gray-600'}`}>
+                        <div className={`mb-2 text-lg transition-colors ${isActive ? 'text-primary-400' : 'text-gray-600'}`}>
                           <FiActivity className="w-5 h-5" />
                         </div>
                         <span className="block font-bold text-xs uppercase tracking-wider mb-0.5">{role.label}</span>
                         <p className="text-[10px] text-gray-500 leading-normal">{role.description}</p>
-                        {isActive && <FiCheckCircle className="absolute top-3 right-3 w-4 h-4 text-orange-400" />}
+                        {isActive && <FiCheckCircle className="absolute top-3 right-3 w-4 h-4 text-primary-400" />}
                       </button>
                     );
                   })}
@@ -341,15 +341,15 @@ const RegisterPage = () => {
               <div className="space-y-1">
                 <label htmlFor="companyName" className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Company / Institution</label>
                 <div className="relative">
-                  <FiActivity className="absolute left-4 top-3.5 text-orange-500/80 w-4 h-4" />
+                  <FiActivity className="absolute left-4 top-3.5 text-primary-500/80 w-4 h-4" />
                   <input 
                     id="companyName" 
                     name="companyName" 
                     type="text" 
                     value={formData.companyName} 
                     onChange={handleChange} 
-                    className="w-full pl-12 pr-4 py-3 bg-gray-950/40 border border-gray-800/80 rounded-xl text-gray-200 placeholder-gray-600 font-bold focus:ring-2 focus:ring-orange-500/80 focus:border-transparent outline-none transition-all duration-300 shadow-inner backdrop-blur-sm"
-                    placeholder="E.g., City Hospital" 
+                    className="w-full pl-12 pr-4 py-3 bg-gray-950/40 border border-gray-800/80 rounded-xl text-gray-200 placeholder-gray-600 font-bold focus:ring-2 focus:ring-primary-500/80 focus:border-transparent outline-none transition-all duration-300 shadow-inner backdrop-blur-sm"
+                    placeholder="E.g., Seaside Hospitality Pvt Ltd" 
                   />
                 </div>
               </div>
@@ -357,14 +357,14 @@ const RegisterPage = () => {
               <div className="space-y-1">
                 <label htmlFor="cityId" className="text-xs font-bold text-gray-400 uppercase tracking-wider block">City</label>
                 <div className="relative">
-                  <FiMapPin className="absolute left-4 top-3.5 text-orange-500/80 w-4 h-4" />
+                  <FiMapPin className="absolute left-4 top-3.5 text-primary-500/80 w-4 h-4" />
                   <input 
                     id="cityId" 
                     name="cityId" 
                     list="cities" 
                     type="text" 
                     onChange={(e) => { searchCities(e.target.value); handleChange(e); }} 
-                    className="w-full pl-12 pr-4 py-3 bg-gray-950/40 border border-gray-800/80 rounded-xl text-gray-200 placeholder-gray-600 font-bold focus:ring-2 focus:ring-orange-500/80 focus:border-transparent outline-none transition-all duration-300 shadow-inner backdrop-blur-sm"
+                    className="w-full pl-12 pr-4 py-3 bg-gray-950/40 border border-gray-800/80 rounded-xl text-gray-200 placeholder-gray-600 font-bold focus:ring-2 focus:ring-primary-500/80 focus:border-transparent outline-none transition-all duration-300 shadow-inner backdrop-blur-sm"
                     placeholder="Type to search city" 
                   />
                   <datalist id="cities">
@@ -388,7 +388,7 @@ const RegisterPage = () => {
                   type="button"
                   onClick={handleSendOtp}
                   disabled={loading}
-                  className="flex-1 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold rounded-xl shadow-lg hover:from-orange-600 hover:to-amber-600 hover:shadow-orange-500/10 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 text-xs uppercase tracking-wider"
+                  className="flex-1 py-4 bg-gradient-to-r from-primary-500 to-primary-500 text-white font-bold rounded-xl shadow-lg hover:from-primary-600 hover:to-primary-600 hover:shadow-primary-500/10 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 text-xs uppercase tracking-wider"
                 >
                   {loading ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white" /> : 'Send Verification Code'}
                 </button>
@@ -398,14 +398,14 @@ const RegisterPage = () => {
 
           {step === 3 && (
             <div className="space-y-6 animate-fadeIn text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-500/10 to-amber-500/10 border border-orange-500/20 text-orange-400 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/5 animate-pulse">
+              <div className="w-16 h-16 bg-gradient-to-br from-primary-500/10 to-primary-500/10 border border-primary-500/20 text-primary-400 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary-500/5 animate-pulse">
                 <FiMail className="w-8 h-8" />
               </div>
               <div>
                 <h3 className="text-2xl font-black text-gray-100 tracking-tighter mb-1">Security Verification</h3>
                 <p className="text-[10px] font-bold text-gray-500 leading-normal uppercase tracking-wider">
                   Verification code sent to:<br />
-                  <span className="text-orange-400 font-extrabold text-xs tracking-wide">{formData.email}</span>
+                  <span className="text-primary-400 font-extrabold text-xs tracking-wide">{formData.email}</span>
                 </p>
               </div>
 
@@ -419,7 +419,7 @@ const RegisterPage = () => {
                     value={data}
                     onChange={e => handleOtpChange(e.target, index)}
                     onKeyDown={e => handleOtpKeyDown(e, index)}
-                    className="w-full h-12 text-center text-xl font-bold bg-gray-950/40 border border-gray-800 rounded-xl focus:border-orange-500 focus:bg-gray-950 focus:ring-4 focus:ring-orange-500/10 transition-all duration-300 outline-none text-gray-200"
+                    className="w-full h-12 text-center text-xl font-bold bg-gray-950/40 border border-gray-800 rounded-xl focus:border-primary-500 focus:bg-gray-950 focus:ring-4 focus:ring-primary-500/10 transition-all duration-300 outline-none text-gray-200"
                   />
                 ))}
               </div>
@@ -428,7 +428,7 @@ const RegisterPage = () => {
                 type="button"
                 onClick={handleVerifyAndRegister}
                 disabled={loading}
-                className="w-full py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold rounded-xl shadow-lg hover:from-orange-600 hover:to-amber-600 hover:shadow-orange-500/10 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 text-xs uppercase tracking-wider"
+                className="w-full py-4 bg-gradient-to-r from-primary-500 to-primary-500 text-white font-bold rounded-xl shadow-lg hover:from-primary-600 hover:to-primary-600 hover:shadow-primary-500/10 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 text-xs uppercase tracking-wider"
               >
                 {loading ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white" /> : <>Verify and Register <FiCheckCircle className="w-4 h-4" /></>}
               </button>
@@ -439,14 +439,14 @@ const RegisterPage = () => {
                   <button
                     disabled={resending}
                     onClick={handleResendOtp}
-                    className="text-orange-400 hover:text-orange-500 transition-colors uppercase font-extrabold"
+                    className="text-primary-400 hover:text-primary-500 transition-colors uppercase font-extrabold"
                   >
                     {resending ? 'Resending...' : 'Resend Code'}
                   </button>
                 </p>
                 <button
                   onClick={() => setStep(2)}
-                  className="text-[10px] font-bold text-orange-500 hover:text-orange-600 uppercase tracking-wider transition-colors block mx-auto underline"
+                  className="text-[10px] font-bold text-primary-500 hover:text-primary-600 uppercase tracking-wider transition-colors block mx-auto underline"
                 >
                   Change Email
                 </button>
@@ -457,7 +457,7 @@ const RegisterPage = () => {
 
         {step < 3 && (
           <p className="mt-6 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">
-            Already a member? <Link to="/login" className="text-orange-500 hover:text-orange-600 font-extrabold ml-1 transition-colors">Login</Link>
+            Already a member? <Link to="/login" className="text-primary-500 hover:text-primary-600 font-extrabold ml-1 transition-colors">Login</Link>
           </p>
         )}
       </div>

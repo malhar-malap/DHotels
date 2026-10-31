@@ -33,7 +33,7 @@ api.interceptors.response.use(
       try {
         const stringified = JSON.stringify(response.data);
         if (stringified.includes('http://')) {
-          const sanitized = stringified.replace(/http:\/\/dhacquisitions\.co/g, 'https://dhacquisitions.co');
+          const sanitized = stringified.replace(/http:\/\/dhotels\.co/g, 'https://dhotels.co');
           response.data = JSON.parse(sanitized);
         }
       } catch (e) {
@@ -157,7 +157,6 @@ export const masterAPI = {
   getCategories: () => api.get('/master/categories'),
   getDealTypes: (categoryId) => api.get(`/master/categories/${categoryId}/deal-types`),
   getJobCategories: () => api.get('/master/job-categories'),
-  getHospitalTypes: () => api.get('/master/hospital-types'),
 };
 
 // Admin API

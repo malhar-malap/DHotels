@@ -59,9 +59,9 @@ const JobDetailPage = () => {
       // Dynamic SEO Slug Redirection / Canonical URL verification
       if (fetchedJob) {
         const canonicalSlug = generateSlug(fetchedJob.title, fetchedJob.cityName);
-        const expectedPath = `/healthcare-jobs-india/${fetchedJob.id}-${canonicalSlug}`;
+        const expectedPath = `/hospitality-jobs-india/${fetchedJob.id}-${canonicalSlug}`;
         if (location.pathname !== expectedPath) {
-          navigate(canonicalSlug ? expectedPath : `/healthcare-jobs-india/${fetchedJob.id}`, { replace: true });
+          navigate(canonicalSlug ? expectedPath : `/hospitality-jobs-india/${fetchedJob.id}`, { replace: true });
         }
       }
     }
@@ -92,14 +92,14 @@ const JobDetailPage = () => {
   };
 
   if (loading) return (<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div></div>);
-  if (!job) return (<div className="min-h-screen flex items-center justify-center"><Seo title="Job Not Found | DH Acquisitions" noindex statusCode={404} /><div className="text-center"><h2 className="text-xl font-bold text-gray-200 mb-2">Job Not Found</h2><Link to="/healthcare-jobs-india" className="text-primary-500">Back to Jobs</Link></div></div>);
+  if (!job) return (<div className="min-h-screen flex items-center justify-center"><Seo title="Job Not Found | DHotels" noindex statusCode={404} /><div className="text-center"><h2 className="text-xl font-bold text-gray-200 mb-2">Job Not Found</h2><Link to="/hospitality-jobs-india" className="text-primary-500">Back to Jobs</Link></div></div>);
 
   // Search meta + Google for Jobs structured data
   const jobCity = job.cityName || job.city?.name;
   const jobSlug = generateSlug(job.title, job.cityName); // must match the canonical redirect in fetchJob
-  const jobPath = jobSlug ? `/healthcare-jobs-india/${job.id}-${jobSlug}` : `/healthcare-jobs-india/${job.id}`;
-  const jobSeoTitle = `${job.title}${jobCity ? ` in ${jobCity}` : ''} | Healthcare Jobs | DH Acquisitions`;
-  const jobSeoDescription = truncate(job.description) || `${job.title}${jobCity ? ` job in ${jobCity}` : ''}. Apply on DH Acquisitions.`;
+  const jobPath = jobSlug ? `/hospitality-jobs-india/${job.id}-${jobSlug}` : `/hospitality-jobs-india/${job.id}`;
+  const jobSeoTitle = `${job.title}${jobCity ? ` in ${jobCity}` : ''} | Hospitality Jobs | DHotels`;
+  const jobSeoDescription = truncate(job.description) || `${job.title}${jobCity ? ` job in ${jobCity}` : ''}. Apply on DHotels.`;
   const employerName = job.employer?.companyName;
   const jobSchema = employerName && {
     '@context': 'https://schema.org',
@@ -130,7 +130,7 @@ const JobDetailPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-[#d8572a]/10 py-8">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-primary-500/10 py-8">
       <Seo
         title={jobSeoTitle}
         description={jobSeoDescription}
@@ -139,7 +139,7 @@ const JobDetailPage = () => {
         schema={jobSchema || undefined}
       />
       <div className="max-w-5xl mx-auto px-4">
-        <Link to="/healthcare-jobs-india" className="inline-flex items-center text-gray-400 hover:text-primary-500 mb-6"><FiChevronLeft className="mr-1" />Back to Jobs</Link>
+        <Link to="/hospitality-jobs-india" className="inline-flex items-center text-gray-400 hover:text-primary-500 mb-6"><FiChevronLeft className="mr-1" />Back to Jobs</Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
@@ -197,7 +197,7 @@ const JobDetailPage = () => {
               </div>
 
               {isAuthenticated && user && job.employer && user.id === job.employer.id ? (
-                <Link to={`/healthcare-jobs-india/${job.id || numericId}/edit`} className="btn btn-secondary w-full py-3 mb-3 flex items-center justify-center gap-2">
+                <Link to={`/hospitality-jobs-india/${job.id || numericId}/edit`} className="btn btn-secondary w-full py-3 mb-3 flex items-center justify-center gap-2">
                   <FiBriefcase className="w-5 h-5" /> Manage Job
                 </Link>
               ) : (
@@ -227,11 +227,11 @@ const JobDetailPage = () => {
             <form onSubmit={handleApply} className="space-y-4">
               <div>
                 <label className="form-label mb-2 block">Upload CV/Resume (PDF) *</label>
-                <div className="relative flex items-center justify-between w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl focus-within:ring-2 focus-within:ring-[#db7c26]/20 transition-all duration-300">
+                <div className="relative flex items-center justify-between w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-xl focus-within:ring-2 focus-within:ring-primary-400/20 transition-all duration-300">
                   <span className="text-gray-300 text-sm truncate max-w-[65%]">
                     {cvFile ? cvFile.name : "No file selected"}
                   </span>
-                  <label className="cursor-pointer bg-[#db7c26]/10 hover:bg-[#db7c26] text-[#db7c26] hover:text-white border border-[#db7c26]/20 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300">
+                  <label className="cursor-pointer bg-primary-500/10 hover:bg-primary-500 text-primary-400 hover:text-white border border-primary-400/20 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300">
                     Choose File
                     <input 
                       type="file" 

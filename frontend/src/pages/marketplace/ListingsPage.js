@@ -1,680 +1,472 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Link, useSearchParams, useLocation, useNavigate } from 'react-router-dom';
+import {
+  PiMagnifyingGlass, PiSlidersHorizontal, PiX, PiMapPin, PiCaretLeft, PiCaretRight, PiSquaresFour,
+} from 'react-icons/pi';
 import { listingsAPI, masterAPI } from '../../services/api';
 import { formatPrice } from '../../utils/formatPrice';
-import { generateSlug } from '../../utils/slugify';
-import { FiSearch, FiMapPin, FiFilter, FiX, FiActivity, FiShield, FiLock, FiCheckCircle } from 'react-icons/fi';
-import Seo from '../../components/common/Seo';
+import { CATEGORIES, getCategoryMeta } from '../../utils/hospitality';
+import ListingCard, { ListingCardSkeleton, listingPath } from '../../components/marketplace/ListingCard';
+import Seo, { SITE_URL } from '../../components/common/Seo';
 
-// Search meta for the marketplace and each category landing path
-const LISTINGS_SEO = {
-  '/listings': {
-    title: 'Healthcare Businesses for Sale in India | Marketplace | DH Acquisitions',
-    description: 'Browse verified hospitals, pharma companies, diagnostic centres, dental clinics, pharmacies and medical equipment for sale or lease across India.'
-  },
-  '/hospitals-for-sale-india': {
-    title: 'Hospitals for Sale in India | Running Hospitals & Nursing Homes | DH Acquisitions',
-    description: 'Find running hospitals, nursing homes and multi-speciality facilities for sale or lease across India. Verified listings with asking prices and key details.'
-  },
-  '/pharma-companies-for-sale-india': {
-    title: 'Pharma Companies for Sale in India | Manufacturing Units | DH Acquisitions',
-    description: 'Explore pharmaceutical companies, manufacturing plants and formulation units for sale in India, with licences, capacity and asking price details.'
-  },
-  '/diagnostic-centers-for-sale-india': {
-    title: 'Diagnostic Centres for Sale in India | Labs & Imaging | DH Acquisitions',
-    description: 'Browse pathology labs, imaging and diagnostic centres for sale across India. Compare equipment, location and asking price on verified listings.'
-  },
-  '/dental-clinics-for-sale-india': {
-    title: 'Dental Clinics for Sale in India | DH Acquisitions',
-    description: 'Find established dental clinics and practices for sale across India, with chairs, equipment and patient base details on verified listings.'
-  },
-  '/pharmacies-for-sale-india': {
-    title: 'Pharmacies for Sale in India | Medical Stores | DH Acquisitions',
-    description: 'Browse running pharmacies and medical stores for sale across India. Verified listings with location, turnover and asking price details.'
-  }
-};
+const PAGE_SIZE = 12;
+
+const SORT_OPTIONS = [
+  { value: 'createdAt_desc', label: 'Newest first' },
+  { value: 'askingPrice_asc', label: 'Price: low to high' },
+  { value: 'askingPrice_desc', label: 'Price: high to low' },
+  { value: 'createdAt_asc', label: 'Oldest first' },
+];
+
+const PRICE_PRESETS = [
+  { label: 'Under ₹1 Cr', min: '', max: '10000000' },
+  { label: '₹1 – 5 Cr', min: '10000000', max: '50000000' },
+  { label: '₹5 – 25 Cr', min: '50000000', max: '250000000' },
+  { label: '₹25 Cr +', min: '250000000', max: '' },
+];
+
+const DEAL_FILTERS = ['For Sale', 'For Lease', 'Profit Sharing'];
+
+const pageCopy = (meta) => meta
+  ? {
+      title: `${meta.label} for Sale & Lease in India | DHotels`,
+      h1: `${meta.label} for sale & lease`,
+      description: `Browse verified ${meta.label.toLowerCase()} for ${meta.dealTypes.map((d) => d.toLowerCase()).join(', ')} across India. ${meta.blurb}`,
+    }
+  : {
+      title: 'Hotels, Resorts & Restaurants for Sale in India | DHotels Marketplace',
+      h1: 'The hospitality marketplace',
+      description: 'Verified hotels, resorts, restaurants, cafés, bars and banquet halls for sale, lease and profit sharing across India.',
+    };
 
 const ListingsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const getCategoryFromPath = (path) => {
-    switch (path) {
-      case '/hospitals-for-sale-india': return '1';
-      case '/pharma-companies-for-sale-india': return '2';
-      case '/diagnostic-centers-for-sale-india': return '3';
-      case '/dental-clinics-for-sale-india': return '4';
-      case '/pharmacies-for-sale-india': return '5';
-      default: return null;
-    }
-  };
+  const categoryMeta = CATEGORIES.find((c) => c.path === location.pathname) || null;
+  const keyword = searchParams.get('keyword') || '';
+  const dealType = searchParams.get('dealType') || '';
+  const city = searchParams.get('city') || '';
+  const minPrice = searchParams.get('minPrice') || '';
+  const maxPrice = searchParams.get('maxPrice') || '';
+  const sort = searchParams.get('sort') || 'createdAt_desc';
+  const page = Math.max(0, parseInt(searchParams.get('page') || '1', 10) - 1);
 
-  const getPathFromCategory = (categoryId) => {
-    switch (categoryId?.toString()) {
-      case '1': return '/hospitals-for-sale-india';
-      case '2': return '/pharma-companies-for-sale-india';
-      case '3': return '/diagnostic-centers-for-sale-india';
-      case '4': return '/dental-clinics-for-sale-india';
-      case '5': return '/pharmacies-for-sale-india';
-      default: return '/listings';
-    }
-  };
-
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
+  const [cities, setCities] = useState([]);
   const [listings, setListings] = useState([]);
+  const [total, setTotal] = useState({ elements: 0, pages: 0 });
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const [dealTypes, setDealTypes] = useState([]);
-  const [cities, setCities] = useState([]);
-
+  const [keywordDraft, setKeywordDraft] = useState(keyword);
   const [showFilters, setShowFilters] = useState(false);
-  const [pagination, setPagination] = useState({ page: 0, size: 24, totalElements: 0, totalPages: 0 });
-  const [loadedImages, setLoadedImages] = useState({});
-  const handleImageLoad = (id) => {
-    setLoadedImages(prev => ({ ...prev, [id]: true }));
-  };
-  const [filters, setFilters] = useState({
-    keyword: searchParams.get('keyword') || '',
-    categoryId: getCategoryFromPath(window.location.pathname) || searchParams.get('category') || '',
-    dealTypeId: searchParams.get('dealType') || '',
-    cityName: searchParams.get('city') || '',
-    minPrice: '',
-    maxPrice: '',
-    sortBy: 'createdAt',
-    sortDirection: 'desc'
-  });
+  const [priceDraft, setPriceDraft] = useState({ min: minPrice, max: maxPrice });
+  const [cityDraft, setCityDraft] = useState(city);
+  const activeChipRef = useRef(null);
+
+  // Keep the active category chip visible in the horizontally scrolling strip on small screens
+  useEffect(() => {
+    activeChipRef.current?.scrollIntoView({ block: 'nearest', inline: 'center' });
+  }, [location.pathname]);
+
+  useEffect(() => { setKeywordDraft(keyword); }, [keyword]);
+  useEffect(() => { setPriceDraft({ min: minPrice, max: maxPrice }); setCityDraft(city); }, [minPrice, maxPrice, city]);
 
   useEffect(() => {
-    fetchMasterData();
-    masterAPI.getCities()
-      .then(res => setCities(res.data?.data || []))
-      .catch(() => setCities([]));
+    masterAPI.getCategories()
+      .then((res) => setCategories(res.data?.data || []))
+      .catch(() => setCategories([]))
+      .finally(() => setCategoriesLoaded(true));
+    masterAPI.getCitiesWithListings().then((res) => setCities(res.data?.data || [])).catch(() => setCities([]));
   }, []);
 
+  // Legacy links (?category=Hotels or ?category=1) move to the category's own path
   useEffect(() => {
-    const keyword = searchParams.get('keyword') || '';
-    const categoryFromPath = getCategoryFromPath(location.pathname);
-    const categoryId = categoryFromPath || searchParams.get('category') || '';
-    const dealTypeId = searchParams.get('dealType') || '';
-    const cityName = searchParams.get('city') || '';
-    const minPrice = searchParams.get('minPrice') || '';
-    const maxPrice = searchParams.get('maxPrice') || '';
-    
-    setFilters(prev => ({
-      ...prev,
-      keyword,
-      categoryId,
-      dealTypeId,
-      cityName,
-      minPrice,
-      maxPrice
-    }));
-  }, [searchParams, location.pathname]);
+    const legacy = searchParams.get('category');
+    if (!legacy) return;
+    const byName = getCategoryMeta(legacy);
+    const byId = categories.find((c) => String(c.id) === legacy);
+    const meta = byName || (byId && getCategoryMeta(byId.name));
+    if (!meta && !categoriesLoaded) return;
+    const next = new URLSearchParams(searchParams);
+    next.delete('category');
+    navigate(`${meta ? meta.path : '/listings'}${next.toString() ? `?${next}` : ''}`, { replace: true });
+  }, [searchParams, categories, categoriesLoaded, navigate]);
 
-  const [debouncedKeyword, setDebouncedKeyword] = useState(filters.keyword);
+  const categoryId = useMemo(() => {
+    if (!categoryMeta) return undefined;
+    return categories.find((c) => c.name.toLowerCase() === categoryMeta.name.toLowerCase())?.id;
+  }, [categories, categoryMeta]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedKeyword(filters.keyword);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [filters.keyword]);
+  const waitingForCategory = !!categoryMeta && !categoriesLoaded;
 
-  useEffect(() => {
-    if (filters.categoryId) {
-      masterAPI.getDealTypes(filters.categoryId)
-        .then(res => setDealTypes(res.data?.data || []))
-        .catch(() => setDealTypes([]));
-    } else {
-      setDealTypes([]);
-      setFilters(prev => ({ ...prev, dealTypeId: '' }));
-    }
-  }, [filters.categoryId]);
-
-  useEffect(() => {
-    fetchListings();
-  }, [debouncedKeyword, filters.categoryId, filters.dealTypeId, filters.cityName, filters.minPrice, filters.maxPrice, filters.sortBy, filters.sortDirection, pagination.page]);
-
-  const fetchMasterData = async () => {
-    // Fetch categories
-    try {
-      const catRes = await masterAPI.getCategories();
-      if (catRes.data && catRes.data.success) {
-        setCategories(catRes.data.data || []);
-      }
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-
-  };
-
-  const fetchListings = async () => {
+  const fetchListings = useCallback(async () => {
+    if (waitingForCategory) return;
     setLoading(true);
     setFetchError(false);
+    const [sortBy, sortDirection] = sort.split('_');
+    const params = {
+      keyword: keyword || undefined,
+      categoryId,
+      dealTypeName: dealType || undefined,
+      cityName: city || undefined,
+      minPrice: minPrice || undefined,
+      maxPrice: maxPrice || undefined,
+      sortBy,
+      sortDirection,
+      page,
+      size: PAGE_SIZE,
+    };
     try {
-      const params = { 
-        ...filters, 
-        keyword: debouncedKeyword,
-        page: pagination.page, 
-        size: pagination.size 
-      };
-      Object.keys(params).forEach(key => { if (params[key] === '' || params[key] === null) delete params[key]; });
-      const response = await listingsAPI.getAll(params, { timeout: 6000 });
+      const response = await listingsAPI.getAll(params, { timeout: 8000 });
       const data = response?.data?.data;
-      if (data && data.content) {
-        setListings(data.content || []);
-        setPagination(prev => ({ ...prev, totalElements: data.totalElements || 0, totalPages: data.totalPages || 0 }));
-      } else {
-        setListings([]);
-      }
-      setLoadedImages({});
+      setListings(data?.content || []);
+      setTotal({ elements: data?.totalElements || 0, pages: data?.totalPages || 0 });
     } catch (error) {
-      console.warn('Notice: Error or timeout fetching listings:', error.message || error);
+      console.warn('Error fetching listings:', error.message || error);
       setFetchError(true);
       setListings([]);
     } finally {
       setLoading(false);
     }
+  }, [waitingForCategory, keyword, categoryId, dealType, city, minPrice, maxPrice, sort, page]);
+
+  useEffect(() => { fetchListings(); }, [fetchListings]);
+
+  const updateParams = (changes, { resetPage = true } = {}) => {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(changes).forEach(([key, value]) => {
+      if (value === '' || value === null || value === undefined) next.delete(key);
+      else next.set(key, value);
+    });
+    if (resetPage) next.delete('page');
+    setSearchParams(next);
   };
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    
-    // Price validation: prevent negative values
-    if ((name === 'minPrice' || name === 'maxPrice') && value !== '') {
-      if (parseFloat(value) < 0) return;
-    }
-    
-    // Handle combined sort value (e.g. "askingPrice_asc")
-    if (name === 'sortOption') {
-      const [sortBy, sortDirection] = value.split('_');
-      setFilters(prev => ({ ...prev, sortBy, sortDirection }));
-      return;
-    }
-    
-    setFilters(prev => ({ ...prev, [name]: value }));
+  const goToCategory = (meta) => {
+    const next = new URLSearchParams(searchParams);
+    next.delete('page');
+    // Profit sharing only exists for hotels
+    if (dealType && meta && !meta.dealTypes.includes(dealType)) next.delete('dealType');
+    navigate(`${meta ? meta.path : '/listings'}${next.toString() ? `?${next}` : ''}`);
   };
 
-  const updateURLWithParams = (newParams) => {
-    // Determine the base path from the new category (if set), otherwise use current path's category
-    const targetCategory = newParams.category || getCategoryFromPath(location.pathname);
-    const targetPath = getPathFromCategory(targetCategory);
-    
-    // Copy params so we can modify
-    const paramsToSet = { ...newParams };
-    
-    // Remove category param if the path already implies it
-    if (targetPath !== '/listings' && paramsToSet.category) {
-      delete paramsToSet.category;
-    }
-    
-    // Check if we need to navigate to a new path
-    if (targetPath !== location.pathname) {
-      const queryStr = new URLSearchParams(paramsToSet).toString();
-      navigate(`${targetPath}${queryStr ? '?' + queryStr : ''}`);
-    } else {
-      // Just update the query string on the current path
-      setSearchParams(paramsToSet);
-    }
+  const submitKeyword = (e) => {
+    e.preventDefault();
+    updateParams({ keyword: keywordDraft.trim() });
   };
 
-  const applyFilters = () => {
-    const newParams = {};
-    if (filters.keyword) newParams.keyword = filters.keyword;
-    if (filters.categoryId) newParams.category = filters.categoryId;
-    if (filters.dealTypeId) newParams.dealType = filters.dealTypeId;
-    if (filters.cityName) newParams.city = filters.cityName;
-    if (filters.minPrice) newParams.minPrice = filters.minPrice;
-    if (filters.maxPrice) newParams.maxPrice = filters.maxPrice;
-    
-    updateURLWithParams(newParams);
-    setPagination(prev => ({ ...prev, page: 0 }));
+  const applyMoreFilters = () => {
+    updateParams({ city: cityDraft.trim(), minPrice: priceDraft.min, maxPrice: priceDraft.max });
     setShowFilters(false);
   };
 
-  const clearFilters = () => {
-    setFilters({ keyword: '', categoryId: '', dealTypeId: '', cityName: '', minPrice: '', maxPrice: '', sortBy: 'createdAt', sortDirection: 'desc' });
-    updateURLWithParams({});
-    fetchListings();
+  const clearAll = () => {
+    navigate(categoryMeta ? categoryMeta.path : '/listings');
   };
 
-  const getActiveFiltersCount = () => {
-    let count = 0;
-    if (filters.categoryId) count++;
-    if (filters.dealTypeId) count++;
-    if (filters.cityName) count++;
-    if (filters.minPrice) count++;
-    if (filters.maxPrice) count++;
-    return count;
+  const availableDeals = categoryMeta ? categoryMeta.dealTypes : DEAL_FILTERS;
+  const activeChips = [
+    keyword && { key: 'keyword', label: `“${keyword}”` },
+    city && { key: 'city', label: city },
+    (minPrice || maxPrice) && {
+      key: 'price',
+      label: minPrice && maxPrice ? `${formatPrice(minPrice)} – ${formatPrice(maxPrice)}` : minPrice ? `From ${formatPrice(minPrice)}` : `Up to ${formatPrice(maxPrice)}`,
+    },
+  ].filter(Boolean);
+  const moreFilterCount = (city ? 1 : 0) + (minPrice || maxPrice ? 1 : 0);
+  const copy = pageCopy(categoryMeta);
+
+  const removeChip = (key) => {
+    if (key === 'price') updateParams({ minPrice: '', maxPrice: '' });
+    else updateParams({ [key]: '' });
   };
-
-  const removeFilter = (key) => {
-    const newParams = { ...filters };
-    if (key === 'category') {
-      newParams.categoryId = '';
-      newParams.dealTypeId = '';
-    } else if (key === 'dealType') {
-      newParams.dealTypeId = '';
-    } else if (key === 'city') {
-      newParams.cityName = '';
-    } else if (key === 'minPrice') {
-      newParams.minPrice = '';
-    } else if (key === 'maxPrice') {
-      newParams.maxPrice = '';
-    }
-    
-    setFilters(prev => ({ 
-      ...prev, 
-      categoryId: newParams.categoryId, 
-      dealTypeId: newParams.dealTypeId,
-      cityName: newParams.cityName,
-      minPrice: newParams.minPrice,
-      maxPrice: newParams.maxPrice
-    }));
-
-    const updatedSearchParams = {};
-    if (newParams.keyword) updatedSearchParams.keyword = newParams.keyword;
-    if (newParams.categoryId) updatedSearchParams.category = newParams.categoryId;
-    if (newParams.dealTypeId) updatedSearchParams.dealType = newParams.dealTypeId;
-    if (newParams.cityName) updatedSearchParams.city = newParams.cityName;
-    if (newParams.minPrice) updatedSearchParams.minPrice = newParams.minPrice;
-    if (newParams.maxPrice) updatedSearchParams.maxPrice = newParams.maxPrice;
-    
-    updateURLWithParams(updatedSearchParams);
-    setPagination(prev => ({ ...prev, page: 0 }));
-  };
-
-
 
   return (
-    <div className="min-h-screen bg-mesh bg-gray-900 text-gray-100 relative overflow-hidden">
+    <div className="min-h-screen bg-gray-950">
       <Seo
-        title={(LISTINGS_SEO[location.pathname] || LISTINGS_SEO['/listings']).title}
-        description={(LISTINGS_SEO[location.pathname] || LISTINGS_SEO['/listings']).description}
-        path={LISTINGS_SEO[location.pathname] ? location.pathname : '/listings'}
+        title={copy.title}
+        description={copy.description}
+        path={categoryMeta ? categoryMeta.path : '/listings'}
+        // Filtered/paginated views are query-string variants; robots.txt keeps them out of the index
+        schema={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+              { '@type': 'ListItem', position: 2, name: 'Marketplace', item: `${SITE_URL}/listings` },
+              ...(categoryMeta ? [{ '@type': 'ListItem', position: 3, name: categoryMeta.label, item: `${SITE_URL}${categoryMeta.path}` }] : []),
+            ],
+          },
+          ...(listings.length > 0 ? [{
+            '@context': 'https://schema.org',
+            '@type': 'ItemList',
+            name: copy.h1,
+            itemListElement: listings.map((l, i) => ({
+              '@type': 'ListItem',
+              position: page * PAGE_SIZE + i + 1,
+              url: `${SITE_URL}${listingPath(l)}`,
+              name: l.displayTitle,
+            })),
+          }] : []),
+        ]}
       />
-      {/* Ambient background light glows */}
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-primary-500/5 rounded-full blur-[150px] pointer-events-none -z-10" />
-      <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] bg-[#d8572a]/5 rounded-full blur-[180px] pointer-events-none -z-10" />
 
-      {/* Hero Header Area */}
-      <div className="border-b border-white/5 bg-gray-950/20 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
-          <div className="text-center md:text-left mb-8 max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-primary-500/10 border border-primary-500/20 rounded-full text-[10px] font-bold text-primary-400 mb-4 tracking-wider uppercase">
-              <FiShield className="w-3.5 h-3.5 text-primary-400" /> Verified Healthcare Marketplace
-            </div>
-            <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-none mb-4">
-              Explore Premium <span className="text-gradient">Healthcare Assets</span>
-            </h1>
-            <p className="text-gray-400 text-sm md:text-base leading-relaxed">
-              Acquire, lease, or invest in verified hospitals, pharmaceutical plants, research laboratories, and diagnostic centers. Direct access to secure institutional transactions.
-            </p>
+      {/* Header */}
+      <section className="relative isolate overflow-hidden border-b border-white/[0.06]">
+        {categoryMeta && (
+          <div className="absolute inset-0 -z-10" aria-hidden="true">
+            <img src={categoryMeta.image} alt="" className="h-full w-full object-cover opacity-30" />
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-950 via-gray-950/90 to-gray-950/60" />
           </div>
+        )}
+        <div className="container-site py-12 md:py-16">
+          <nav className="flex items-center gap-2 text-xs text-gray-500" aria-label="Breadcrumb">
+            <Link to="/" className="hover:text-gray-300">Home</Link>
+            <span>/</span>
+            {categoryMeta ? <Link to="/listings" className="hover:text-gray-300">Marketplace</Link> : <span className="text-gray-300">Marketplace</span>}
+            {categoryMeta && (<><span>/</span><span className="text-gray-300">{categoryMeta.label}</span></>)}
+          </nav>
+          <h1 className="heading-lg mt-4 sm:text-5xl">{copy.h1}</h1>
+          <p className="lede mt-3 max-w-2xl">{categoryMeta ? categoryMeta.blurb : copy.description}</p>
 
-          {/* Search & Filter Glass Box */}
-          <div className="glass-panel p-4 md:p-6 rounded-3xl shadow-xl flex flex-col md:flex-row gap-4 bg-gray-900/80 backdrop-blur-xl border border-white/5 relative z-10">
-            <div className="flex-grow relative">
-              <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-primary-400 w-5 h-5" />
-              <input 
-                type="text" 
-                name="keyword" 
-                value={filters.keyword} 
-                onChange={handleFilterChange} 
-                placeholder="Search by name, category, city, or unique listing ID (e.g. HSP00058)..." 
-                className="w-full pl-12 pr-4 py-4 bg-gray-950/60 text-white placeholder-gray-500 text-sm md:text-base rounded-2xl border border-gray-800 focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 focus:outline-none transition-all outline-none"
-                onKeyDown={(e) => e.key === 'Enter' && applyFilters()} 
+          <form onSubmit={submitKeyword} className="mt-8 flex max-w-2xl gap-2" role="search">
+            <label className="relative flex-1">
+              <span className="sr-only">Search listings</span>
+              <PiMagnifyingGlass className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+              <input
+                value={keywordDraft}
+                onChange={(e) => setKeywordDraft(e.target.value)}
+                placeholder="Search by name, city or listing code"
+                className="field !rounded-full !py-3.5 !pl-12"
               />
-            </div>
-            <div className="flex gap-3">
-              <button 
-                onClick={() => setShowFilters(!showFilters)} 
-                className={`px-5 py-4 rounded-2xl flex items-center justify-center gap-2 font-bold text-sm transition-all border outline-none ${
-                  showFilters || (filters.categoryId || filters.cityName || filters.minPrice || filters.maxPrice)
-                    ? 'bg-primary-500/10 text-primary-400 border-primary-500/30 shadow-inner' 
-                    : 'bg-gray-950/40 text-gray-300 border-gray-800 hover:bg-gray-800/40'
-                }`}
-              >
-                <FiFilter className="w-4 h-4" /> 
-                <span className="hidden sm:inline">Filters</span>
-                {(filters.categoryId || filters.cityName || filters.minPrice || filters.maxPrice) && (
-                  <span className="bg-primary-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse">!</span>
-                )}
-              </button>
-              <button 
-                onClick={applyFilters} 
-                className="btn-gradient px-8 py-4 rounded-2xl font-bold text-sm tracking-wider uppercase shadow-lg shadow-primary-500/10 active:scale-95 transition-transform"
-              >
-                Search
-              </button>
-            </div>
-          </div>
+            </label>
+            <button type="submit" className="btn-brass !px-6">Search</button>
+          </form>
+        </div>
+      </section>
 
-          {/* Active Filter Chips */}
-          {getActiveFiltersCount() > 0 && (
-            <div className="flex flex-wrap items-center gap-2 mt-6 animate-fadeIn">
-              <span className="text-xs text-gray-500 font-bold uppercase tracking-wider mr-1">Active:</span>
-              {filters.categoryId && (
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-gray-800/60 border border-gray-700/50 rounded-full text-xs text-gray-300 font-medium">
-                  Segment: {categories.find(c => String(c.id) === String(filters.categoryId))?.name || 'Selected'}
-                  <button onClick={() => removeFilter('category')} className="text-gray-500 hover:text-gray-300 transition-colors" aria-label="Remove category filter"><FiX className="w-3 h-3" /></button>
-                </span>
-              )}
-              {filters.dealTypeId && (
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-gray-800/60 border border-gray-700/50 rounded-full text-xs text-gray-300 font-medium">
-                  Type: {dealTypes.find(d => String(d.id) === String(filters.dealTypeId))?.name || 'Selected'}
-                  <button onClick={() => removeFilter('dealType')} className="text-gray-500 hover:text-gray-300 transition-colors" aria-label="Remove deal type filter"><FiX className="w-3 h-3" /></button>
-                </span>
-              )}
-              {filters.cityName && (
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-gray-800/60 border border-gray-700/50 rounded-full text-xs text-gray-300 font-medium">
-                  City: {filters.cityName}
-                  <button onClick={() => removeFilter('city')} className="text-gray-500 hover:text-gray-300 transition-colors" aria-label="Remove city filter"><FiX className="w-3 h-3" /></button>
-                </span>
-              )}
-              {filters.minPrice && (
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-gray-800/60 border border-gray-700/50 rounded-full text-xs text-gray-300 font-medium">
-                  Min: {formatPrice(filters.minPrice)}
-                  <button onClick={() => removeFilter('minPrice')} className="text-gray-500 hover:text-gray-300 transition-colors" aria-label="Remove min price filter"><FiX className="w-3 h-3" /></button>
-                </span>
-              )}
-              {filters.maxPrice && (
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-gray-800/60 border border-gray-700/50 rounded-full text-xs text-gray-300 font-medium">
-                  Max: {formatPrice(filters.maxPrice)}
-                  <button onClick={() => removeFilter('maxPrice')} className="text-gray-500 hover:text-gray-300 transition-colors" aria-label="Remove max price filter"><FiX className="w-3 h-3" /></button>
-                </span>
-              )}
-              <button onClick={clearFilters} className="text-xs font-bold text-primary-400 hover:text-primary-300 transition-colors uppercase tracking-wider ml-1">
-                Clear All
-              </button>
-            </div>
-          )}
+      {/* Filter bar */}
+      <div className="sticky top-16 z-30 border-b border-white/[0.06] bg-gray-950/90 backdrop-blur-xl">
+        <div className="container-site flex items-center gap-3 py-3">
+          <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto scrollbar-hide">
+            <button
+              type="button"
+              onClick={() => goToCategory(null)}
+              className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${!categoryMeta ? 'border-primary-400 bg-primary-400/10 text-primary-100' : 'border-white/10 text-gray-300 hover:border-white/25'}`}
+            >
+              <PiSquaresFour className="h-4 w-4" /> All
+            </button>
+            {CATEGORIES.map((c) => {
+              const Icon = c.icon;
+              const active = categoryMeta?.name === c.name;
+              return (
+                <button
+                  key={c.name}
+                  ref={active ? activeChipRef : undefined}
+                  type="button"
+                  onClick={() => goToCategory(c)}
+                  className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${active ? 'border-primary-400 bg-primary-400/10 text-primary-100' : 'border-white/10 text-gray-300 hover:border-white/25'}`}
+                >
+                  <Icon className="h-4 w-4" /> {c.label}
+                </button>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowFilters(true)}
+            className="flex shrink-0 items-center gap-2 rounded-full border border-white/10 px-4 py-1.5 text-sm font-medium text-gray-200 hover:border-white/25"
+          >
+            <PiSlidersHorizontal className="h-4 w-4" />
+            <span className="hidden sm:inline">Filters</span>
+            {moreFilterCount > 0 && <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-400 text-[11px] font-bold text-gray-950">{moreFilterCount}</span>}
+          </button>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="md:flex md:gap-8">
-          {/* Filters Sidebar */}
-          {showFilters && (
-            <>
-              {/* Mobile overlay backdrop */}
-              <div
-                className="fixed inset-0 bg-black/70 z-40 md:hidden backdrop-blur-sm"
-                onClick={() => setShowFilters(false)}
-              />
-              
-              <div className="fixed inset-y-0 right-0 z-50 w-full max-w-sm bg-gray-950 p-6 overflow-y-auto border-l border-white/5 md:relative md:inset-auto md:z-auto md:overflow-visible md:w-80 md:rounded-3xl md:border md:bg-gray-900/40 md:backdrop-blur-xl md:p-6 md:h-fit md:sticky md:top-24 shadow-2xl">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-lg font-black text-white tracking-tight uppercase">Filter Criteria</h3>
-                  <div className="flex items-center gap-3">
-                    <button onClick={clearFilters} className="text-xs font-bold text-primary-400 hover:text-primary-300 transition-colors uppercase tracking-wider">Reset</button>
-                    <button onClick={() => setShowFilters(false)} className="md:hidden p-1.5 text-gray-400 hover:text-white rounded-lg bg-gray-900 border border-gray-800" aria-label="Close filters">
-                      <FiX className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-                
-                <div className="space-y-5">
-                  <div>
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">Asset Category</label>
-                    <select name="categoryId" value={filters.categoryId} onChange={handleFilterChange} className="w-full bg-gray-950/60 border border-gray-800 text-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all cursor-pointer">
-                      <option value="">All Categories</option>
-                      {categories.map(cat => (<option key={cat.id} value={cat.id}>{cat.name}</option>))}
-                    </select>
-                  </div>
-                  
-                  {filters.categoryId && dealTypes.length > 0 && (
-                    <div className="animate-fadeIn">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">Deal Structure</label>
-                      <select name="dealTypeId" value={filters.dealTypeId} onChange={handleFilterChange} className="w-full bg-gray-950/60 border border-gray-800 text-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all cursor-pointer">
-                        <option value="">All Types</option>
-                        {dealTypes.map(type => (<option key={type.id} value={type.id}>{type.name}</option>))}
-                      </select>
-                    </div>
-                  )}
-                  
-                  <div>
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">Region / City</label>
-                    <input 
-                      type="text" 
-                      name="cityName" 
-                      value={filters.cityName} 
-                      onChange={handleFilterChange} 
-                      list="filterCityList" 
-                      placeholder="All Cities" 
-                      className="w-full bg-gray-950/60 border border-gray-800 text-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all" 
-                      autoComplete="off" 
-                    />
-                    <datalist id="filterCityList">
-                      {cities.map(city => (
-                        <option key={city.id} value={city.name} />
-                      ))}
-                    </datalist>
-                  </div>
-                  
-                  <div>
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">Valuation Range</label>
-                    <div className="flex gap-3">
-                      <input type="number" name="minPrice" value={filters.minPrice} onChange={handleFilterChange} placeholder="Min Price" min="0" className="w-full bg-gray-950/60 border border-gray-800 text-gray-200 rounded-xl px-3 py-3 text-xs focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all" />
-                      <input type="number" name="maxPrice" value={filters.maxPrice} onChange={handleFilterChange} placeholder="Max Price" min="0" className="w-full bg-gray-950/60 border border-gray-800 text-gray-200 rounded-xl px-3 py-3 text-xs focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all" />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 block">Sort Order</label>
-                    <select name="sortOption" value={`${filters.sortBy}_${filters.sortDirection}`} onChange={handleFilterChange} className="w-full bg-gray-950/60 border border-gray-800 text-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all cursor-pointer">
-                      <option value="createdAt_desc">Newest Listings</option>
-                      <option value="createdAt_asc">Oldest Listings</option>
-                      <option value="askingPrice_asc">Valuation: Low to High</option>
-                      <option value="askingPrice_desc">Valuation: High to Low</option>
-                    </select>
-                  </div>
-
-                  <div className="pt-2">
-                    <button onClick={applyFilters} className="btn-gradient w-full py-3.5 rounded-xl font-bold text-sm tracking-wider uppercase shadow-md shadow-primary-500/10">Apply Filters</button>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Listings List Area */}
-          <div className="flex-1">
-            {loading ? (
-              /* Shimmer Skeletons */
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3, 4, 5, 6].map(i => (
-                  <div key={i} className="bg-gray-950/40 border border-white/5 rounded-3xl overflow-hidden p-4 shadow-md animate-pulse">
-                    <div className="bg-gray-800/60 rounded-2xl h-48 w-full mb-4"></div>
-                    <div className="h-4 bg-gray-800/60 rounded w-1/3 mb-3"></div>
-                    <div className="h-6 bg-gray-800/60 rounded w-3/4 mb-2"></div>
-                    <div className="h-4 bg-gray-800/60 rounded w-1/2 mb-6"></div>
-                    <div className="border-t border-gray-800/60 pt-4 flex justify-between items-center">
-                      <div className="h-6 bg-gray-800/60 rounded w-1/3"></div>
-                      <div className="h-5 bg-gray-800/60 rounded w-1/4"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : listings.length === 0 ? (
-              /* Premium Empty / Fallback State */
-              <div className="text-center py-20 px-6 bg-gray-950/20 border border-white/5 rounded-3xl backdrop-blur-md max-w-2xl mx-auto shadow-xl animate-fadeIn">
-                <div className="w-20 h-20 bg-primary-500/10 border border-primary-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <FiActivity className="w-10 h-10 text-primary-400" />
-                </div>
-                <h3 className="text-2xl font-extrabold text-white mb-3 tracking-tight">
-                  {fetchError ? 'Verified Healthcare & Hospital Opportunities' : 'No Listings Match Your Request'}
-                </h3>
-                <p className="text-gray-400 text-sm md:text-base mb-8 max-w-md mx-auto leading-relaxed">
-                  {fetchError 
-                    ? 'Explore verified operational hospitals, clinics, and medical centers for sale across India. Live inventory pipeline is actively being refreshed. Connect with our M&A advisory team or submit your specific acquisition mandate.'
-                    : "We couldn't find any results matching your search terms or active filters. Try refining your parameters, searching by unique asset code, or clearing your selections."}
-                </p>
-                <div className="flex flex-wrap items-center justify-center gap-4">
-                  {fetchError ? (
-                    <>
-                      <button onClick={fetchListings} className="btn-gradient px-8 py-3.5 rounded-xl font-bold text-sm tracking-wider uppercase shadow-lg shadow-primary-500/20">
-                        Refresh Listings
-                      </button>
-                      <Link to="/contact-us" className="btn btn-secondary px-8 py-3.5 rounded-xl font-bold text-sm tracking-wider uppercase border border-white/10">
-                        Contact Advisory
-                      </Link>
-                    </>
-                  ) : (
-                    <button onClick={clearFilters} className="btn-gradient px-8 py-3.5 rounded-xl font-bold text-sm tracking-wider uppercase shadow-lg shadow-primary-500/20">
-                      Reset All Filters
-                    </button>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <>
-                {/* Result header */}
-                <div className="flex justify-between items-center mb-6">
-                  <p className="text-gray-400 font-medium text-sm">{pagination.totalElements} premium assets active</p>
-                </div>
-                
-                {/* Card Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {listings.map(listing => (
-                    <Link 
-                      key={listing.id} 
-                      to={`/listings/${listing.id}-${generateSlug(listing.displayTitle || listing.title, listing.cityName)}`} 
-                      className="group relative flex flex-col bg-gray-950/40 backdrop-blur-md rounded-3xl border border-white/5 overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-primary-500/10 hover:border-primary-500/20 hover:-translate-y-1.5 transition-all duration-500"
-                    >
-                      {/* Image Frame */}
-                      <div className="relative h-52 overflow-hidden bg-gray-900">
-                        {listing.primaryImage ? (
-                          <>
-                            {!loadedImages[listing.id] && (
-                              <div className="absolute inset-0 bg-gradient-to-r from-gray-950 via-gray-900 to-gray-950 animate-pulse" />
-                            )}
-                            <img 
-                              src={listing.primaryImage} 
-                              alt={listing.displayTitle} 
-                              onLoad={() => handleImageLoad(listing.id)}
-                              className={`w-full h-full object-cover transform group-hover:scale-105 transition-all duration-700 ease-out ${
-                                loadedImages[listing.id] ? 'opacity-100' : 'opacity-0'
-                              }`} 
-                            />
-                          </>
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gray-900 border-b border-gray-800/30">
-                            <FiActivity className="w-12 h-12 text-gray-700 group-hover:text-primary-500/30 transition-colors" />
-                          </div>
-                        )}
-                        
-                        {/* Gradient Depth Layer */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-gray-950/80 via-transparent to-transparent opacity-90" />
-                        
-                        {/* Status Badges Overlay */}
-                        <div className="absolute top-4 left-4 flex flex-wrap gap-2 pointer-events-none">
-                          {listing.dealType && (
-                            <span className="px-2.5 py-1 bg-emerald-500/90 text-white backdrop-blur-md rounded-full text-[9px] font-black uppercase tracking-wider shadow-lg">
-                              {listing.dealType}
-                            </span>
-                          )}
-                          {listing.uniqueCode && (
-                            <span className="px-2.5 py-1 bg-primary-500/90 text-white backdrop-blur-md rounded-full text-[9px] font-black uppercase tracking-wider shadow-lg">
-                              {listing.uniqueCode}
-                            </span>
-                          )}
-                        </div>
-
-                        {listing.isConfidential && (
-                          <div className="absolute top-4 right-4 pointer-events-none">
-                            <span className="bg-red-500/95 text-white backdrop-blur-md px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider flex items-center gap-1 shadow-lg">
-                              <FiLock className="w-3 h-3" /> Confidential
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Content Frame */}
-                      <div className="p-6 flex-grow flex flex-col justify-between">
-                        <div>
-                          <div className="flex items-center gap-2 mb-3">
-                            <span className="text-[9px] font-bold text-primary-400 bg-primary-500/10 px-2 py-0.5 rounded uppercase tracking-wider">
-                              {listing.categoryName}
-                            </span>
-                            <span className="text-gray-400 text-xs flex items-center gap-1">
-                              <FiMapPin className="w-3.5 h-3.5 text-primary-500/80" /> {listing.cityName}{listing.stateName ? `, ${listing.stateName}` : ''}
-                            </span>
-                          </div>
-                          
-                          <h3 className="font-extrabold text-gray-100 text-base group-hover:text-primary-400 transition-colors duration-300 line-clamp-1 mb-2 leading-tight">
-                            {listing.displayTitle}
-                          </h3>
-                          
-                          <p className="text-gray-400 text-xs line-clamp-2 mb-4 leading-relaxed">
-                            {listing.shortDescription || "Secure verification active. Request details to view full description."}
-                          </p>
-                        </div>
-
-                        <div>
-                          {/* Inner Divider */}
-                          <div className="border-t border-gray-800/60 my-4" />
-
-                          {/* Footer details */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex flex-col">
-                              <span className="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Valuation</span>
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-lg font-black text-white tracking-tight">
-                                  {formatPrice(listing.askingPrice)}
-                                </span>
-                                {listing.priceNegotiable && (
-                                  <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                                    Negotiable
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            
-                            <div className="flex items-center gap-1 text-[10px] text-emerald-400/90 bg-emerald-500/5 border border-emerald-500/10 px-2.5 py-1 rounded-full font-bold shadow-sm">
-                              <FiCheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-                              <span>Verified Ad</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-                
-                {/* Pagination Controls */}
-                {pagination.totalPages > 1 && (
-                  <div className="flex justify-center mt-12 gap-3">
-                    <button 
-                      onClick={() => { setPagination(prev => ({ ...prev, page: prev.page - 1 })); fetchListings(); }} 
-                      disabled={pagination.page === 0} 
-                      className="px-5 py-2.5 rounded-xl text-sm font-bold bg-gray-900 border border-gray-800 hover:bg-gray-800/80 disabled:opacity-40 disabled:pointer-events-none transition-colors"
-                    >
-                      Previous
-                    </button>
-                    <span className="flex items-center px-4 text-xs font-bold text-gray-400 uppercase tracking-widest bg-gray-900/60 border border-gray-800/40 rounded-xl">
-                      Page {pagination.page + 1} of {pagination.totalPages}
-                    </span>
-                    <button 
-                      onClick={() => { setPagination(prev => ({ ...prev, page: prev.page + 1 })); fetchListings(); }} 
-                      disabled={pagination.page >= pagination.totalPages - 1} 
-                      className="px-5 py-2.5 rounded-xl text-sm font-bold bg-gray-900 border border-gray-800 hover:bg-gray-800/80 disabled:opacity-40 disabled:pointer-events-none transition-colors"
-                    >
-                      Next
-                    </button>
-                  </div>
-                )}
-              </>
+      {/* Results */}
+      <section className="container-site py-8 md:py-10">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="mr-2 text-sm text-gray-400">
+              {loading ? 'Searching…' : <><span className="font-semibold text-gray-100">{total.elements}</span> {total.elements === 1 ? 'property' : 'properties'}</>}
+            </p>
+            {activeChips.map((chip) => (
+              <span key={chip.key} className="chip">
+                {chip.key === 'city' && <PiMapPin className="h-3.5 w-3.5 text-primary-400" />}
+                {chip.label}
+                <button type="button" onClick={() => removeChip(chip.key)} aria-label={`Remove ${chip.label}`} className="text-gray-500 hover:text-gray-200">
+                  <PiX className="h-3.5 w-3.5" />
+                </button>
+              </span>
+            ))}
+            {(activeChips.length > 0 || dealType) && (
+              <button type="button" onClick={clearAll} className="text-sm font-semibold text-primary-300 hover:text-primary-200">Clear all</button>
             )}
           </div>
+          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex rounded-full border border-white/10 p-0.5" role="group" aria-label="Deal type">
+            {['', ...availableDeals].map((d) => (
+              <button
+                key={d || 'any'}
+                type="button"
+                onClick={() => updateParams({ dealType: d })}
+                aria-pressed={dealType === d}
+                className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${dealType === d ? 'bg-gray-50 text-gray-950' : 'text-gray-300 hover:text-gray-50'}`}
+              >
+                {d || 'Any deal'}
+              </button>
+            ))}
+          </div>
+          <label className="flex items-center gap-2 text-sm text-gray-400">
+            Sort
+            <select
+              value={sort}
+              onChange={(e) => updateParams({ sort: e.target.value === 'createdAt_desc' ? '' : e.target.value })}
+              className="cursor-pointer rounded-full border border-white/10 bg-gray-900 px-3 py-1.5 text-sm text-gray-100 outline-none focus:border-primary-400/60"
+            >
+              {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </label>
+          </div>
         </div>
-      </div>
+
+        {loading ? (
+          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[0, 1, 2, 3, 4, 5].map((i) => <ListingCardSkeleton key={i} />)}
+          </div>
+        ) : listings.length === 0 ? (
+          <div className="surface mx-auto mt-10 max-w-xl p-10 text-center">
+            <h2 className="heading-md">{fetchError ? 'We couldn’t load listings' : 'No properties match these filters'}</h2>
+            <p className="mt-3 text-gray-400">
+              {fetchError
+                ? 'Please check your connection and try again.'
+                : 'Try a different city or price range, or tell us what you are looking for and we will match you privately.'}
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              {fetchError
+                ? <button type="button" onClick={fetchListings} className="btn-brass">Try again</button>
+                : <button type="button" onClick={clearAll} className="btn-brass">Clear filters</button>}
+              <Link to="/contact-us" className="btn-ghost">Share your requirement</Link>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {listings.map((listing) => <ListingCard key={listing.id} listing={listing} />)}
+            </div>
+            {total.pages > 1 && (
+              <nav className="mt-12 flex items-center justify-center gap-2" aria-label="Pagination">
+                <button
+                  type="button"
+                  disabled={page === 0}
+                  onClick={() => updateParams({ page: page > 1 ? String(page) : '' }, { resetPage: false })}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-gray-300 disabled:opacity-30"
+                  aria-label="Previous page"
+                >
+                  <PiCaretLeft className="h-4 w-4" />
+                </button>
+                {Array.from({ length: total.pages }, (_, i) => i)
+                  .filter((i) => i === 0 || i === total.pages - 1 || Math.abs(i - page) <= 1)
+                  .map((i, idx, arr) => (
+                    <React.Fragment key={i}>
+                      {idx > 0 && i - arr[idx - 1] > 1 && <span className="px-1 text-gray-600">…</span>}
+                      <button
+                        type="button"
+                        onClick={() => updateParams({ page: i === 0 ? '' : String(i + 1) }, { resetPage: false })}
+                        aria-current={i === page ? 'page' : undefined}
+                        className={`h-10 min-w-[2.5rem] rounded-full px-3 text-sm font-semibold ${i === page ? 'bg-primary-400 text-gray-950' : 'text-gray-300 hover:bg-white/[0.05]'}`}
+                      >
+                        {i + 1}
+                      </button>
+                    </React.Fragment>
+                  ))}
+                <button
+                  type="button"
+                  disabled={page >= total.pages - 1}
+                  onClick={() => updateParams({ page: String(page + 2) }, { resetPage: false })}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-gray-300 disabled:opacity-30"
+                  aria-label="Next page"
+                >
+                  <PiCaretRight className="h-4 w-4" />
+                </button>
+              </nav>
+            )}
+          </>
+        )}
+      </section>
+
+      {/* More filters drawer */}
+      {showFilters && (
+        <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label="Filters">
+          <div className="absolute inset-0 bg-gray-950/70 backdrop-blur-sm" onClick={() => setShowFilters(false)} />
+          <div className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col border-l border-white/[0.06] bg-gray-900 animate-slideIn">
+            <div className="flex items-center justify-between border-b border-white/[0.06] px-6 py-5">
+              <h2 className="font-display text-2xl text-gray-50">Filters</h2>
+              <button type="button" onClick={() => setShowFilters(false)} className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-gray-300" aria-label="Close filters">
+                <PiX className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="flex-1 space-y-8 overflow-y-auto px-6 py-6">
+              <div>
+                <label className="field-label" htmlFor="filter-city">City</label>
+                <div className="relative">
+                  <PiMapPin className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary-400" />
+                  <input
+                    id="filter-city"
+                    value={cityDraft}
+                    onChange={(e) => setCityDraft(e.target.value)}
+                    list="filter-cities"
+                    placeholder="Any city"
+                    autoComplete="off"
+                    className="field !pl-10"
+                  />
+                  <datalist id="filter-cities">
+                    {cities.map((c) => <option key={c.id || c.name} value={c.name} />)}
+                  </datalist>
+                </div>
+              </div>
+              <div>
+                <p className="field-label">Price</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {PRICE_PRESETS.map((p) => {
+                    const active = priceDraft.min === p.min && priceDraft.max === p.max;
+                    return (
+                      <button
+                        key={p.label}
+                        type="button"
+                        onClick={() => setPriceDraft(active ? { min: '', max: '' } : { min: p.min, max: p.max })}
+                        className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors ${active ? 'border-primary-400 bg-primary-400/10 text-primary-100' : 'border-white/10 text-gray-300 hover:border-white/25'}`}
+                      >
+                        {p.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <input type="number" min="0" inputMode="numeric" placeholder="Min ₹" value={priceDraft.min} onChange={(e) => setPriceDraft((d) => ({ ...d, min: e.target.value }))} className="field" aria-label="Minimum price in rupees" />
+                  <input type="number" min="0" inputMode="numeric" placeholder="Max ₹" value={priceDraft.max} onChange={(e) => setPriceDraft((d) => ({ ...d, max: e.target.value }))} className="field" aria-label="Maximum price in rupees" />
+                </div>
+                {(priceDraft.min || priceDraft.max) && (
+                  <p className="mt-2 text-xs text-gray-500">
+                    {priceDraft.min ? formatPrice(priceDraft.min) : '₹0'} – {priceDraft.max ? formatPrice(priceDraft.max) : 'no limit'}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex gap-3 border-t border-white/[0.06] px-6 py-4">
+              <button type="button" onClick={() => { setCityDraft(''); setPriceDraft({ min: '', max: '' }); }} className="btn-ghost flex-1">Reset</button>
+              <button type="button" onClick={applyMoreFilters} className="btn-brass flex-1">Show results</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default ListingsPage;
-
-
-
