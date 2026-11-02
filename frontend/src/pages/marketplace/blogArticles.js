@@ -35,7 +35,7 @@ export const blogArticles = [
         heading: '2. Source and shortlist properties',
         paragraphs: [
           'Owners are often reluctant to advertise a sale widely because staff, guests and travel partners may hear about it. Most good deals come through specialised marketplaces, brokers and industry networks.',
-          'On DHotels you can filter hotels by city, deal type, room count and price, compare plot and constructed area side by side, and unlock the owner’s contact when you are ready to talk.',
+          'On DHotels24.in you can filter hotels by city, deal type, room count and price, compare plot and constructed area side by side, and unlock the owner’s contact when you are ready to talk.',
         ],
       },
       {
@@ -128,7 +128,7 @@ export const blogArticles = [
       {
         heading: 'Setting your asking price',
         paragraphs: [
-          'Owners who price close to what the documents support tend to close faster. On DHotels you can mark a price as negotiable, and our advisors can help you prepare a valuation note that answers buyers’ first questions before they ask.',
+          'Owners who price close to what the documents support tend to close faster. On DHotels24.in you can mark a price as negotiable, and our advisors can help you prepare a valuation note that answers buyers’ first questions before they ask.',
         ],
       },
     ],
@@ -231,7 +231,7 @@ export const blogArticles = [
         ],
       },
       {
-        heading: 'Finding a partner on DHotels',
+        heading: 'Finding a partner on DHotels24.in',
         paragraphs: [
           'Owners can list a hotel under the “Profit Sharing” deal type and describe the share, lock-in and contribution they are looking for. Investors and operators can browse every open opportunity on the profit sharing page and speak to owners directly.',
         ],

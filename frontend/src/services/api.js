@@ -33,7 +33,7 @@ api.interceptors.response.use(
       try {
         const stringified = JSON.stringify(response.data);
         if (stringified.includes('http://')) {
-          const sanitized = stringified.replace(/http:\/\/dhotels\.co/g, 'https://dhotels.co');
+          const sanitized = stringified.replace(/http:\/\/dhotels\.co/g, 'https://dhotels24.in');
           response.data = JSON.parse(sanitized);
         }
       } catch (e) {

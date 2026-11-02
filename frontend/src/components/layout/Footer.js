@@ -21,7 +21,7 @@ const COLUMNS = [
   {
     title: 'Company',
     links: [
-      { label: 'About DHotels', to: '/about' },
+      { label: 'About DHotels24.in', to: '/about' },
       { label: 'Profit sharing', to: '/partial-properties' },
       { label: 'Hospitality careers', to: '/jobs' },
       { label: 'Insights', to: '/blogs' },
@@ -59,7 +59,7 @@ const Footer = () => (
         <div>
           <Link to="/" className="flex items-center gap-2.5">
             <img src="/images/logo.png" alt="" className="h-9 w-9 object-contain" />
-            <span className="font-display text-2xl text-gray-50">DHotels</span>
+            <span className="font-display text-2xl text-gray-50">DHotels24<span className="text-primary-400">.in</span></span>
           </Link>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-gray-400">
             India's marketplace to buy, sell, lease and co-own hotels, resorts, restaurants, cafés, bars and banquet halls.
@@ -80,7 +80,7 @@ const Footer = () => (
       </div>
 
       <div className="flex flex-col gap-2 border-t border-white/[0.06] py-6 text-xs text-gray-500 md:flex-row md:justify-between">
-        <p>© {new Date().getFullYear()} DHotels Marketplace. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} DHotels24.in Marketplace. All rights reserved.</p>
         <p>Developed &amp; designed by Sahil &amp; Malhar</p>
       </div>
     </div>

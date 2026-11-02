@@ -59,10 +59,10 @@ describe('SEO tags on every indexable page', () => {
     const head = renderHead(path, element);
     const description = (head.meta.match(/name="description" content="([^"]*)"/) || [])[1] || '';
 
-    expect(head.title).toMatch(/DHotels/);
+    expect(head.title).toMatch(/DHotels24.in/);
     expect(head.title.length).toBeLessThanOrEqual(90);
     expect(description.length).toBeGreaterThan(50);
-    expect(head.link).toContain(`href="https://dhotels.co${path}"`);
+    expect(head.link).toContain(`href="https://dhotels24.in${path}"`);
     expect(head.meta).not.toMatch(/noindex/);
     expect((head.body.match(/<h1[\s>]/g) || []).length).toBe(1);
     expect(head.body + head.meta + head.schema).not.toMatch(/hospital(?!ity)|pharma|dhacquisitions/i);

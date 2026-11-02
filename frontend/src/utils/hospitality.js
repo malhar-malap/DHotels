@@ -8,7 +8,7 @@ import {
 } from 'react-icons/pi';
 
 /**
- * Single source of truth for the DHotels marketplace taxonomy.
+ * Single source of truth for the DHotels24.in marketplace taxonomy.
  * `name` must match the `categories.name` rows seeded in database/dhotels_portal.sql.
  */
 const unsplashBase = (id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&q=70&w=`;
@@ -91,6 +91,9 @@ export const DEAL_TYPES = [
 ];
 
 export const TITLE_TYPES = ['Freehold', 'Leasehold', 'Other'];
+
+// One-time fee to unlock an owner's contact (PaymentService.CONTACT_ACCESS_AMOUNT_PAISE)
+export const CONTACT_FEE = '₹1,000';
 
 export const priceLabelFor = (dealTypeName) =>
   dealTypeName === 'For Lease' ? 'Expected rent / premium'

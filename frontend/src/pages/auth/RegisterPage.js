@@ -160,7 +160,7 @@ const RegisterPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-950 bg-mesh relative w-full flex items-center justify-center py-12 px-4 md:px-8 text-gray-100 overflow-hidden">
-      <Seo title="Create an Account | DHotels" path="/register" noindex />
+      <Seo title="Create an Account | DHotels24.in" path="/register" noindex />
       {/* Decorative glow elements */}
       <div className="absolute top-0 left-0 right-0 h-[400px] bg-gradient-to-b from-primary-500/5 to-transparent pointer-events-none z-0" />
       <div className="absolute top-[20%] right-[-10%] w-[350px] h-[350px] bg-primary-500/5 rounded-full blur-[100px] pointer-events-none z-0" />

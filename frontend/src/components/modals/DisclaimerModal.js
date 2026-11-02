@@ -59,10 +59,10 @@ const DisclaimerModal = () => {
                 </h2>
               </div>
             </div>
-            <img src="/images/logo.png" alt="DHotels logo" className="w-10 h-10 object-contain opacity-80 hidden sm:block" />
+            <img src="/images/logo.png" alt="DHotels24.in logo" className="w-10 h-10 object-contain opacity-80 hidden sm:block" />
           </div>
           <p className="text-gray-400 text-xs mt-2 leading-relaxed">
-            Please read and acknowledge the following terms before accessing <span className="text-gray-200 font-semibold">DHotels.co</span>, operated by <span className="text-gray-200 font-semibold">Dhumavati Consulting LLP</span>.
+            Please read and acknowledge the following terms before accessing <span className="text-gray-200 font-semibold">dhotels24.in</span>, operated by <span className="text-gray-200 font-semibold">Dhumavati Consulting LLP</span>.
           </p>
         </div>
 
@@ -77,7 +77,7 @@ const DisclaimerModal = () => {
               <FiAlertTriangle className="w-4 h-4 shrink-0" /> Important Acknowledgement
             </div>
             <p>
-              The information contained on <a href="https://dhotels.co/" className="underline font-semibold text-primary-300 hover:text-white" target="_blank" rel="noopener noreferrer">https://dhotels.co/</a> (“Website”) is provided by <strong>Dhumavati Consulting LLP</strong> (“Dhumavati”, “we”, “us” or “our”) for general informational purposes only.
+              The information contained on <a href="https://dhotels24.in/" className="underline font-semibold text-primary-300 hover:text-white" target="_blank" rel="noopener noreferrer">https://dhotels24.in/</a> (“Website”) is provided by <strong>Dhumavati Consulting LLP</strong> (“Dhumavati”, “we”, “us” or “our”) for general informational purposes only.
             </p>
             <p className="font-medium text-white/90">
               By accessing or using the Website, you acknowledge and agree to the following 16 provisions:
@@ -267,7 +267,7 @@ const DisclaimerModal = () => {
           <div className="pt-4 border-t border-white/5 text-[11px] text-gray-400 leading-relaxed">
             <p className="font-bold text-gray-200">Dhumavati Consulting LLP</p>
             <p>
-              Website: <a href="https://dhotels.co/" target="_blank" rel="noopener noreferrer" className="text-primary-400 hover:underline">https://dhotels.co/</a>
+              Website: <a href="https://dhotels24.in/" target="_blank" rel="noopener noreferrer" className="text-primary-400 hover:underline">https://dhotels24.in/</a>
             </p>
           </div>
         </div>

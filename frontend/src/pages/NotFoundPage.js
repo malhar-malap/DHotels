@@ -5,7 +5,7 @@ import Seo from '../components/common/Seo';
 const NotFoundPage = () => (
   <div className="min-h-screen flex items-center justify-center px-4">
     <Seo
-      title={`Page Not Found | DHotels`}
+      title={`Page Not Found | DHotels24.in`}
       description="The page you are looking for does not exist or has been moved."
       noindex
       statusCode={404}

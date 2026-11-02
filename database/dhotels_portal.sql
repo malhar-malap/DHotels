@@ -1,5 +1,5 @@
 -- ============================================================
--- DHotels Portal Database Schema
+-- DHotels24.in Portal Database Schema
 -- Hospitality Assets & Acquisitions Marketplace (Hotels, Cafes, Restaurants, Banquets, Resorts)
 -- Database: dhotels_portal
 -- ============================================================
@@ -464,27 +464,27 @@ INSERT INTO job_categories (name, description) VALUES
 
 -- Insert Default Site Settings
 INSERT INTO site_settings (setting_key, setting_value, description) VALUES
-('site_name', 'DHotels', 'Website name'),
+('site_name', 'DHotels24.in', 'Website name'),
 ('site_tagline', 'Acquisitions & Marketplace for Hotels, Cafes & Restaurants', 'Website tagline'),
 ('listing_expiry_days', '90', 'Number of days before listing expires'),
 ('max_images_per_listing', '10', 'Maximum images allowed per listing'),
 ('max_cv_size_mb', '5', 'Maximum CV file size in MB'),
 ('max_image_size_mb', '5', 'Maximum image file size in MB'),
 ('enable_registration', 'true', 'Allow new user registrations'),
-('admin_email', 'admin@dhotels.co', 'Admin notification email'),
-('contact_email', 'contact@dhotels.co', 'Contact email displayed on site'),
+('admin_email', 'admin@dhotels24.in', 'Admin notification email'),
+('contact_email', 'contact@dhotels24.in', 'Contact email displayed on site'),
 ('support_phone', '1800-XXX-XXXX', 'Support phone number');
 
 -- Insert Default Admin User
 -- Password: Admin@123 (BCrypt encoded)
 INSERT INTO users (full_name, email, password_hash, mobile_number, is_email_verified, status) VALUES
-('System Admin', 'admin@dhotels.co', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.qW0Ll6UXrFxI5dWt3C', '9999999999', TRUE, 'ACTIVE');
+('System Admin', 'admin@dhotels24.in', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.qW0Ll6UXrFxI5dWt3C', '9999999999', TRUE, 'ACTIVE');
 
 INSERT INTO user_roles (user_id, role) VALUES
-((SELECT id FROM users WHERE email = 'admin@dhotels.co'), 'ADMIN'),
-((SELECT id FROM users WHERE email = 'admin@dhotels.co'), 'BUYER'),
-((SELECT id FROM users WHERE email = 'admin@dhotels.co'), 'SELLER'),
-((SELECT id FROM users WHERE email = 'admin@dhotels.co'), 'EMPLOYER');
+((SELECT id FROM users WHERE email = 'admin@dhotels24.in'), 'ADMIN'),
+((SELECT id FROM users WHERE email = 'admin@dhotels24.in'), 'BUYER'),
+((SELECT id FROM users WHERE email = 'admin@dhotels24.in'), 'SELLER'),
+((SELECT id FROM users WHERE email = 'admin@dhotels24.in'), 'EMPLOYER');
 
 -- Views
 CREATE VIEW vw_active_listings AS

@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ============================================================
-   DHotels design system — "Midnight & Brass"
+   DHotels24.in design system — "Midnight & Brass"
    Tokens live in tailwind.config.js (gray = ink, primary = brass).
    Legacy class names from the original platform are kept below and
    restyled so dashboard/admin screens inherit the new look.

@@ -32,7 +32,7 @@ const ForgotPasswordPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-950 bg-mesh relative w-full flex items-center justify-center py-12 px-4 md:px-8 text-gray-100 overflow-hidden">
-      <Seo title="Forgot Password | DHotels" path="/forgot-password" noindex />
+      <Seo title="Forgot Password | DHotels24.in" path="/forgot-password" noindex />
       {/* Decorative glow elements */}
       <div className="absolute top-0 left-0 right-0 h-[400px] bg-gradient-to-b from-primary-500/5 to-transparent pointer-events-none z-0" />
       <div className="absolute top-[20%] right-[-10%] w-[350px] h-[350px] bg-primary-500/5 rounded-full blur-[100px] pointer-events-none z-0" />
@@ -44,7 +44,7 @@ const ForgotPasswordPage = () => {
         <div className="flex-1 hidden md:flex flex-col items-start justify-center p-6 text-left space-y-6">
           <Link to="/" className="flex items-center gap-3 mb-2">
             <img src="/images/logo.png" alt="Logo" className="w-12 h-12 object-contain" />
-            <span className="text-[10px] font-black text-white uppercase tracking-[0.4em] opacity-40">DHotels.co</span>
+            <span className="text-[10px] font-black text-white uppercase tracking-[0.4em] opacity-40">dhotels24.in</span>
           </Link>
           <div className="space-y-4">
             <h1 className="text-5xl font-black text-white tracking-tighter leading-[1.05]">
@@ -71,7 +71,7 @@ const ForgotPasswordPage = () => {
             <div className="flex justify-center md:hidden mb-6">
               <Link to="/" className="flex items-center gap-2">
                 <img src="/images/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
-                <span className="text-[9px] font-black text-white uppercase tracking-[0.3em] opacity-40">DHotels.co</span>
+                <span className="text-[9px] font-black text-white uppercase tracking-[0.3em] opacity-40">dhotels24.in</span>
               </Link>
             </div>
 

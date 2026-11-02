@@ -9,6 +9,7 @@ import { generateSlug } from '../../utils/slugify';
 import { CATEGORIES, DEAL_TYPES, unsplashSrcSet } from '../../utils/hospitality';
 import ListingCard, { ListingCardSkeleton } from '../../components/marketplace/ListingCard';
 import Seo, { SITE_URL } from '../../components/common/Seo';
+import StrategicWorkflow from '../../components/home/StrategicWorkflow';
 
 const HERO_IMAGES = [CATEGORIES[0].image, CATEGORIES[1].image, CATEGORIES[3].image];
 
@@ -26,20 +27,12 @@ const TRUST_POINTS = [
 
 const DEAL_ICONS = { 'For Sale': PiTag, 'For Lease': PiKey, 'Profit Sharing': PiChartLineUp };
 
-const PROCESS = {
-  buyers: [
-    { title: 'Shortlist', text: 'Filter verified hotels, resorts and F&B outlets by city, deal type and size.' },
-    { title: 'Unlock the seller', text: 'Get the owner’s direct contact for a listing you are serious about.' },
-    { title: 'Visit & evaluate', text: 'Inspect the site, review financials and licences with the owner.' },
-    { title: 'Close', text: 'Negotiate terms and complete the transfer, with our advisors on hand.' },
-  ],
-  sellers: [
-    { title: 'List privately', text: 'Share rooms, areas, title and price in a five-minute form.' },
-    { title: 'We review', text: 'Our team checks the details and publishes it with a listing code.' },
-    { title: 'Qualified buyers reach out', text: 'Only buyers who unlock your listing can see your contact details.' },
-    { title: 'Sell, lease or partner', text: 'Choose the structure that works — outright sale, lease or profit sharing.' },
-  ],
-};
+const OWNER_STEPS = [
+  { title: 'List privately', text: 'Share rooms, areas, title and price in a five-minute form.' },
+  { title: 'We review', text: 'Our team checks the details and publishes it with a listing code.' },
+  { title: 'Qualified buyers reach out', text: 'Only buyers who unlock your listing can see your contact details.' },
+  { title: 'Sell, lease or partner', text: 'Choose the structure that works — outright sale, lease or profit sharing.' },
+];
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -51,7 +44,6 @@ const HomePage = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [slide, setSlide] = useState(0);
-  const [audience, setAudience] = useState('buyers');
 
   useEffect(() => {
     const timer = setInterval(() => setSlide((s) => (s + 1) % HERO_IMAGES.length), 7000);
@@ -101,12 +93,12 @@ const HomePage = () => {
   return (
     <div className="bg-gray-950">
       <Seo
-        title="Buy, Sell & Lease Hotels, Resorts & Restaurants in India | DHotels"
+        title="Buy, Sell & Lease Hotels, Resorts & Restaurants in India | DHotels24.in"
         description="India's hospitality marketplace. Buy, sell, lease or co-own hotels, resorts, restaurants, cafés, bars and banquet halls — every listing reviewed before it goes live."
         path="/"
         schema={[
-          { '@context': 'https://schema.org', '@type': 'Organization', name: 'DHotels', url: SITE_URL, logo: `${SITE_URL}/images/logo.png`, areaServed: 'IN' },
-          { '@context': 'https://schema.org', '@type': 'WebSite', name: 'DHotels', url: SITE_URL },
+          { '@context': 'https://schema.org', '@type': 'Organization', name: 'DHotels24.in', url: SITE_URL, logo: `${SITE_URL}/images/logo.png`, areaServed: 'IN' },
+          { '@context': 'https://schema.org', '@type': 'WebSite', name: 'DHotels24.in', url: SITE_URL },
         ]}
       />
 
@@ -297,32 +289,22 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* ============ PROCESS ============ */}
+      {/* ============ STRATEGIC WORKFLOW (buyers) ============ */}
+      <StrategicWorkflow />
+
+      {/* ============ PROCESS (owners) ============ */}
       <section className="border-t border-white/[0.06] bg-gray-900/40 py-20 lg:py-28">
         <div className="container-site">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="eyebrow eyebrow-rule">How it works</p>
-              <h2 className="heading-lg mt-3">From first look to handover</h2>
+              <p className="eyebrow eyebrow-rule">For owners</p>
+              <h2 className="heading-lg mt-3">Sell, lease or partner in four steps</h2>
             </div>
-            <div className="flex self-start rounded-full border border-white/10 p-1 md:self-auto" role="tablist" aria-label="Audience">
-              {[['buyers', 'For buyers'], ['sellers', 'For owners']].map(([key, label]) => (
-                <button
-                  key={key}
-                  type="button"
-                  role="tab"
-                  aria-selected={audience === key}
-                  onClick={() => setAudience(key)}
-                  className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${audience === key ? 'bg-primary-400 text-gray-950' : 'text-gray-300 hover:text-gray-50'}`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            <Link to="/listings/create" className="btn-brass self-start md:self-auto">List your property</Link>
           </div>
-          <ol key={audience} className="mt-12 grid gap-8 md:grid-cols-4">
-            {PROCESS[audience].map((step, i) => (
-              <li key={step.title} className="relative border-t border-white/10 pt-6 animate-fadeIn">
+          <ol className="mt-12 grid gap-8 md:grid-cols-4">
+            {OWNER_STEPS.map((step, i) => (
+              <li key={step.title} className="relative border-t border-white/10 pt-6">
                 <span className="absolute -top-px left-0 h-px w-12 bg-primary-400" />
                 <span className="font-display text-sm text-primary-400">0{i + 1}</span>
                 <h3 className="mt-2 text-lg font-semibold text-gray-50">{step.title}</h3>
@@ -330,11 +312,6 @@ const HomePage = () => {
               </li>
             ))}
           </ol>
-          <div className="mt-12">
-            {audience === 'buyers'
-              ? <Link to="/listings" className="btn-brass">Start browsing</Link>
-              : <Link to="/listings/create" className="btn-brass">List your property</Link>}
-          </div>
         </div>
       </section>
 

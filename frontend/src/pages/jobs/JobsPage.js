@@ -99,7 +99,7 @@ const JobsPage = () => {
   return (
     <div className="min-h-screen">
       <Seo
-        title="Hospitality Jobs in India | Hotel, Restaurant & Café Careers | DHotels"
+        title="Hospitality Jobs in India | Hotel, Restaurant & Café Careers | DHotels24.in"
         description="Browse hospitality jobs across India: chefs, general managers, front office, F&B service, bartenders and baristas. Apply directly to hotels, restaurants and cafés."
         path="/hospitality-jobs-india"
       />

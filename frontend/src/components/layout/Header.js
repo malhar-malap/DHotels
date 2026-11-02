@@ -30,10 +30,10 @@ const ACCOUNT_LINKS = [
 ];
 
 const Brand = () => (
-  <Link to="/" className="group flex items-center gap-2.5" aria-label="DHotels home">
+  <Link to="/" className="group flex items-center gap-2.5" aria-label="DHotels24.in home">
     <img src="/images/logo.png" alt="" className="h-9 w-9 object-contain transition-transform duration-300 group-hover:rotate-12" />
     <span className="flex flex-col leading-none">
-      <span className="font-display text-[1.35rem] text-gray-50">DHotels</span>
+      <span className="font-display text-[1.35rem] text-gray-50">DHotels24<span className="text-primary-400">.in</span></span>
       <span className="mt-1 hidden text-[9px] font-semibold uppercase tracking-[0.28em] text-primary-400 sm:block">Hospitality Marketplace</span>
     </span>
   </Link>

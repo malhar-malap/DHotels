@@ -92,14 +92,14 @@ const JobDetailPage = () => {
   };
 
   if (loading) return (<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div></div>);
-  if (!job) return (<div className="min-h-screen flex items-center justify-center"><Seo title="Job Not Found | DHotels" noindex statusCode={404} /><div className="text-center"><h2 className="text-xl font-bold text-gray-200 mb-2">Job Not Found</h2><Link to="/hospitality-jobs-india" className="text-primary-500">Back to Jobs</Link></div></div>);
+  if (!job) return (<div className="min-h-screen flex items-center justify-center"><Seo title="Job Not Found | DHotels24.in" noindex statusCode={404} /><div className="text-center"><h2 className="text-xl font-bold text-gray-200 mb-2">Job Not Found</h2><Link to="/hospitality-jobs-india" className="text-primary-500">Back to Jobs</Link></div></div>);
 
   // Search meta + Google for Jobs structured data
   const jobCity = job.cityName || job.city?.name;
   const jobSlug = generateSlug(job.title, job.cityName); // must match the canonical redirect in fetchJob
   const jobPath = jobSlug ? `/hospitality-jobs-india/${job.id}-${jobSlug}` : `/hospitality-jobs-india/${job.id}`;
-  const jobSeoTitle = `${job.title}${jobCity ? ` in ${jobCity}` : ''} | Hospitality Jobs | DHotels`;
-  const jobSeoDescription = truncate(job.description) || `${job.title}${jobCity ? ` job in ${jobCity}` : ''}. Apply on DHotels.`;
+  const jobSeoTitle = `${job.title}${jobCity ? ` in ${jobCity}` : ''} | Hospitality Jobs | DHotels24.in`;
+  const jobSeoDescription = truncate(job.description) || `${job.title}${jobCity ? ` job in ${jobCity}` : ''}. Apply on DHotels24.in.`;
   const employerName = job.employer?.companyName;
   const jobSchema = employerName && {
     '@context': 'https://schema.org',
