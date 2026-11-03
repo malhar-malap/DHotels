@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import RefreshButton from '../../components/admin/RefreshButton';
 import { useSearchParams, Link } from 'react-router-dom';
 import { adminAPI, masterAPI } from '../../services/api';
 import AdminUserDetailModal from './AdminUserDetailModal';
@@ -97,7 +98,10 @@ const AdminUsersPage = () => {
               </Link>
               <span className="section-label tracking-[0.2em]">Governance Module</span>
             </div>
-            <h1 className="text-4xl display-title uppercase tracking-tighter">Identity Registry</h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-4xl display-title uppercase tracking-tighter">Identity Registry</h1>
+              <RefreshButton onRefresh={fetchUsers} />
+            </div>
             <p className="text-ethereal-on-surface-variant font-medium mt-1">
               Overseeing <span className="text-ethereal-on-surface">{totalElements}</span> active computational identities
             </p>

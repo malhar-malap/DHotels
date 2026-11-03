@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import RefreshButton from '../../components/admin/RefreshButton';
 import { useSearchParams, Link } from 'react-router-dom';
 import { adminAPI, masterAPI } from '../../services/api';
 import AdminJobDetailModal from './AdminJobDetailModal';
@@ -140,7 +141,7 @@ const AdminJobsPage = () => {
     PENDING: 'bg-amber-100 text-amber-800 border-amber-200/50',
     ACTIVE: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50',
     REJECTED: 'bg-rose-100 text-rose-800 border-rose-200/50',
-    EXPIRED: 'bg-slate-100 text-slate-600 border-slate-200/50',
+    EXPIRED: 'bg-gray-100 text-gray-600 border-gray-200/50',
     CLOSED: 'bg-indigo-100 text-indigo-800 border-indigo-200/50',
   };
 
@@ -158,9 +159,12 @@ const AdminJobsPage = () => {
               </Link>
               <span className="section-label tracking-[0.2em]">Career Portal Management</span>
             </div>
-            <h1 className="text-4xl display-title uppercase tracking-tighter">
-              {showPendingSection ? 'Talent Pipeline' : 'Position Registry'}
-            </h1>
+<div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-4xl display-title uppercase tracking-tighter">
+                {showPendingSection ? 'Talent Pipeline' : 'Position Registry'}
+              </h1>
+              <RefreshButton onRefresh={fetchJobs} />
+            </div>
             <p className="text-ethereal-on-surface-variant font-medium mt-1">
               Currently indexing <span className="text-ethereal-on-surface">{totalElements}</span> professional opportunities
             </p>
@@ -179,8 +183,8 @@ const AdminJobsPage = () => {
               <option value="">All Lifecycle Stages</option>
               <option value="PENDING">Vetting Required</option>
               <option value="ACTIVE">Market Active</option>
-              <option value="REJECTED">Decommissioned</option>
-              <option value="CLOSED">Concluded</option>
+              <option value="CLOSED">Closed / Rejected</option>
+              <option value="EXPIRED">Expired</option>
             </select>
             <select value={categoryFilter} onChange={(e) => { setCategoryFilter(e.target.value); setPage(0); }}
               className="px-4 py-3 bg-ethereal-surface-low border border-transparent rounded-2xl text-sm font-medium focus:bg-gray-900 focus:ring-2 focus:ring-ethereal-primary/20 transition-all outline-none">

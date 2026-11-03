@@ -48,7 +48,7 @@ const AdminUserDetailModal = ({ userId, onClose, onUpdated }) => {
       toast.success('User roles updated successfully');
       onUpdated();
     } catch (error) {
-      toast.error('Failed to update roles');
+      toast.error(error.response?.data?.message || 'Failed to update roles');
     } finally {
       setActionLoading(false);
     }

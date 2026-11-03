@@ -25,10 +25,12 @@ public class ListingDTO {
         private String cityName;
         
 
-        @NotNull(message = "Asking price is required")
+        // Required unless priceNotDisclosed is true (checked in ListingService)
         @Positive(message = "Asking price must be positive")
         @DecimalMax(value = "9999999999999.99", message = "Asking price is too large")
         private BigDecimal askingPrice;
+        
+        private Boolean priceNotDisclosed;
         
         private Boolean priceNegotiable = true;
         
@@ -47,6 +49,8 @@ public class ListingDTO {
         // Hospitality specific fields
         private Integer numberOfRooms;
         private BigDecimal plotAreaSqft;
+        // SQFT or ACRE: how plot area was entered; plotAreaSqft is always sq ft
+        private String plotAreaUnit;
         private BigDecimal constructedAreaSqft;
         @Size(max = 50, message = "Title type must not exceed 50 characters")
         private String titleType;
@@ -63,6 +67,8 @@ public class ListingDTO {
 
         public BigDecimal getAskingPrice() { return askingPrice; }
         public void setAskingPrice(BigDecimal askingPrice) { this.askingPrice = askingPrice; }
+        public Boolean getPriceNotDisclosed() { return priceNotDisclosed; }
+        public void setPriceNotDisclosed(Boolean priceNotDisclosed) { this.priceNotDisclosed = priceNotDisclosed; }
         public Boolean getPriceNegotiable() { return priceNegotiable; }
         public void setPriceNegotiable(Boolean priceNegotiable) { this.priceNegotiable = priceNegotiable; }
         public String getShortDescription() { return shortDescription; }
@@ -79,6 +85,8 @@ public class ListingDTO {
         public void setNumberOfRooms(Integer numberOfRooms) { this.numberOfRooms = numberOfRooms; }
         public BigDecimal getPlotAreaSqft() { return plotAreaSqft; }
         public void setPlotAreaSqft(BigDecimal plotAreaSqft) { this.plotAreaSqft = plotAreaSqft; }
+        public String getPlotAreaUnit() { return plotAreaUnit; }
+        public void setPlotAreaUnit(String plotAreaUnit) { this.plotAreaUnit = plotAreaUnit; }
         public BigDecimal getConstructedAreaSqft() { return constructedAreaSqft; }
         public void setConstructedAreaSqft(BigDecimal constructedAreaSqft) { this.constructedAreaSqft = constructedAreaSqft; }
         public String getTitleType() { return titleType; }
@@ -99,6 +107,7 @@ public class ListingDTO {
         private String cityName;
         private String stateName;
         private BigDecimal askingPrice;
+        private Boolean priceNotDisclosed;
         private Boolean priceNegotiable;
         private Boolean isConfidential;
         private String status;
@@ -106,6 +115,7 @@ public class ListingDTO {
         private Integer viewCount;
         private Integer inquiryCount;
         private Boolean isFeatured;
+        private LocalDateTime featuredUntil;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
         private LocalDateTime expiresAt;
@@ -136,6 +146,8 @@ public class ListingDTO {
 
         public BigDecimal getAskingPrice() { return askingPrice; }
         public void setAskingPrice(BigDecimal askingPrice) { this.askingPrice = askingPrice; }
+        public Boolean getPriceNotDisclosed() { return priceNotDisclosed; }
+        public void setPriceNotDisclosed(Boolean priceNotDisclosed) { this.priceNotDisclosed = priceNotDisclosed; }
         public Boolean getPriceNegotiable() { return priceNegotiable; }
         public void setPriceNegotiable(Boolean priceNegotiable) { this.priceNegotiable = priceNegotiable; }
         public Boolean getIsConfidential() { return isConfidential; }
@@ -150,6 +162,8 @@ public class ListingDTO {
         public void setInquiryCount(Integer inquiryCount) { this.inquiryCount = inquiryCount; }
         public Boolean getIsFeatured() { return isFeatured; }
         public void setIsFeatured(Boolean isFeatured) { this.isFeatured = isFeatured; }
+        public LocalDateTime getFeaturedUntil() { return featuredUntil; }
+        public void setFeaturedUntil(LocalDateTime featuredUntil) { this.featuredUntil = featuredUntil; }
         public LocalDateTime getCreatedAt() { return createdAt; }
         public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
         public LocalDateTime getUpdatedAt() { return updatedAt; }
@@ -170,6 +184,7 @@ public class ListingDTO {
         private String displayTitle;
         private String shortDescription;
         private BigDecimal askingPrice;
+        private Boolean priceNotDisclosed;
         private Boolean priceNegotiable;
         private Boolean isConfidential;
         private String status;
@@ -180,6 +195,9 @@ public class ListingDTO {
         private String primaryImage;
         private LocalDateTime createdAt;
         private Integer viewCount;
+        // Set only while the listing is currently featured on the homepage
+        private Boolean isFeatured;
+        private LocalDateTime featuredUntil;
         private Object categoryDetails;
 
         public Long getId() { return id; }
@@ -192,6 +210,8 @@ public class ListingDTO {
         public void setShortDescription(String shortDescription) { this.shortDescription = shortDescription; }
         public BigDecimal getAskingPrice() { return askingPrice; }
         public void setAskingPrice(BigDecimal askingPrice) { this.askingPrice = askingPrice; }
+        public Boolean getPriceNotDisclosed() { return priceNotDisclosed; }
+        public void setPriceNotDisclosed(Boolean priceNotDisclosed) { this.priceNotDisclosed = priceNotDisclosed; }
         public Boolean getPriceNegotiable() { return priceNegotiable; }
         public void setPriceNegotiable(Boolean priceNegotiable) { this.priceNegotiable = priceNegotiable; }
         public Boolean getIsConfidential() { return isConfidential; }
@@ -212,6 +232,10 @@ public class ListingDTO {
         public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
         public Integer getViewCount() { return viewCount; }
         public void setViewCount(Integer viewCount) { this.viewCount = viewCount; }
+        public Boolean getIsFeatured() { return isFeatured; }
+        public void setIsFeatured(Boolean isFeatured) { this.isFeatured = isFeatured; }
+        public LocalDateTime getFeaturedUntil() { return featuredUntil; }
+        public void setFeaturedUntil(LocalDateTime featuredUntil) { this.featuredUntil = featuredUntil; }
         public Object getCategoryDetails() { return categoryDetails; }
         public void setCategoryDetails(Object categoryDetails) { this.categoryDetails = categoryDetails; }
     }

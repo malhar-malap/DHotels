@@ -46,8 +46,12 @@ public class Listing {
     private String cityName;
     
 
-    @Column(name = "asking_price", nullable = false, precision = 15, scale = 2)
+    // Null when the seller chose not to disclose the price
+    @Column(name = "asking_price", precision = 15, scale = 2)
     private BigDecimal askingPrice;
+
+    @Column(name = "price_not_disclosed")
+    private Boolean priceNotDisclosed = false;
     
     @Column(name = "price_negotiable")
     private Boolean priceNegotiable = true;
@@ -117,6 +121,8 @@ public class Listing {
     public void setCity(City city) { this.city = city; }
     public BigDecimal getAskingPrice() { return askingPrice; }
     public void setAskingPrice(BigDecimal askingPrice) { this.askingPrice = askingPrice; }
+    public Boolean getPriceNotDisclosed() { return priceNotDisclosed; }
+    public void setPriceNotDisclosed(Boolean priceNotDisclosed) { this.priceNotDisclosed = priceNotDisclosed; }
     public Boolean getPriceNegotiable() { return priceNegotiable; }
     public void setPriceNegotiable(Boolean priceNegotiable) { this.priceNegotiable = priceNegotiable; }
     public Boolean getIsConfidential() { return isConfidential; }

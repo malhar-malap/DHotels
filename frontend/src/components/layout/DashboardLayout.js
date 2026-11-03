@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   FiHome, FiList, FiMail, FiBriefcase, FiFileText, 
-  FiUser, FiLogOut, FiSettings, FiMenu, FiX, FiShield
+  FiUser, FiLogOut, FiSettings, FiMenu, FiX, FiShield, FiBell
 } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 
@@ -18,6 +18,7 @@ const DashboardLayout = ({ children, activeTab = 'Overview' }) => {
 
   const navItems = [
     { title: 'Overview', icon: FiHome, href: '/dashboard' },
+    { title: 'Notifications', icon: FiBell, href: '/dashboard/notifications' },
     { title: 'My Listings', icon: FiList, href: '/dashboard/listings' },
     { title: 'Inquiries', icon: FiMail, href: '/dashboard/inquiries' },
     { title: 'My Jobs', icon: FiBriefcase, href: '/dashboard/jobs' },

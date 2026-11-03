@@ -6,6 +6,8 @@ import {
   PiBriefcase, PiFileText, PiShieldCheck, PiPlus, PiArrowRight,
 } from 'react-icons/pi';
 import { CATEGORIES } from '../../utils/hospitality';
+import NotificationBell from './NotificationBell';
+import { authPath } from '../../utils/authRedirect';
 
 const DEAL_LINKS = [
   { label: 'For Sale', to: '/listings?dealType=For+Sale' },
@@ -159,6 +161,8 @@ const Header = () => {
               <PiPlus className="h-4 w-4" /> <span className="xl:hidden">List property</span><span className="hidden xl:inline">List your property</span>
             </Link>
 
+            {isAuthenticated && <NotificationBell />}
+
             {isAuthenticated ? (
               <div className="relative" ref={accountRef}>
                 <button
@@ -198,7 +202,7 @@ const Header = () => {
                 )}
               </div>
             ) : (
-              <Link to="/login" className="hidden whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold text-gray-200 transition-colors hover:text-gray-50 sm:inline-flex">
+              <Link to={authPath(location)} className="hidden whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold text-gray-200 transition-colors hover:text-gray-50 sm:inline-flex">
                 Log in
               </Link>
             )}
@@ -239,8 +243,8 @@ const Header = () => {
               <Link to="/listings/create" className="btn-brass w-full"><PiPlus className="h-4 w-4" /> List your property</Link>
               {!isAuthenticated && (
                 <div className="grid grid-cols-2 gap-3">
-                  <Link to="/login" className="btn-ghost">Log in</Link>
-                  <Link to="/register" className="btn-ghost">Create account</Link>
+                  <Link to={authPath(location)} className="btn-ghost">Log in</Link>
+                  <Link to={authPath(location, '/register')} className="btn-ghost">Create account</Link>
                 </div>
               )}
             </div>

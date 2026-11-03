@@ -40,16 +40,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(request -> {
-                    var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                    corsConfig.addAllowedOriginPattern("*");
-                    corsConfig.addAllowedMethod("*");
-                    corsConfig.addAllowedHeader("*");
-                    corsConfig.setAllowCredentials(true);
-                    return corsConfig;
-                }))
+                // Uses CorsConfig's allow-list (cors.allowed-origins) instead of allowing every origin
+                .cors(org.springframework.security.config.Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ERROR).permitAll()
+                        // Listing photo uploads are admin-only (owners don't upload images)
+                        .requestMatchers("/listings/media/**", "/api/listings/media/**").hasRole("ADMIN")
                         // Public endpoints - matching both with and without /api prefix
                         .requestMatchers("/auth/**", "/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/listings/**", "/api/listings/**").permitAll()
@@ -57,6 +53,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/uploads/**", "/api/uploads/**").permitAll()
                         .requestMatchers("/master/**", "/api/master/**").permitAll()
                         .requestMatchers("/contact/**", "/api/contact/**").permitAll()
+                        // Lead forms on the About page, open to visitors like the contact form
+                        .requestMatchers(HttpMethod.POST, "/consultations/schedule", "/api/consultations/schedule",
+                                "/mandates/submit", "/api/mandates/submit").permitAll()
                         .requestMatchers("/error/**", "/api/error/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/sitemap.xml", "/api/sitemap.xml").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api/swagger-ui/**", "/api/v3/api-docs/**").permitAll()
@@ -69,7 +68,7 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
-                            response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+                            response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
                         })
                 )
                 .sessionManagement(session -> session

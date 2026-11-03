@@ -26,14 +26,6 @@ public class AuthController {
         this.authService = authService;
     }
     
-    @PostMapping("/register")
-    @Operation(summary = "Register a new user", description = "Creates a new user account with specified roles")
-    public ResponseEntity<ApiResponse<AuthDTO.AuthResponse>> register(
-            @Valid @RequestBody AuthDTO.RegisterRequest request) {
-        AuthDTO.AuthResponse response = authService.register(request);
-        return ResponseEntity.ok(ApiResponse.success("User registered successfully", response));
-    }
-
     @PostMapping("/send-otp")
     @Operation(summary = "Send OTP for registration", description = "Generates and sends a 6-digit OTP to the specified email")
     public ResponseEntity<ApiResponse<Void>> sendOtp(

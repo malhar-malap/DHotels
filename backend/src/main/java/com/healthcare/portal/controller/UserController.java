@@ -19,11 +19,13 @@ public class UserController {
     
     private final UserService userService;
     private final AuthService authService;
+    private final com.healthcare.portal.service.FileStorageService fileStorageService;
 
     @Autowired
-    public UserController(UserService userService, AuthService authService) {
+    public UserController(UserService userService, AuthService authService, com.healthcare.portal.service.FileStorageService fileStorageService) {
         this.userService = userService;
         this.authService = authService;
+        this.fileStorageService = fileStorageService;
     }
     
     @GetMapping("/profile")
@@ -56,6 +58,13 @@ public class UserController {
             @RequestParam String photoUrl) {
         userService.updateProfilePhoto(photoUrl);
         return ResponseEntity.ok(ApiResponse.success("Profile photo updated successfully", null));
+    }
+    
+    @PostMapping(value = "/verification/document", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload verification document", description = "Stores a KYC document privately and returns its URL")
+    public ResponseEntity<ApiResponse<String>> uploadVerificationDocument(
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        return ResponseEntity.ok(ApiResponse.success("Document uploaded", fileStorageService.storePrivateDocument(file)));
     }
     
     @PostMapping("/verification")

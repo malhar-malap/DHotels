@@ -107,8 +107,9 @@ public class AdminController {
     
     @DeleteMapping("/listings/{id}")
     @Operation(summary = "Delete listing", description = "Deletes a listing")
-    public ResponseEntity<ApiResponse<Void>> deleteListing(@PathVariable Long id) {
-        adminService.deleteListing(id);
+    public ResponseEntity<ApiResponse<Void>> deleteListing(@PathVariable Long id,
+            @RequestBody(required = false) java.util.Map<String, String> payload) {
+        adminService.deleteListing(id, payload != null ? payload.get("reason") : null);
         return ResponseEntity.ok(ApiResponse.success("Listing deleted successfully", null));
     }
 
@@ -135,12 +136,12 @@ public class AdminController {
     @PostMapping("/listings/bulk-delete")
     @Operation(summary = "Bulk delete listings", description = "Deletes multiple listings at once")
     public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> bulkDeleteListings(
-            @RequestBody java.util.Map<String, java.util.List<Long>> request) {
-        java.util.List<Long> ids = request.get("ids");
+            @RequestBody AdminDTO.BulkDeleteRequest request) {
+        java.util.List<Long> ids = request.getIds();
         int successCount = 0, failedCount = 0;
         for (Long id : ids) {
             try {
-                adminService.deleteListing(id);
+                adminService.deleteListing(id, request.getReason());
                 successCount++;
             } catch (Exception e) {
                 failedCount++;

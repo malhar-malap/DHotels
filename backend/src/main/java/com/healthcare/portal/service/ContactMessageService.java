@@ -19,12 +19,15 @@ public class ContactMessageService {
     
     private final ContactMessageRepository contactMessageRepository;
     private final EmailService emailService;
+    private final NotificationService notificationService;
+
 
     @Value("${app.notification-email}")
     private String notificationEmail;
 
     @Autowired
-    public ContactMessageService(ContactMessageRepository contactMessageRepository, EmailService emailService) {
+    public ContactMessageService(ContactMessageRepository contactMessageRepository, EmailService emailService, NotificationService notificationService) {
+        this.notificationService = notificationService;
         this.contactMessageRepository = contactMessageRepository;
         this.emailService = emailService;
     }
@@ -40,6 +43,8 @@ public class ContactMessageService {
         message.setStatus(ContactMessage.ContactMessageStatus.NEW);
         
         message = contactMessageRepository.save(message);
+        notificationService.notifyAdmins(NotificationService.ADMIN_ALERT, "New contact message",
+                request.getName() + ": " + (request.getSubject() != null ? request.getSubject() : "(no subject)"), "/admin/contact-messages");
         
         // Send email notification to admin (non-blocking, don't fail if email fails)
         try {

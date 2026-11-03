@@ -116,25 +116,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (userData) => {
-    try {
-      const response = await authAPI.register(userData);
-      const { accessToken, refreshToken, user: newUser } = response.data.data;
-      
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('user', JSON.stringify(newUser));
-      
-      setUser(newUser);
-      toast.success('Registration successful!');
-      return { success: true };
-    } catch (error) {
-      const message = error.response?.data?.message || 'Registration failed';
-      toast.error(message);
-      return { success: false, message };
-    }
-  };
-
   const sendOtp = async (email) => {
     try {
       await authAPI.sendOtp(email);
@@ -183,7 +164,6 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     login,
-    register,
     sendOtp,
     verifyOtpAndRegister,
     logout,

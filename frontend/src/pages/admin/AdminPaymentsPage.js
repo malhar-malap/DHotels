@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import RefreshButton from '../../components/admin/RefreshButton';
 import { Link } from 'react-router-dom';
 import { adminAPI } from '../../services/api';
 import toast from 'react-hot-toast';
@@ -77,7 +78,7 @@ const AdminPaymentsPage = () => {
 
     const fetchStats = useCallback(async () => {
         try {
-            const response = await adminAPI.getPaymentStats({ excludeStatus: 'CREATED' });
+            const response = await adminAPI.getPaymentStats();
             setStats(response.data.data);
         } catch (error) {
             console.error('Failed to load payment stats', error);
@@ -168,7 +169,10 @@ const AdminPaymentsPage = () => {
                             </Link>
                             <span className="section-label tracking-[0.2em]">Financial Core</span>
                         </div>
-                        <h1 className="text-4xl display-title uppercase tracking-tighter">Payments Ledger</h1>
+                        <div className="flex flex-wrap items-center gap-3">
+                          <h1 className="text-4xl display-title uppercase tracking-tighter">Payments Ledger</h1>
+                          <RefreshButton onRefresh={() => Promise.all([fetchStats(), fetchPayments()])} />
+                        </div>
                         <p className="text-ethereal-on-surface-variant font-medium mt-1">
                             Auditing <span className="text-ethereal-primary font-bold">{totalElements}</span> transactions across network
                         </p>

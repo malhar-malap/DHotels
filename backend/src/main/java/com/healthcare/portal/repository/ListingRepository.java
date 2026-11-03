@@ -4,6 +4,7 @@ import com.healthcare.portal.entity.Listing;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -149,4 +150,8 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
     @Query("SELECT l FROM Listing l WHERE l.status = 'ACTIVE' AND l.isFeatured = true " +
            "AND (l.featuredUntil IS NULL OR l.featuredUntil > :now) ORDER BY l.createdAt DESC")
     List<Listing> findFeaturedListings(@Param("now") LocalDateTime now, Pageable pageable);
+
+    @Modifying
+    @Query("UPDATE Listing l SET l.isFeatured = false WHERE l.isFeatured = true AND l.featuredUntil IS NOT NULL AND l.featuredUntil <= :now")
+    int clearExpiredFeatures(@Param("now") LocalDateTime now);
 }

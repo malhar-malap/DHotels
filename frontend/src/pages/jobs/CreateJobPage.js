@@ -279,7 +279,7 @@ const CreateJobPage = () => {
     },
     employmentType: {
       title: "Employment Model",
-      text: "Indicate whether this is full-time, part-time, or a flexible 'Locum' shift model."
+      text: "Indicate whether this is full-time, part-time, or a temporary or seasonal role, or an internship."
     },
     experienceRequired: {
       title: "Experience Level",
@@ -674,7 +674,7 @@ const CreateJobPage = () => {
                         { id: 'FULL_TIME', label: 'Full Time' },
                         { id: 'PART_TIME', label: 'Part Time' },
                         { id: 'CONTRACT', label: 'Contract' },
-                        { id: 'LOCUM', label: 'Locum' },
+                        { id: 'TEMPORARY', label: 'Temporary / Seasonal' },
                         { id: 'INTERNSHIP', label: 'Internship' }
                       ].map(type => {
                         const isSelected = formData.employmentType === type.id;

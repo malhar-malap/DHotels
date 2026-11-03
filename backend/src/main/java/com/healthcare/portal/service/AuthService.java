@@ -33,6 +33,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final OtpService otpService;
+    private final NotificationService notificationService;
+
 
     public AuthService(UserRepository userRepository, 
                       UserRoleRepository userRoleRepository, 
@@ -41,7 +43,8 @@ public class AuthService {
                       JwtTokenProvider tokenProvider, 
                       PasswordEncoder passwordEncoder,
                       EmailService emailService,
-                      OtpService otpService) {
+                      OtpService otpService, NotificationService notificationService) {
+        this.notificationService = notificationService;
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
         this.cityRepository = cityRepository;
@@ -52,8 +55,26 @@ public class AuthService {
         this.otpService = otpService;
     }
     
+    /** Roles a user may pick for themselves at sign-up; ADMIN is only ever granted by an admin. */
+    private static final Set<UserRole.Role> SELF_SERVICE_ROLES = java.util.EnumSet.of(
+            UserRole.Role.SELLER, UserRole.Role.BUYER, UserRole.Role.EMPLOYER, UserRole.Role.JOB_SEEKER);
+
     @Transactional
     public AuthDTO.AuthResponse register(AuthDTO.RegisterRequest request) {
+        java.util.List<UserRole.Role> requestedRoles = new java.util.ArrayList<>();
+        for (String roleName : request.getRoles()) {
+            UserRole.Role role;
+            try {
+                role = UserRole.Role.valueOf(roleName.trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Invalid role: " + roleName);
+            }
+            if (!SELF_SERVICE_ROLES.contains(role)) {
+                throw new RuntimeException("Invalid role: " + roleName);
+            }
+            if (!requestedRoles.contains(role)) requestedRoles.add(role);
+        }
+
         // Check if email already exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already registered");
@@ -86,16 +107,18 @@ public class AuthService {
         
         // Assign roles
         Set<UserRole> roles = new HashSet<>();
-        for (String roleName : request.getRoles()) {
+        for (UserRole.Role role : requestedRoles) {
             UserRole userRole = new UserRole();
             userRole.setUser(user);
-            userRole.setRole(UserRole.Role.valueOf(roleName.toUpperCase()));
+            userRole.setRole(role);
             roles.add(userRoleRepository.save(userRole));
         }
         user.setRoles(roles.stream().collect(Collectors.toList()));
         
         // Send welcome email
         emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
+        notificationService.notify(user, NotificationService.WELCOME, "Welcome to DHotels24.in",
+                "Your account is ready. Updates about your listings, inquiries and jobs will appear here.", "/dashboard");
         
         // Generate tokens
         String accessToken = tokenProvider.generateAccessToken(user);
@@ -163,8 +186,11 @@ public class AuthService {
     }
     
     public void forgotPassword(AuthDTO.ForgotPasswordRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + request.getEmail()));
+        // Same response whether or not the account exists, so emails can't be enumerated
+        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
+        if (user == null) {
+            return;
+        }
         
         // Generate OTP via OtpService
         String otp = otpService.generateOtp(user.getEmail());
@@ -192,6 +218,16 @@ public class AuthService {
     public UserDTO.UserResponse getCurrentUserResponse() {
         User user = getCurrentUserEntity();
         return mapToUserResponse(user);
+    }
+
+    /** The signed-in user, or null for anonymous requests on public endpoints. */
+    public User getCurrentUserOrNull() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken) {
+            return null;
+        }
+        return userRepository.findByEmailWithRoles(authentication.getName()).orElse(null);
     }
 
     public User getCurrentUserEntity() {

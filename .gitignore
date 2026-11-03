@@ -24,3 +24,6 @@ backend/.env
 # Docker / DB
 *.sql.gz
 backup.sql
+
+# Secrets read by docker compose
+.env

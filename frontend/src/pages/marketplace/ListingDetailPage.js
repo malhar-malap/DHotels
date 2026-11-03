@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
+import { authPath } from '../../utils/authRedirect';
 import {
   PiMapPin, PiCaretLeft, PiCaretRight, PiLockKey, PiLockKeyOpen, PiPhone, PiEnvelopeSimple, PiUser,
   PiSealCheck, PiEye, PiClock, PiNotePencil, PiShieldCheck, PiArrowLeft,
 } from 'react-icons/pi';
 import { listingsAPI, paymentAPI } from '../../services/api';
 import { generateSlug } from '../../utils/slugify';
-import { formatPrice } from '../../utils/formatPrice';
+import { formatListingPrice } from '../../utils/formatPrice';
 import { loadRazorpay } from '../../utils/loadRazorpay';
-import { getCategoryMeta, getSpecs, categoryImage, resolveImage, priceLabelFor, CONTACT_FEE } from '../../utils/hospitality';
+import { getCategoryMeta, getSpecs, categoryImage, resolveImage, priceLabelFor, isSampleImage, SAMPLE_IMAGE_NOTE, CONTACT_FEE } from '../../utils/hospitality';
 import { useAuth } from '../../context/AuthContext';
 import Seo, { absoluteUrl, truncate, SITE_URL } from '../../components/common/Seo';
 import toast from 'react-hot-toast';
@@ -74,7 +75,7 @@ const ListingDetailPage = () => {
 
   const handlePayment = async () => {
     if (!isAuthenticated) {
-      navigate('/login', { state: { from: location } });
+      navigate(authPath(location));
       return;
     }
     setPaymentLoading(true);
@@ -188,7 +189,7 @@ const ListingDetailPage = () => {
       ...(seoImages.length > 0 && { image: seoImages }),
       ...(categoryName && { category: categoryName }),
       ...(listing.uniqueCode && { sku: listing.uniqueCode }),
-      ...(listing.askingPrice && {
+      ...(listing.askingPrice && !listing.priceNotDisclosed && {
         offers: {
           '@type': 'Offer',
           price: listing.askingPrice,
@@ -270,8 +271,8 @@ const ListingDetailPage = () => {
                 </span>
               </>
             )}
-            {images.length === 0 && (
-              <span className="absolute bottom-4 left-4 rounded-full bg-gray-950/70 px-3 py-1 text-xs text-gray-300 backdrop-blur">Representative image</span>
+            {(images.length === 0 || isSampleImage(gallery[imageIndex])) && (
+              <span className="absolute bottom-4 left-4 rounded-full bg-gray-950/70 px-3 py-1 text-xs text-gray-300 backdrop-blur">{SAMPLE_IMAGE_NOTE}</span>
             )}
           </div>
           {gallery.length > 1 && gallery.slice(1, 3).map((img, i) => (
@@ -306,7 +307,7 @@ const ListingDetailPage = () => {
             <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.06] xl:grid-cols-4">
               <div className="bg-gray-950 p-5">
                 <dt className="text-xs text-gray-500">{priceLabel}</dt>
-                <dd className="stat-value mt-1 whitespace-nowrap text-2xl">{formatPrice(listing.askingPrice)}</dd>
+                <dd className="stat-value mt-1 whitespace-nowrap text-2xl">{formatListingPrice(listing)}</dd>
               </div>
               {specs.map((s) => (
                 <div key={s.key} className="bg-gray-950 p-5">
@@ -365,8 +366,10 @@ const ListingDetailPage = () => {
             <div className="surface-raised overflow-hidden">
               <div className="p-6">
                 <p className="text-xs text-gray-500">{priceLabel}</p>
-                <p className="stat-value mt-1 text-4xl">{formatPrice(listing.askingPrice)}</p>
-                {listing.priceNegotiable && <p className="mt-1 text-sm text-primary-300">Open to negotiation</p>}
+                <p className="stat-value mt-1 text-4xl">{formatListingPrice(listing)}</p>
+                {listing.priceNotDisclosed
+                  ? <p className="mt-1 text-sm text-gray-400">The owner shares the price once you connect.</p>
+                  : listing.priceNegotiable && <p className="mt-1 text-sm text-primary-300">Open to negotiation</p>}
               </div>
 
               <div className="border-t border-white/[0.06] p-6">
@@ -428,7 +431,7 @@ const ListingDetailPage = () => {
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-[11px] text-gray-500">{priceLabel}</p>
-              <p className="stat-value text-xl">{formatPrice(listing.askingPrice)}</p>
+              <p className="stat-value text-xl">{formatListingPrice(listing)}</p>
             </div>
             <a href="#contact" className="btn-brass !px-5">Contact owner</a>
           </div>

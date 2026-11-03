@@ -61,7 +61,7 @@ public class InquiryController {
     @GetMapping("/{id}")
     @Operation(summary = "Get inquiry by ID", description = "Returns detailed inquiry information")
     public ResponseEntity<ApiResponse<InquiryDTO.InquiryResponse>> getInquiryById(@PathVariable Long id) {
-        InquiryDTO.InquiryResponse inquiry = inquiryService.getInquiryById(id);
+        InquiryDTO.InquiryResponse inquiry = inquiryService.getInquiryById(id, authService.getCurrentUserEntity());
         return ResponseEntity.ok(ApiResponse.success(inquiry));
     }
     
@@ -70,14 +70,14 @@ public class InquiryController {
     public ResponseEntity<ApiResponse<Void>> updateInquiryStatus(
             @PathVariable Long id,
             @RequestParam String status) {
-        inquiryService.updateInquiryStatus(id, status);
+        inquiryService.updateInquiryStatus(id, status, authService.getCurrentUserEntity());
         return ResponseEntity.ok(ApiResponse.success("Inquiry status updated", null));
     }
     
     @PutMapping("/{id}/read")
     @Operation(summary = "Mark inquiry as read", description = "Marks an inquiry as read")
     public ResponseEntity<ApiResponse<Void>> markAsRead(@PathVariable Long id) {
-        inquiryService.markAsRead(id);
+        inquiryService.markAsRead(id, authService.getCurrentUserEntity());
         return ResponseEntity.ok(ApiResponse.success("Inquiry marked as read", null));
     }
 }

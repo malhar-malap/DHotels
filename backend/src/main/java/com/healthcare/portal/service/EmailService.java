@@ -5,6 +5,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
 import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -375,6 +376,48 @@ public class EmailService {
             + "</div></div></body></html>";
         sendHtmlEmail(toEmail, subject, body);
     }
+    @Async
+    public void sendListingDeletedByAdminEmail(String toEmail, String fullName, String listingTitle, String reason) {
+        String subject = "Your Listing has been Deleted — DHotels24.in";
+        String body = "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;margin:0;padding:0;background:#0c1222;'>"
+            + "<div style='max-width:600px;margin:30px auto;background:#111827;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.3);'>"
+            + "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);padding:30px;text-align:center;border-bottom:3px solid #ef4444;'>"
+            + "<h1 style='color:#ef4444;margin:0;font-size:28px;'>⚠️ Listing Deleted</h1>"
+            + "</div>"
+            + "<div style='padding:30px;'>"
+            + "<h2 style='color:#e5e7eb;'>Hello " + HtmlUtils.htmlEscape(fullName) + ",</h2>"
+            + "<p style='color:#9ca3af;font-size:16px;line-height:1.6;'>Your listing <strong>" + HtmlUtils.htmlEscape(listingTitle) + "</strong> has been deleted by an administrator because:</p>"
+            + "<div style='background:#1e293b;border-left:4px solid #ef4444;padding:15px 20px;margin:20px 0;border-radius:4px;'>"
+            + "<p style='color:#e5e7eb;margin:0;font-size:15px;line-height:1.6;'>" + HtmlUtils.htmlEscape(reason) + "</p>"
+            + "</div>"
+            + "<p style='color:#9ca3af;font-size:16px;line-height:1.6;'>If you believe this was a mistake or have any questions, please contact our support team.</p>"
+            + "</div></div></body></html>";
+        sendHtmlEmail(toEmail, subject, body);
+    }
+
+    @Async
+    public void sendListingDeletedByOwnerEmail(String toAdmin, String ownerName, String ownerEmail,
+                                               Long listingId, String uniqueCode, String listingTitle, String reason) {
+        String subject = "Listing Deleted by Owner — DHotels24.in";
+        String body = "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;margin:0;padding:0;background:#0c1222;'>"
+            + "<div style='max-width:600px;margin:30px auto;background:#111827;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.3);'>"
+            + "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);padding:30px;text-align:center;border-bottom:3px solid #f7b538;'>"
+            + "<h1 style='color:#f7b538;margin:0;font-size:28px;'>🗑️ Listing Deleted by Owner</h1>"
+            + "</div>"
+            + "<div style='padding:30px;'>"
+            + "<div style='background:#1e293b;border:1px solid #334155;border-radius:8px;padding:20px;margin:20px 0;'>"
+            + "<p style='color:#e5e7eb;margin:5px 0;'><strong>Listing:</strong> " + HtmlUtils.htmlEscape(listingTitle) + " (ID " + listingId
+            + (uniqueCode != null ? ", Code " + HtmlUtils.htmlEscape(uniqueCode) : "") + ")</p>"
+            + "<p style='color:#e5e7eb;margin:5px 0;'><strong>Owner:</strong> " + HtmlUtils.htmlEscape(ownerName) + " (" + HtmlUtils.htmlEscape(ownerEmail) + ")</p>"
+            + "</div>"
+            + "<p style='color:#9ca3af;font-size:16px;line-height:1.6;'>Reason given by the owner:</p>"
+            + "<div style='background:#1e293b;border-left:4px solid #f7b538;padding:15px 20px;margin:20px 0;border-radius:4px;'>"
+            + "<p style='color:#e5e7eb;margin:0;font-size:15px;line-height:1.6;'>" + HtmlUtils.htmlEscape(reason) + "</p>"
+            + "</div>"
+            + "</div></div></body></html>";
+        sendHtmlEmail(toAdmin, subject, body);
+    }
+
     // ========== 9. Consultation Notification to Admin ==========
     @Async
     public void sendConsultationNotification(String toAdmin, String name, String email, String phone, String preferredDate, String timeSlot, String topic) {

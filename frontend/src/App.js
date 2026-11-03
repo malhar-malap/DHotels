@@ -30,6 +30,7 @@ const JobsPage = lazy(() => import('./pages/jobs/JobsPage'));
 const JobDetailPage = lazy(() => import('./pages/jobs/JobDetailPage'));
 const CreateJobPage = lazy(() => import('./pages/jobs/CreateJobPage'));
 const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage'));
+const NotificationsPage = lazy(() => import('./pages/dashboard/NotificationsPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 import { seoData } from './pages/marketplace/seoData';
 import { CATEGORIES } from './utils/hospitality';
@@ -145,6 +146,7 @@ function App() {
               <Route path="/dashboard/jobs" element={<MyJobsPage />} />
               <Route path="/dashboard/applications" element={<MyApplicationsPage />} />
               <Route path="/dashboard/profile" element={<ProfilePage />} />
+              <Route path="/dashboard/notifications" element={<NotificationsPage />} />
             </Route>
             
             {/* Admin Routes */}

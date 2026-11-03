@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import RefreshButton from '../../components/admin/RefreshButton';
 import { Link } from 'react-router-dom';
 import { adminAPI } from '../../services/api';
 import { FiUsers, FiList, FiBriefcase, FiMail, FiCheck, FiX, FiEye, FiCreditCard, FiChevronRight, FiCheckSquare, FiAward, FiShield, FiPhone, FiFileText } from 'react-icons/fi';
@@ -48,7 +49,10 @@ const AdminDashboard = () => {
       <div className="max-w-7xl mx-auto">
         <div className="mb-12">
           <span className="section-label mb-2 block tracking-[0.2em]">Administrative Control</span>
-          <h1 className="text-4xl display-title uppercase tracking-tighter">Command Center</h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-4xl display-title uppercase tracking-tighter">Command Center</h1>
+            <RefreshButton onRefresh={fetchStats} />
+          </div>
           <p className="text-ethereal-on-surface-variant font-medium mt-1">Platform-wide analytics and strategic orchestration</p>
         </div>
 
@@ -149,7 +153,7 @@ const AdminDashboard = () => {
                 { to: '/admin/jobs', icon: FiBriefcase, label: 'Talent Pool', color: 'from-purple-500 to-pink-600' },
                 { to: '/admin/users', icon: FiUsers, label: 'Entity Directory', color: 'from-primary-500 to-primary-400' },
                 { to: '/admin/payments', icon: FiCreditCard, label: 'Financial Core', color: 'from-emerald-500 to-teal-600' },
-                { to: '/admin/logs', icon: FiShield, label: 'System Logs', color: 'from-slate-500 to-gray-600' },
+                { to: '/admin/logs', icon: FiShield, label: 'System Logs', color: 'from-gray-500 to-gray-600' },
               ].map((link) => (
                 <Link 
                     key={link.label} 

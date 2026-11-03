@@ -18,8 +18,9 @@ services:
       dockerfile: Dockerfile
     container_name: dhotels-spring-backend
     restart: always
+    # Loopback only: the public reaches the API through nginx (HTTPS); Docker would otherwise bypass the firewall
     ports:
-      - "8081:8080"
+      - "127.0.0.1:8081:8080"
     depends_on:
       - db
     env_file:

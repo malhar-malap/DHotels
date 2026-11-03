@@ -1,11 +1,26 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import RefreshButton from '../../components/admin/RefreshButton';
 import { useSearchParams, Link } from 'react-router-dom';
-import { adminAPI, masterAPI, mediaAPI } from '../../services/api';
-import { formatPrice } from '../../utils/formatPrice';
+import { adminAPI, masterAPI } from '../../services/api';
+import { formatListingPrice } from '../../utils/formatPrice';
 import AdminListingDetailModal from './AdminListingDetailModal';
 import toast from 'react-hot-toast';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
-import { FiCheck, FiX, FiTrash2, FiStar, FiEye, FiFilter, FiSearch, FiChevronLeft, FiChevronRight, FiArrowLeft, FiUpload, FiImage } from 'react-icons/fi';
+import { FiCheck, FiX, FiTrash2, FiStar, FiEye, FiFilter, FiSearch, FiChevronLeft, FiChevronRight, FiArrowLeft, FiImage } from 'react-icons/fi';
+
+const MAX_FEATURE_DAYS = 60;
+/** "12 days left", or "5 hours left" in the last day. */
+const featuredTimeLeft = (until) => {
+  const ms = new Date(until).getTime() - Date.now();
+  if (ms <= 0) return 'expired';
+  const days = Math.ceil(ms / 86400000);
+  if (ms < 86400000) {
+    const hours = Math.max(1, Math.ceil(ms / 3600000));
+    return `${hours} ${hours === 1 ? 'hour' : 'hours'} left`;
+  }
+  return `${days} ${days === 1 ? 'day' : 'days'} left`;
+};
+const formatDateTime = (date) => date.toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' });
 
 const AdminListingsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -36,13 +51,15 @@ const AdminListingsPage = () => {
   const [rejectModalId, setRejectModalId] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
   const [featureModalId, setFeatureModalId] = useState(null);
-  const [featureDays, setFeatureDays] = useState(7);
+  // Featured duration: a preset ('3', '7', '14', '30') or 'custom' with customFeatureDays (1-60)
+  const [featurePreset, setFeaturePreset] = useState('7');
+  const [customFeatureDays, setCustomFeatureDays] = useState('');
+  // Expiry of the listing's current featured window, if it is featured right now
+  const [featureCurrentUntil, setFeatureCurrentUntil] = useState(null);
 
   // Approve modal
   const [approveModalId, setApproveModalId] = useState(null);
   const [approveUniqueCode, setApproveUniqueCode] = useState('');
-  const [approveImageUrl, setApproveImageUrl] = useState('');
-  const [uploadingImage, setUploadingImage] = useState(false);
 
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, listingId: null, isBulk: false });
 
@@ -90,50 +107,22 @@ const AdminListingsPage = () => {
   };
 
   // Actions
-  const handleApprove = (id, initialCode = '', initialImage = '') => {
-    try {
-      setApproveModalId(id);
-      setApproveUniqueCode(initialCode || '');
-      setApproveImageUrl(initialImage || '');
-    } catch (err) {
-      console.error('Error opening approval modal:', err);
-      toast.error('Could not open approval modal');
-    }
-  };
-
-  const handleApproveImageUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingImage(true);
-    try {
-      const response = await mediaAPI.upload(file);
-      const url = response.data?.data || response.data;
-      setApproveImageUrl(url);
-      toast.success('Image uploaded');
-    } catch (error) {
-      const msg = error?.response?.data?.message || error?.message || 'Image upload failed';
-      toast.error(msg);
-      console.error('Image upload failed:', error);
-    }
-    setUploadingImage(false);
+  const handleApprove = (id) => {
+    setApproveModalId(id);
+    setApproveUniqueCode('');
   };
 
   const handleApproveConfirm = async () => {
     if (!approveUniqueCode.trim()) { toast.error('Please enter a unique code'); return; }
-    if (!approveImageUrl) { toast.error('Please upload a sample image'); return; }
     setActionLoading(approveModalId);
     try {
-      await adminAPI.approveListing(approveModalId, approveUniqueCode.trim(), [approveImageUrl]);
+      // No image is sent: the backend assigns a representative image for the listing's category
+      await adminAPI.approveListing(approveModalId, approveUniqueCode.trim());
       toast.success('Listing approved with code: ' + approveUniqueCode.trim());
       setApproveModalId(null);
       setApproveUniqueCode('');
-      setApproveImageUrl('');
       fetchListings();
-    } catch (error) {
-      console.error('Approval failed:', error);
-      const msg = error?.response?.data?.message || error?.message || 'Failed to approve listing';
-      toast.error(msg);
-    }
+    } catch (error) { toast.error(error.response?.data?.message || 'Failed to approve'); }
     setActionLoading(null);
   };
 
@@ -141,16 +130,12 @@ const AdminListingsPage = () => {
     if (!rejectReason.trim()) { toast.error('Please provide a rejection reason'); return; }
     setActionLoading(rejectModalId);
     try {
-      await adminAPI.rejectListing(rejectModalId, rejectReason.trim());
+      await adminAPI.rejectListing(rejectModalId, rejectReason);
       toast.success('Listing rejected');
       setRejectModalId(null);
       setRejectReason('');
       fetchListings();
-    } catch (error) {
-      console.error('Reject failed:', error);
-      const msg = error?.response?.data?.message || error?.message || 'Failed to reject listing';
-      toast.error(msg);
-    }
+    } catch (error) { toast.error('Failed to reject'); }
     setActionLoading(null);
   };
 
@@ -158,14 +143,15 @@ const AdminListingsPage = () => {
     setConfirmModal({ isOpen: true, listingId: id, isBulk: false });
   };
 
-  const confirmDelete = async () => {
+  const confirmDelete = async (reason) => {
     const { listingId, isBulk } = confirmModal;
     setConfirmModal({ isOpen: false, listingId: null, isBulk: false });
+    if (!reason?.trim()) { toast.error('Please provide a reason for deletion'); return; }
     
     if (isBulk) {
       if (selectedIds.length === 0) return;
       try {
-        const response = await adminAPI.bulkDeleteListings(selectedIds);
+        const response = await adminAPI.bulkDeleteListings(selectedIds, reason.trim());
         const result = response.data.data;
         toast.success(`${result.successCount} listings deleted`);
         setSelectedIds([]);
@@ -178,20 +164,30 @@ const AdminListingsPage = () => {
     if (!listingId) return;
     setActionLoading(listingId);
     try {
-      await adminAPI.deleteListing(listingId);
-      toast.success('Listing deleted');
+      await adminAPI.deleteListing(listingId, reason.trim());
+      toast.success('Listing deleted and the owner has been notified');
       fetchListings();
     } catch (error) { toast.error('Failed to delete'); }
     setActionLoading(null);
   };
 
+  const featureDays = featurePreset === 'custom' ? Number(customFeatureDays) : Number(featurePreset);
+  const featureDaysValid = Number.isInteger(featureDays) && featureDays >= 1 && featureDays <= MAX_FEATURE_DAYS;
+
+  const openFeatureModal = (listing) => {
+    setFeatureModalId(listing.id);
+    setFeatureCurrentUntil(listing.isFeatured && listing.featuredUntil ? listing.featuredUntil : null);
+    setFeaturePreset('7');
+    setCustomFeatureDays('');
+  };
+
   const handleFeature = async () => {
+    if (!featureDaysValid) { toast.error(`Choose between 1 and ${MAX_FEATURE_DAYS} days`); return; }
     setActionLoading(featureModalId);
     try {
       await adminAPI.featureListing(featureModalId, featureDays);
-      toast.success(`Listing featured for ${featureDays} days`);
+      toast.success(`Listing featured for ${featureDays} ${featureDays === 1 ? 'day' : 'days'}; the owner has been notified`);
       setFeatureModalId(null);
-      setFeatureDays(7);
       fetchListings();
     } catch (error) { toast.error('Failed to feature listing'); }
     setActionLoading(null);
@@ -269,7 +265,7 @@ const AdminListingsPage = () => {
     PENDING: 'bg-amber-100 text-amber-800 border-amber-200/50',
     ACTIVE: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50',
     REJECTED: 'bg-rose-100 text-rose-800 border-rose-200/50',
-    EXPIRED: 'bg-slate-100 text-slate-600 border-slate-200/50',
+    EXPIRED: 'bg-gray-500/20 text-gray-300 border-gray-500/30',
     SOLD: 'bg-indigo-100 text-indigo-800 border-indigo-200/50',
     WITHDRAWN: 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200/50',
   };
@@ -289,9 +285,12 @@ const AdminListingsPage = () => {
               </Link>
               <span className="section-label tracking-[0.2em]">Listing Management</span>
             </div>
-            <h1 className="text-4xl display-title uppercase tracking-tighter">
-              {showPendingSection ? 'Audit Pipeline' : 'Asset Repository'}
-            </h1>
+<div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-4xl display-title uppercase tracking-tighter">
+                {showPendingSection ? 'Audit Pipeline' : 'Asset Repository'}
+              </h1>
+              <RefreshButton onRefresh={fetchListings} />
+            </div>
             <p className="text-ethereal-on-surface-variant font-medium mt-1">
               Currently indexing <span className="text-ethereal-on-surface">{totalElements}</span> listings
             </p>
@@ -301,10 +300,10 @@ const AdminListingsPage = () => {
             <div className="glass-card !bg-gray-900/80 px-6 py-4 rounded-3xl border-none flex items-center gap-4 animate-slideUp">
               <span className="text-xs font-black uppercase tracking-widest text-ethereal-on-surface-variant">Selected: {selectedIds.length}</span>
               <div className="h-4 w-px bg-ethereal-surface-low mx-2"></div>
-              <button onClick={handleBulkApprove} className="btn-ethereal-primary !px-5 !py-2 text-[10px] font-black uppercase tracking-widest">
+              <button onClick={handleBulkApprove} className="btn-ethereal-primary !px-5 !py-2 text-[11px] font-black uppercase tracking-widest">
                 Authorize Batch
               </button>
-              <button onClick={handleBulkDelete} className="text-rose-600 hover:text-rose-700 text-[10px] font-black uppercase tracking-widest px-4">
+              <button onClick={handleBulkDelete} className="text-rose-600 hover:text-rose-700 text-[11px] font-black uppercase tracking-widest px-4">
                 Purge
               </button>
             </div>
@@ -312,7 +311,7 @@ const AdminListingsPage = () => {
         </div>
 
         {/* Filters Panel */}
-        <div className="glass-card p-8 rounded-[2rem] border-none mb-8">
+        <div className="glass-card p-8 rounded-3xl border-none mb-8">
           <div className="flex items-center gap-3 mb-8">
             <div className="p-2 rounded-lg bg-ethereal-primary/10 text-ethereal-primary"><FiFilter className="w-4 h-4" /></div>
             <span className="text-sm font-black uppercase tracking-widest text-ethereal-on-surface">Precision Filters</span>
@@ -340,7 +339,7 @@ const AdminListingsPage = () => {
           </div>
           {(statusFilter || categoryFilter || keyword) && (
             <div className="mt-6 flex justify-end">
-              <button onClick={clearFilters} className="text-[10px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant hover:text-ethereal-primary transition-colors">Reset Query Parameters</button>
+              <button onClick={clearFilters} className="text-[11px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant hover:text-ethereal-primary transition-colors">Reset Query Parameters</button>
             </div>
           )}
         </div>
@@ -363,14 +362,14 @@ const AdminListingsPage = () => {
                       <div className="flex flex-wrap items-center gap-3 mb-1">
                         <h3 className="text-base md:text-lg font-bold text-ethereal-on-surface truncate group-hover:text-ethereal-primary transition-colors cursor-pointer"
                           onClick={() => setDetailModalId(listing.id)}>{listing.displayTitle}</h3>
-                        <span className="px-3 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-black uppercase tracking-widest rounded-full">Vetting</span>
+                        <span className="px-3 py-0.5 bg-amber-100 text-amber-800 text-[11px] font-black uppercase tracking-widest rounded-full">Vetting</span>
                       </div>
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-medium text-ethereal-on-surface-variant opacity-60">
                         <span className="uppercase tracking-widest">{listing.categoryName}</span>
                         <span>•</span>
                         <span className="uppercase tracking-widest">{listing.cityName}</span>
                         <span>•</span>
-                        <span className="text-ethereal-on-surface font-black">{formatPrice(listing.askingPrice)}</span>
+                        <span className="text-ethereal-on-surface font-black">{formatListingPrice(listing)}</span>
                         <span>•</span>
                         <span>Origin: {listing.sellerName || 'Anonymous'}</span>
                       </div>
@@ -395,11 +394,11 @@ const AdminListingsPage = () => {
 
         {/* Global Asset Table */}
         {!showPendingSection && (
-          <div className="glass-card rounded-[2.5rem] border-none overflow-hidden animate-fadeIn">
+          <div className="glass-card rounded-3xl border-none overflow-hidden animate-fadeIn">
             {loading ? (
               <div className="p-24 text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-ethereal-primary mx-auto"></div>
-                <p className="text-ethereal-on-surface-variant font-black uppercase tracking-widest mt-6 text-[10px]">Synchronizing Matrix...</p>
+                <p className="text-ethereal-on-surface-variant font-black uppercase tracking-widest mt-6 text-[11px]">Synchronizing Matrix...</p>
               </div>
             ) : listings.length === 0 ? (
               <div className="p-24 text-center">
@@ -415,13 +414,13 @@ const AdminListingsPage = () => {
                         <input type="checkbox" checked={selectAll} onChange={toggleSelectAll}
                           className="w-5 h-5 accent-ethereal-primary rounded-lg" />
                       </th>
-                      <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant">Asset Designation</th>
-                      <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant">Modality</th>
-                      <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant">Geography</th>
-                      <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant">Valuation</th>
-                      <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant">Status</th>
-                      <th className="px-4 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant">Timestamp</th>
-                      <th className="px-4 py-6 text-center text-[10px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant">Admin Control</th>
+                      <th className="px-4 py-6 text-[11px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant">Asset Designation</th>
+                      <th className="px-4 py-6 text-[11px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant">Modality</th>
+                      <th className="px-4 py-6 text-[11px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant">Geography</th>
+                      <th className="px-4 py-6 text-[11px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant">Valuation</th>
+                      <th className="px-4 py-6 text-[11px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant">Status</th>
+                      <th className="px-4 py-6 text-[11px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant">Timestamp</th>
+                      <th className="px-4 py-6 text-center text-[11px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant">Admin Control</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-ethereal-surface">
@@ -438,15 +437,15 @@ const AdminListingsPage = () => {
                               {listing.displayTitle}
                             </p>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className="text-[8px] font-black uppercase tracking-widest text-ethereal-on-surface-variant opacity-40">System ID: {listing.id}</span>
+                              <span className="text-[11px] font-black uppercase tracking-widest text-ethereal-on-surface-variant opacity-40">System ID: {listing.id}</span>
                             </div>
                           </div>
                         </td>
                         <td className="px-4 py-6 text-xs font-bold text-ethereal-on-surface-variant uppercase tracking-wider">{listing.categoryName}</td>
                         <td className="px-4 py-6 text-xs font-medium text-ethereal-on-surface">{listing.cityName}</td>
-                        <td className="px-4 py-6 text-sm font-black text-ethereal-on-surface">{formatPrice(listing.askingPrice)}</td>
+                        <td className="px-4 py-6 text-sm font-black text-ethereal-on-surface">{formatListingPrice(listing)}</td>
                         <td className="px-4 py-6">
-                          <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${statusColors[listing.status] || ''}`}>
+                          <span className={`px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-widest border ${statusColors[listing.status] || ''}`}>
                             {listing.status}
                           </span>
                         </td>
@@ -461,7 +460,11 @@ const AdminListingsPage = () => {
                               <button onClick={() => { setRejectModalId(listing.id); setRejectReason(''); }} className="p-2 rounded-xl bg-gray-900 text-rose-500 hover:shadow-lg transition-all"><FiX size={16} /></button>
                             )}
                             {listing.status === 'ACTIVE' && (
-                              <button onClick={() => { setFeatureModalId(listing.id); setFeatureDays(7); }} className="p-2 rounded-xl bg-gray-900 text-amber-500 hover:shadow-lg transition-all"><FiStar size={16} /></button>
+                              <button onClick={() => openFeatureModal(listing)}
+                                title={listing.isFeatured ? `Featured: ${featuredTimeLeft(listing.featuredUntil)}` : 'Feature on homepage'}
+                                className={`p-2 rounded-xl hover:shadow-lg transition-all ${listing.isFeatured ? 'bg-amber-500/20 text-amber-300' : 'bg-gray-900 text-amber-500'}`}>
+                                <FiStar size={16} className={listing.isFeatured ? 'fill-current' : ''} />
+                              </button>
                             )}
                             <button onClick={() => handleDelete(listing.id)} disabled={actionLoading === listing.id} className="p-2 rounded-xl bg-gray-900 text-rose-700 hover:shadow-lg transition-all"><FiTrash2 size={16} /></button>
                           </div>
@@ -476,7 +479,7 @@ const AdminListingsPage = () => {
             {/* Pagination Layer */}
             {totalPages > 1 && (
               <div className="bg-ethereal-surface-low/30 px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-6 border-t border-ethereal-surface">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant">
+                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-ethereal-on-surface-variant">
                   Viewing Plate {page + 1} of {totalPages} <span className="mx-2 opacity-20">|</span> Total Items: {totalElements}
                 </p>
                 <div className="flex items-center gap-3">
@@ -523,17 +526,17 @@ const AdminListingsPage = () => {
       {/* Reject Modal Overlay */}
       {rejectModalId && (
         <div className="fixed inset-0 bg-ethereal-surface/80 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-fadeIn">
-          <div className="glass-card bg-gray-900 p-10 rounded-[2.5rem] border-none shadow-2xl w-full max-w-lg animate-scaleIn">
+          <div className="glass-card bg-gray-900/95 border border-white/10 p-10 rounded-3xl shadow-2xl w-full max-w-lg animate-scaleIn">
             <h3 className="text-2xl font-bold text-ethereal-on-surface tracking-tight mb-4 uppercase">Asset Rejection Protocol</h3>
             <p className="text-sm font-medium text-ethereal-on-surface-variant mb-8 opacity-60">Define the reason for non-compliance. This metadata will be transmitted to the entity owner.</p>
             <textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)}
               placeholder="Detailed reason for decommissioning..."
-              className="w-full px-6 py-5 bg-ethereal-surface border border-transparent rounded-[1.5rem] focus:bg-gray-900 focus:ring-4 focus:ring-rose-100 transition-all outline-none resize-none min-h-[160px] text-sm font-medium" />
+              className="w-full px-6 py-5 bg-gray-800 border border-white/10 rounded-2xl focus:bg-gray-950 focus:ring-4 focus:ring-rose-500/20 transition-all outline-none resize-none min-h-[160px] text-sm font-medium" />
             <div className="flex justify-end gap-4 mt-10">
               <button onClick={() => setRejectModalId(null)}
                 className="btn-ethereal-secondary">Cancel</button>
               <button onClick={handleReject} disabled={actionLoading === rejectModalId}
-                className="px-8 py-4 bg-rose-600 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-rose-700 shadow-xl shadow-rose-600/20 disabled:opacity-50 transition-all">
+                className="px-8 py-4 bg-rose-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-rose-700 shadow-xl shadow-rose-600/20 disabled:opacity-50 transition-all">
                 {actionLoading === rejectModalId ? 'Processing...' : 'Execute Decommission'}
               </button>
             </div>
@@ -544,92 +547,106 @@ const AdminListingsPage = () => {
       {/* Feature Escalation Modal */}
       {featureModalId && (
         <div className="fixed inset-0 bg-ethereal-surface/80 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-fadeIn">
-          <div className="glass-card bg-gray-900 p-10 rounded-[2.5rem] border-none shadow-2xl w-full max-w-md animate-scaleIn">
+          <div className="glass-card bg-gray-900/95 border border-white/10 p-10 rounded-3xl shadow-2xl w-full max-w-md animate-scaleIn">
             <h3 className="text-2xl font-bold text-ethereal-on-surface tracking-tight mb-4 uppercase">Visibility Escalation</h3>
-            <p className="text-sm font-medium text-ethereal-on-surface-variant mb-8 opacity-60">Set the priority duration for this asset within the network grid.</p>
+            <p className="text-sm font-medium text-ethereal-on-surface-variant mb-6 opacity-60">Set the priority duration for this asset within the network grid.</p>
+            {featureCurrentUntil && (
+              <div className="mb-6 flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-5 py-4">
+                <FiStar className="w-5 h-5 mt-0.5 shrink-0 text-amber-300 fill-current" />
+                <div className="text-sm">
+                  <p className="font-bold text-amber-200">Already featured on the homepage: {featuredTimeLeft(featureCurrentUntil)}</p>
+                  <p className="text-amber-200/70 mt-0.5">Current window ends {formatDateTime(new Date(featureCurrentUntil))}. Choosing a new duration replaces it, starting now.</p>
+                </div>
+              </div>
+            )}
             <div className="space-y-4">
-              <label className="text-[10px] font-black uppercase tracking-widest text-ethereal-primary opacity-60">Escalation Duration</label>
-              <select value={featureDays} onChange={(e) => setFeatureDays(Number(e.target.value))}
-                className="w-full px-6 py-4 bg-ethereal-surface border border-transparent rounded-2xl focus:bg-gray-900 focus:ring-4 focus:ring-amber-100 transition-all outline-none font-bold text-ethereal-on-surface">
-                <option value={3}>3 Cycles (Days)</option>
-                <option value={7}>7 Cycles (Standard)</option>
-                <option value={14}>14 Cycles (Extended)</option>
-                <option value={30}>30 Cycles (Strategic)</option>
-              </select>
+              <label className="text-[11px] font-black uppercase tracking-widest text-ethereal-primary opacity-60">Escalation Duration</label>
+              <div className="grid grid-cols-5 gap-2" role="radiogroup" aria-label="Featured duration">
+                {[['3', '3 days'], ['7', '7 days'], ['14', '14 days'], ['30', '30 days'], ['custom', 'Custom']].map(([value, label]) => (
+                  <button key={value} type="button" role="radio" aria-checked={featurePreset === value}
+                    onClick={() => setFeaturePreset(value)}
+                    className={`px-2 py-3 rounded-xl text-xs font-bold border transition-colors ${
+                      featurePreset === value
+                        ? 'bg-amber-500/15 border-amber-500/60 text-amber-300'
+                        : 'bg-gray-800 border-white/10 text-gray-300 hover:border-white/20'
+                    }`}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {featurePreset === 'custom' && (
+                <div className="space-y-2 animate-fadeIn">
+                  <div className="relative">
+                    <input type="number" min="1" max={MAX_FEATURE_DAYS} step="1" autoFocus
+                      value={customFeatureDays}
+                      onChange={(e) => setCustomFeatureDays(e.target.value)}
+                      placeholder={`1 - ${MAX_FEATURE_DAYS}`}
+                      className="w-full px-6 py-4 pr-16 bg-gray-800 border border-white/10 rounded-2xl focus:bg-gray-950 focus:ring-4 focus:ring-amber-500/20 transition-all outline-none font-bold text-ethereal-on-surface" />
+                    <span className="absolute right-6 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-500">days</span>
+                  </div>
+                  {customFeatureDays !== '' && !featureDaysValid && (
+                    <p className="text-xs text-rose-400">Enter a whole number from 1 to {MAX_FEATURE_DAYS}.</p>
+                  )}
+                </div>
+              )}
+              {featureDaysValid && (
+                <div className="rounded-2xl bg-gray-800 border border-white/10 px-5 py-4 text-sm">
+                  <p className="text-gray-400">Featured on the homepage from</p>
+                  <p className="font-bold text-ethereal-on-surface mt-0.5">
+                    {formatDateTime(new Date())} <span className="text-gray-500 font-medium">until</span> {formatDateTime(new Date(Date.now() + featureDays * 86400000))}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-2">It's removed from the homepage automatically at that time, and the owner is notified now.</p>
+                </div>
+              )}
             </div>
             <div className="flex justify-end gap-4 mt-10">
               <button onClick={() => setFeatureModalId(null)}
                 className="btn-ethereal-secondary">Abort</button>
-              <button onClick={handleFeature} disabled={actionLoading === featureModalId}
-                className="px-8 py-4 bg-amber-500 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-amber-600 shadow-xl shadow-amber-500/20 disabled:opacity-50 transition-all">
-                {actionLoading === featureModalId ? 'Escalating...' : 'Authorize Visibility'}
+              <button onClick={handleFeature} disabled={actionLoading === featureModalId || !featureDaysValid}
+                className="px-8 py-4 bg-amber-500 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-amber-600 shadow-xl shadow-amber-500/20 disabled:opacity-50 transition-all">
+                {actionLoading === featureModalId ? 'Escalating...' : featureCurrentUntil ? 'Update Visibility' : 'Authorize Visibility'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Approve with Unique Code + Sample Image Modal */}
+      {/* Approve with Unique Code Modal */}
       {approveModalId && (
         <div className="fixed inset-0 bg-ethereal-surface/80 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-fadeIn">
-          <div className="glass-card bg-gray-900 p-10 rounded-[2.5rem] border-none shadow-2xl w-full max-w-lg animate-scaleIn">
+          <div className="glass-card bg-gray-900/95 border border-white/10 p-10 rounded-3xl shadow-2xl w-full max-w-lg animate-scaleIn">
             <h3 className="text-2xl font-bold text-ethereal-on-surface tracking-tight mb-4 uppercase">Listing Verification</h3>
-            <p className="text-sm font-medium text-ethereal-on-surface-variant mb-8 opacity-60">Assign a unique code and upload a sample image before approving this listing.</p>
+            <p className="text-sm font-medium text-ethereal-on-surface-variant mb-8 opacity-60">Assign a unique code to approve and publish this listing.</p>
             
             <div className="space-y-6">
               {/* Unique Code */}
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-ethereal-primary opacity-60">Unique Code</label>
+                <label className="text-[11px] font-black uppercase tracking-[0.2em] text-ethereal-primary opacity-60">Unique Code</label>
                 <input
                   type="text"
                   value={approveUniqueCode}
                   onChange={(e) => setApproveUniqueCode(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' && approveUniqueCode.trim() && approveImageUrl) handleApproveConfirm(); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && approveUniqueCode.trim()) handleApproveConfirm(); }}
                   placeholder="e.g. DH-HOTEL-001"
                   autoFocus
-                  className="w-full px-6 py-5 bg-ethereal-surface border border-transparent rounded-[1.5rem] focus:bg-gray-900 focus:ring-4 focus:ring-ethereal-primary/20 transition-all outline-none text-lg font-bold tracking-wider"
+                  className="w-full px-6 py-5 bg-gray-800 border border-white/10 rounded-2xl focus:bg-gray-950 focus:ring-4 focus:ring-ethereal-primary/20 transition-all outline-none text-lg font-bold tracking-wider"
                 />
               </div>
 
-              {/* Sample Image Upload */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-ethereal-primary opacity-60">Sample Image</label>
-                {approveImageUrl ? (
-                  <div className="relative group">
-                    <img src={approveImageUrl.startsWith('http') ? approveImageUrl : (approveImageUrl.startsWith('/') ? approveImageUrl : `/${approveImageUrl}`)} alt="Sample" className="w-full h-48 object-cover rounded-[1.2rem] border border-ethereal-surface" />
-                    <button onClick={() => setApproveImageUrl('')}
-                      className="absolute top-3 right-3 p-2 bg-gray-900/80 text-white rounded-xl hover:bg-rose-600 transition-all opacity-0 group-hover:opacity-100">
-                      <FiX className="w-4 h-4" />
-                    </button>
-                    <div className="absolute bottom-3 left-3 px-3 py-1 bg-emerald-600/90 text-white text-[9px] font-black uppercase tracking-widest rounded-full flex items-center gap-1">
-                      <FiCheck className="w-3 h-3" /> Uploaded
-                    </div>
-                  </div>
-                ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-40 bg-ethereal-surface border-2 border-dashed border-ethereal-surface-low rounded-[1.2rem] cursor-pointer hover:border-ethereal-primary/30 hover:bg-ethereal-surface-low/50 transition-all">
-                    <input type="file" accept="image/*" onChange={handleApproveImageUpload} className="hidden" />
-                    {uploadingImage ? (
-                      <>
-                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-ethereal-primary"></div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-ethereal-on-surface-variant mt-3">Uploading...</p>
-                      </>
-                    ) : (
-                      <>
-                        <FiUpload className="w-8 h-8 text-ethereal-on-surface-variant opacity-40 mb-2" />
-                        <p className="text-[10px] font-black uppercase tracking-widest text-ethereal-on-surface-variant opacity-60">Click to upload sample image</p>
-                        <p className="text-[9px] text-ethereal-on-surface-variant opacity-30 mt-1">This replaces user-uploaded photos</p>
-                      </>
-                    )}
-                  </label>
-                )}
+              {/* Image is assigned automatically */}
+              <div className="flex items-start gap-3 p-4 rounded-2xl bg-gray-800">
+                <FiImage className="w-5 h-5 text-ethereal-primary shrink-0 mt-0.5" />
+                <p className="text-xs font-medium text-ethereal-on-surface-variant leading-relaxed">
+                  A representative image for this listing's category is assigned automatically and replaces any owner-uploaded photos.
+                </p>
               </div>
             </div>
 
             <div className="flex justify-end gap-4 mt-10">
-              <button onClick={() => { setApproveModalId(null); setApproveImageUrl(''); }}
+              <button onClick={() => setApproveModalId(null)}
                 className="btn-ethereal-secondary">Cancel</button>
-              <button onClick={handleApproveConfirm} disabled={actionLoading === approveModalId || uploadingImage}
-                className="px-8 py-4 bg-primary-500 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:bg-primary-700 shadow-xl shadow-primary-400/20 disabled:opacity-50 transition-all">
+              <button onClick={handleApproveConfirm} disabled={actionLoading === approveModalId}
+                className="px-8 py-4 bg-primary-400 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-primary-500 shadow-xl shadow-primary-400/20 disabled:opacity-50 transition-all">
                 {actionLoading === approveModalId ? 'Processing...' : 'Approve & Publish'}
               </button>
             </div>
@@ -644,25 +661,8 @@ const AdminListingsPage = () => {
           onClose={() => setDetailModalId(null)}
           onUpdated={fetchListings}
           onVerifyClick={(listing) => {
-            try {
-              setDetailModalId(null);
-              const initialCode = listing?.uniqueCode || '';
-              const initialImg = (listing?.images && listing.images.length > 0) ? listing.images[0] : '';
-              handleApprove(listing.id, initialCode, initialImg);
-            } catch (err) {
-              console.error('Failed to initiate verification:', err);
-              toast.error('Failed to initiate listing verification');
-            }
-          }}
-          onRejectClick={(listing) => {
-            try {
-              setDetailModalId(null);
-              setRejectModalId(listing.id);
-              setRejectReason('');
-            } catch (err) {
-              console.error('Failed to initiate rejection:', err);
-              toast.error('Failed to initiate rejection');
-            }
+            setDetailModalId(null);
+            handleApprove(listing.id);
           }}
         />
       )}
@@ -672,9 +672,11 @@ const AdminListingsPage = () => {
           onClose={() => setConfirmModal({ isOpen: false, listingId: null, isBulk: false })}
           onConfirm={confirmDelete}
           title={confirmModal.isBulk ? "Bulk Delete Listings" : "Delete Listing"}
-          message={confirmModal.isBulk ? `Are you sure you want to delete ${selectedIds.length} selected listings? This action cannot be undone.` : "Are you sure you want to delete this listing? This action cannot be undone."}
+          message={confirmModal.isBulk ? `Are you sure you want to delete ${selectedIds.length} selected listings? This action cannot be undone. Each owner will be emailed the reason.` : "Are you sure you want to delete this listing? This action cannot be undone. The owner will be emailed the reason."}
           confirmText="Delete"
           isDanger={true}
+          requireReason={true}
+          reasonLabel="Reason for deletion (sent to the owner)"
       />
     </div>
   );

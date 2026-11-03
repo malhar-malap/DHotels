@@ -30,9 +30,12 @@ public class AdminService {
     private final JobService jobService;
     private final UserService userService;
     private final EmailService emailService;
+    private final NotificationService notificationService;
+
 
     @Autowired
-    public AdminService(UserRepository userRepository, ListingRepository listingRepository, JobRepository jobRepository, InquiryRepository inquiryRepository, JobApplicationRepository jobApplicationRepository, BuyerVerificationRepository buyerVerificationRepository, PaymentRepository paymentRepository, UserRoleRepository userRoleRepository, ListingService listingService, JobService jobService, UserService userService, EmailService emailService) {
+    public AdminService(UserRepository userRepository, ListingRepository listingRepository, JobRepository jobRepository, InquiryRepository inquiryRepository, JobApplicationRepository jobApplicationRepository, BuyerVerificationRepository buyerVerificationRepository, PaymentRepository paymentRepository, UserRoleRepository userRoleRepository, ListingService listingService, JobService jobService, UserService userService, EmailService emailService, NotificationService notificationService) {
+        this.notificationService = notificationService;
         this.userRepository = userRepository;
         this.listingRepository = listingRepository;
         this.jobRepository = jobRepository;
@@ -163,6 +166,7 @@ public class AdminService {
         response.setDisplayTitle(listing.getDisplayTitle());
         response.setShortDescription(listing.getShortDescription());
         response.setAskingPrice(listing.getAskingPrice());
+        response.setPriceNotDisclosed(Boolean.TRUE.equals(listing.getPriceNotDisclosed()));
         response.setPriceNegotiable(listing.getPriceNegotiable());
         response.setIsConfidential(listing.getIsConfidential());
         response.setStatus(listing.getStatus().name());
@@ -177,6 +181,10 @@ public class AdminService {
             response.setCityName(listing.getCityName());
         }
         response.setCreatedAt(listing.getCreatedAt());
+        boolean featured = Boolean.TRUE.equals(listing.getIsFeatured())
+                && (listing.getFeaturedUntil() == null || listing.getFeaturedUntil().isAfter(LocalDateTime.now()));
+        response.setIsFeatured(featured);
+        response.setFeaturedUntil(featured ? listing.getFeaturedUntil() : null);
         return response;
     }
     public ListingDTO.ListingResponse getListingById(Long id) {
@@ -185,10 +193,7 @@ public class AdminService {
     
     @Transactional
     public void updateListing(Long id, ListingDTO.ListingRequest request) {
-        // Fetch listing to get the owner's userId, required for ListingService.updateListing(Long, Request, Long)
-        Listing listing = listingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Listing not found with id: " + id));
-        listingService.updateListing(id, request, listing.getUser().getId());
+        listingService.updateListingAsAdmin(id, request);
     }
     
     @Transactional
@@ -205,13 +210,18 @@ public class AdminService {
     
     @Transactional
     @LogActivity(action = "DELETE_LISTING", entityType = "Listing")
-    public void deleteListing(Long id) {
+    public void deleteListing(Long id, String reason) {
+        if (reason == null || reason.trim().isEmpty()) {
+            throw new RuntimeException("Please provide a reason for deleting this listing");
+        }
         Listing listing = listingRepository.findById(id).orElse(null);
         inquiryRepository.deleteByListingId(id);
         paymentRepository.deleteByListingId(id);
         listingRepository.deleteById(id);
         if (listing != null && listing.getUser() != null) {
-            emailService.sendItemDeletedEmail(listing.getUser().getEmail(), listing.getUser().getFullName(), "Listing", listing.getTitle());
+            emailService.sendListingDeletedByAdminEmail(listing.getUser().getEmail(), listing.getUser().getFullName(), listing.getTitle(), reason.trim());
+            notificationService.notify(listing.getUser(), NotificationService.LISTING_DELETED, "Your listing was deleted",
+                    "\"" + listing.getTitle() + "\" was deleted by an administrator because: " + reason.trim(), "/dashboard/listings");
         }
     }
     
@@ -343,6 +353,8 @@ public class AdminService {
         jobRepository.deleteById(id);
         if (job != null && job.getEmployer() != null) {
             emailService.sendItemDeletedEmail(job.getEmployer().getEmail(), job.getEmployer().getFullName(), "Job Posting", job.getTitle());
+            notificationService.notify(job.getEmployer(), NotificationService.JOB_DELETED, "Your job posting was removed",
+                    "\"" + job.getTitle() + "\" was removed by an administrator.", "/dashboard/jobs");
         }
     }
     
@@ -427,7 +439,7 @@ public class AdminService {
         // Delete Listings (deleteListing handles child inquiries and payments)
         java.util.List<com.healthcare.portal.entity.Listing> listings = listingRepository.findByUserId(userId);
         for (com.healthcare.portal.entity.Listing listing : listings) {
-            deleteListing(listing.getId());
+            deleteListing(listing.getId(), "The account that owned this listing was removed from the platform.");
         }
         
         // Finally delete user via userService
@@ -440,19 +452,29 @@ public class AdminService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
-        // Clear the collection - Hibernate will automatically delete orphan records due to orphanRemoval = true
-        user.getRoles().clear();
+        java.util.Set<UserRole.Role> wanted = java.util.EnumSet.noneOf(UserRole.Role.class);
+        for (String roleStr : roles) {
+            try {
+                wanted.add(UserRole.Role.valueOf(roleStr.trim().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Unknown role: " + roleStr);
+            }
+        }
 
-        // Add the new roles (ensuring uniqueness)
-        java.util.Set<String> uniqueRoles = new java.util.LinkedHashSet<>(roles);
-        for (String roleStr : uniqueRoles) {
-            UserRole.Role roleEnum = UserRole.Role.valueOf(roleStr.toUpperCase());
+        // Only remove dropped roles and add new ones. Clearing and re-adding would insert a kept role
+        // before its old row is deleted (Hibernate flushes inserts first) and break unique(user_id, role).
+        user.getRoles().removeIf(r -> !wanted.contains(r.getRole()));
+        java.util.Set<UserRole.Role> existing = user.getRoles().stream()
+                .map(UserRole::getRole)
+                .collect(java.util.stream.Collectors.toCollection(() -> java.util.EnumSet.noneOf(UserRole.Role.class)));
+        for (UserRole.Role roleEnum : wanted) {
+            if (existing.contains(roleEnum)) continue;
             UserRole userRole = new UserRole();
             userRole.setUser(user);
             userRole.setRole(roleEnum);
             user.getRoles().add(userRole);
         }
-        
+
         userRepository.save(user);
     }
     
@@ -532,6 +554,8 @@ public class AdminService {
         
         // Send buyer approved email
         emailService.sendBuyerApprovedEmail(user.getEmail(), user.getFullName());
+        notificationService.notify(user, NotificationService.VERIFICATION_APPROVED, "You're a verified buyer",
+                "Your KYC verification was approved.", "/listings");
     }
     
     @Transactional
@@ -548,6 +572,9 @@ public class AdminService {
         verification.setReviewedBy(admin);
         
         buyerVerificationRepository.save(verification);
+        notificationService.notify(verification.getUser(), NotificationService.VERIFICATION_REJECTED, "Verification not approved",
+                "Your KYC verification was rejected" + (reason != null && !reason.isBlank() ? ": " + reason : ".") + " You can submit a new document.",
+                "/dashboard/profile");
     }
 
     // ========== Payment Management ==========

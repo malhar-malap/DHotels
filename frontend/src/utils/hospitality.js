@@ -1,3 +1,4 @@
+import { formatArea as formatAreaInUnit } from './area';
 import {
   PiBuildings,
   PiForkKnife,
@@ -114,10 +115,15 @@ export const CATEGORY_FALLBACK_IMAGE = CATEGORIES[0].image;
 
 export const categoryImage = (categoryName) => getCategoryMeta(categoryName)?.image || CATEGORY_FALLBACK_IMAGE;
 
-export const formatArea = (sqft) => {
+// Areas are stored in sq ft; plot area can be shown in acres when that is how the owner entered it
+export const formatArea = (sqft, unit) => {
   if (sqft === null || sqft === undefined || sqft === '' || isNaN(sqft)) return null;
-  return `${Number(sqft).toLocaleString('en-IN', { maximumFractionDigits: 0 })} sq ft`;
+  return formatAreaInUnit(sqft, unit === 'ACRE' ? 'ACRE' : 'SQFT');
 };
+
+// Approval assigns the category photo when an owner uploaded none (ListingService.pickSampleImage)
+export const isSampleImage = (src) => typeof src === 'string' && src.startsWith('https://images.unsplash.com/');
+export const SAMPLE_IMAGE_NOTE = 'Image for representation purpose only';
 
 /**
  * Category-specific facts in display order.
@@ -128,7 +134,7 @@ export const getSpecs = (categoryName, details) => {
   const specs = isHotelCategory(categoryName)
     ? [
         { key: 'numberOfRooms', label: 'Rooms', value: details.numberOfRooms ? `${details.numberOfRooms}` : null },
-        { key: 'plotAreaSqft', label: 'Plot area', value: formatArea(details.plotAreaSqft) },
+        { key: 'plotAreaSqft', label: 'Plot area', value: formatArea(details.plotAreaSqft, details.plotAreaUnit) },
         { key: 'constructedAreaSqft', label: 'Constructed area', value: formatArea(details.constructedAreaSqft) },
         { key: 'titleType', label: 'Title', value: details.titleType || null },
       ]
@@ -142,7 +148,7 @@ export const getSpecSummary = (categoryName, details) => {
   if (isHotelCategory(categoryName)) {
     return [
       details.numberOfRooms ? `${details.numberOfRooms} rooms` : null,
-      details.plotAreaSqft ? `${formatArea(details.plotAreaSqft)} plot` : null,
+      details.plotAreaSqft ? `${formatArea(details.plotAreaSqft, details.plotAreaUnit)} plot` : null,
     ].filter(Boolean).join(' · ');
   }
   return details.carpetAreaSqft ? `${formatArea(details.carpetAreaSqft)} carpet` : '';

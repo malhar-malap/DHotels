@@ -72,6 +72,16 @@ public class AdminDTO {
         public void setImageUrls(java.util.List<String> imageUrls) { this.imageUrls = imageUrls; }
     }
     
+    public static class BulkDeleteRequest {
+        private java.util.List<Long> ids;
+        private String reason;
+
+        public java.util.List<Long> getIds() { return ids; }
+        public void setIds(java.util.List<Long> ids) { this.ids = ids; }
+        public String getReason() { return reason; }
+        public void setReason(String reason) { this.reason = reason; }
+    }
+    
     public static class JobApprovalRequest {
         private String action; // APPROVE, REJECT
         private String rejectionReason;

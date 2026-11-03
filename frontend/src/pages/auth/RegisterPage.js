@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { getRedirectTarget } from '../../utils/authRedirect';
 import { useAuth } from '../../context/AuthContext';
 import { masterAPI, authAPI } from '../../services/api';
 import { FiUser, FiMail, FiLock, FiPhone, FiEye, FiEyeOff, FiActivity, FiMapPin, FiCheckCircle } from 'react-icons/fi';
@@ -8,6 +9,7 @@ import Seo from '../../components/common/Seo';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { sendOtp, verifyOtpAndRegister } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -137,7 +139,7 @@ const RegisterPage = () => {
     setLoading(false);
 
     if (result.success) {
-      navigate('/dashboard');
+      navigate(getRedirectTarget(location.search));
     }
   };
 
@@ -457,7 +459,7 @@ const RegisterPage = () => {
 
         {step < 3 && (
           <p className="mt-6 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">
-            Already a member? <Link to="/login" className="text-primary-500 hover:text-primary-600 font-extrabold ml-1 transition-colors">Login</Link>
+            Already a member? <Link to={location.search ? `/login${location.search}` : '/login'} className="text-primary-500 hover:text-primary-600 font-extrabold ml-1 transition-colors">Login</Link>
           </p>
         )}
       </div>

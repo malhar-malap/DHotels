@@ -28,9 +28,12 @@ public class UserService {
     private final JobApplicationRepository jobApplicationRepository;
     private final BuyerVerificationRepository buyerVerificationRepository;
     private final PasswordEncoder passwordEncoder;
+    private final NotificationService notificationService;
+
 
     @Autowired
-    public UserService(UserRepository userRepository, CityRepository cityRepository, UserRoleRepository userRoleRepository, ListingRepository listingRepository, InquiryRepository inquiryRepository, JobRepository jobRepository, JobApplicationRepository jobApplicationRepository, BuyerVerificationRepository buyerVerificationRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, CityRepository cityRepository, UserRoleRepository userRoleRepository, ListingRepository listingRepository, InquiryRepository inquiryRepository, JobRepository jobRepository, JobApplicationRepository jobApplicationRepository, BuyerVerificationRepository buyerVerificationRepository, PasswordEncoder passwordEncoder, NotificationService notificationService) {
+        this.notificationService = notificationService;
         this.userRepository = userRepository;
         this.cityRepository = cityRepository;
         this.userRoleRepository = userRoleRepository;
@@ -152,6 +155,7 @@ public class UserService {
     
     @Transactional
     public void deleteUser(Long userId) {
+        notificationService.deleteAllForUser(userId);
         userRepository.deleteById(userId);
     }
     
@@ -215,10 +219,16 @@ public class UserService {
             throw new RuntimeException("Invalid document type. Allowed values: AADHAAR, PAN, PASSPORT");
         }
         
+        // Only documents uploaded through /users/verification/document (private storage) are accepted
+        if (request.getDocUrl() == null || !request.getDocUrl().startsWith(FileStorageService.PRIVATE_URL_PREFIX)) {
+            throw new RuntimeException("Please upload your document again");
+        }
         verification.setDocUrl(request.getDocUrl());
         verification.setStatus(BuyerVerification.VerificationStatus.PENDING);
         
         verification = buyerVerificationRepository.save(verification);
+        notificationService.notifyAdmins(NotificationService.VERIFICATION_PENDING, "New KYC verification request",
+                user.getFullName() + " submitted a " + verification.getDocType() + " document for review.", "/admin/verifications");
         return mapToVerificationResponse(verification);
     }
     

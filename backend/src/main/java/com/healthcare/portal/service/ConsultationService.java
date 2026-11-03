@@ -21,12 +21,15 @@ public class ConsultationService {
 
     private final ConsultationRequestRepository repository;
     private final EmailService emailService;
+    private final NotificationService notificationService;
+
 
     @Value("${app.notification-email}")
     private String notificationEmail;
 
     @Autowired
-    public ConsultationService(ConsultationRequestRepository repository, EmailService emailService) {
+    public ConsultationService(ConsultationRequestRepository repository, EmailService emailService, NotificationService notificationService) {
+        this.notificationService = notificationService;
         this.repository = repository;
         this.emailService = emailService;
     }
@@ -48,6 +51,8 @@ public class ConsultationService {
 
         entity = repository.save(entity);
 
+        notificationService.notifyAdmins(NotificationService.ADMIN_ALERT, "New call request",
+                request.getName() + " requested a consultation call.", "/admin/consultations");
         emailService.sendConsultationNotification(
                 notificationEmail,
                 request.getName(),

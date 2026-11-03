@@ -10,6 +10,8 @@ import java.util.Optional;
  */
 @Repository
 public interface UserCVRepository extends JpaRepository<UserCV, Long> {
+    java.util.List<UserCV> findByCvUrlEndingWith(String suffix);
+
     
     Optional<UserCV> findByUserId(Long userId);
     

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
+import { authPath } from '../../utils/authRedirect';
 import { jobsAPI } from '../../services/api';
 import { generateSlug } from '../../utils/slugify';
 import { useAuth } from '../../context/AuthContext';
@@ -14,14 +15,13 @@ const formatExperience = (exp) => {
     'ONE_TO_THREE': '1-3 Yrs',
     'THREE_TO_FIVE': '3-5 Yrs',
     'FIVE_TO_TEN': '5-10 Yrs',
-    'FIVE_PLUS': '5+ Yrs',
     'TEN_PLUS': '10+ Yrs'
   };
   return map[exp] || exp.replace(/_/g, ' ');
 };
 
 // schema.org JobPosting employmentType values
-const SCHEMA_EMPLOYMENT_TYPE = { FULL_TIME: 'FULL_TIME', PART_TIME: 'PART_TIME', CONTRACT: 'CONTRACTOR', LOCUM: 'TEMPORARY' };
+const SCHEMA_EMPLOYMENT_TYPE = { FULL_TIME: 'FULL_TIME', PART_TIME: 'PART_TIME', CONTRACT: 'CONTRACTOR', TEMPORARY: 'TEMPORARY', INTERNSHIP: 'INTERN' };
 
 const maskEmail = (email) => {
   if (!email) return '';
@@ -204,7 +204,8 @@ const JobDetailPage = () => {
                 <button 
                   onClick={() => {
                     if (!isAuthenticated) {
-                      toast.error('Please login to apply');
+                      toast('Log in to apply for this job');
+                      navigate(authPath(location));
                       return;
                     }
                     setShowApplyModal(true);

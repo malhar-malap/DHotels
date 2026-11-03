@@ -32,9 +32,12 @@ public class JobService {
     private final FileStorageService fileStorageService;
     private final EmailService emailService;
     private final AuditLogService auditLogService;
+    private final NotificationService notificationService;
+
 
     @Autowired
-    public JobService(JobRepository jobRepository, JobCategoryRepository jobCategoryRepository, CityRepository cityRepository, UserRepository userRepository, JobApplicationRepository jobApplicationRepository, UserCVRepository userCVRepository, FileStorageService fileStorageService, EmailService emailService, AuditLogService auditLogService) {
+    public JobService(JobRepository jobRepository, JobCategoryRepository jobCategoryRepository, CityRepository cityRepository, UserRepository userRepository, JobApplicationRepository jobApplicationRepository, UserCVRepository userCVRepository, FileStorageService fileStorageService, EmailService emailService, AuditLogService auditLogService, NotificationService notificationService) {
+        this.notificationService = notificationService;
         this.jobRepository = jobRepository;
         this.jobCategoryRepository = jobCategoryRepository;
         this.cityRepository = cityRepository;
@@ -129,6 +132,8 @@ public class JobService {
         job.setStatus(Job.JobStatus.PENDING);
         
         job = jobRepository.save(job);
+        notificationService.notifyAdmins(NotificationService.JOB_PENDING, "New job awaiting approval",
+                "\"" + job.getTitle() + "\" was posted by " + employer.getFullName() + ".", "/admin/jobs");
         
         return mapToDetailResponse(job);
     }
@@ -202,10 +207,8 @@ public class JobService {
             throw new RuntimeException("You have already applied for this job");
         }
         
-        // Store cv in FileStorageService
-        String cvUrl = fileStorageService.storeFile(cvFile);
-        // Build url directly mapped to the public url
-        String fullUrl = "/api/uploads/" + cvUrl;
+        // CVs are private: only the applicant, the job's employer and admins can open them
+        String fullUrl = fileStorageService.storePrivateDocument(cvFile);
 
         JobApplication application = new JobApplication();
         application.setJob(job);
@@ -222,6 +225,8 @@ public class JobService {
         
         // Send email notification to employer
         User employer = job.getEmployer();
+        notificationService.notify(employer, NotificationService.APPLICATION_RECEIVED, "New job application",
+                seeker.getFullName() + " applied for \"" + job.getTitle() + "\".", "/dashboard/jobs");
         emailService.sendJobApplicationNotification(
             employer.getEmail(),
             employer.getFullName(),
@@ -276,8 +281,15 @@ public class JobService {
         
         application.setStatus(JobApplication.ApplicationStatus.valueOf(status.toUpperCase()));
         jobApplicationRepository.save(application);
+        notificationService.notify(application.getSeeker(), NotificationService.APPLICATION_UPDATED, "Application update",
+                "Your application for \"" + application.getJob().getTitle() + "\" is now " + humanize(application.getStatus().name()) + ".",
+                "/dashboard/applications");
     }
     
+    private static String humanize(String enumName) {
+        return enumName.replace('_', ' ').toLowerCase();
+    }
+
     // Admin methods
     public PageResponse<JobDTO.JobSummaryResponse> getPendingJobs(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -294,6 +306,8 @@ public class JobService {
         job.setStatus(Job.JobStatus.ACTIVE);
         jobRepository.save(job);
         emailService.sendJobApprovedEmail(job.getEmployer().getEmail(), job.getEmployer().getFullName(), job.getTitle());
+        notificationService.notify(job.getEmployer(), NotificationService.JOB_APPROVED, "Your job is live",
+                "\"" + job.getTitle() + "\" was approved and is now visible to candidates.", "/healthcare-jobs-india/" + job.getId());
     }
     
     @Transactional
@@ -303,6 +317,8 @@ public class JobService {
         job.setStatus(Job.JobStatus.CLOSED);
         jobRepository.save(job);
         emailService.sendJobRejectedEmail(job.getEmployer().getEmail(), job.getEmployer().getFullName(), job.getTitle(), reason);
+        notificationService.notify(job.getEmployer(), NotificationService.JOB_REJECTED, "Your job was not approved",
+                "\"" + job.getTitle() + "\" was rejected" + (reason != null && !reason.isBlank() ? ": " + reason : "."), "/dashboard/jobs");
     }
     
     private JobDTO.JobSummaryResponse mapToSummaryResponse(Job job) {
@@ -370,7 +386,7 @@ public class JobService {
         employerInfo.setId(job.getEmployer().getId());
         employerInfo.setFullName(job.getEmployer().getFullName());
         employerInfo.setCompanyName(job.getEmployer().getCompanyName());
-        employerInfo.setEmail(job.getEmployer().getEmail());
+        // Employer's account email is private; applicants use the job's own contactEmail
         response.setEmployer(employerInfo);
         
         return response;

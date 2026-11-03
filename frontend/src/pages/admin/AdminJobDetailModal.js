@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { adminAPI, jobsAPI } from '../../services/api';
+import { adminAPI, jobsAPI, openPrivateFile } from '../../services/api';
 import toast from 'react-hot-toast';
 import { FiX, FiMapPin, FiBriefcase, FiCalendar, FiUser, FiMail, FiDollarSign, FiClock, FiFileText, FiChevronRight, FiCheck, FiArrowRight } from 'react-icons/fi';
 
@@ -74,7 +74,7 @@ const AdminJobDetailModal = ({ jobId, onClose, onUpdated }) => {
     PENDING: 'bg-amber-50 text-amber-700 border-amber-200/50',
     ACTIVE: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50',
     REJECTED: 'bg-rose-50 text-rose-700 border-rose-200/50',
-    CLOSED: 'bg-slate-50 text-slate-700 border-slate-200/50',
+    CLOSED: 'bg-gray-50 text-gray-700 border-gray-200/50',
   };
 
   if (loading) {
@@ -250,10 +250,10 @@ const AdminJobDetailModal = ({ jobId, onClose, onUpdated }) => {
                           <span className="px-4 py-1.5 bg-ethereal-surface text-ethereal-on-surface-variant text-[9px] font-black uppercase tracking-widest rounded-full opacity-60">
                             {formatDate(app.appliedAt)}
                           </span>
-                          <a href={app.cvUrl} target="_blank" rel="noopener noreferrer" 
+                          <button type="button" onClick={() => openPrivateFile(app.cvUrl).catch(() => toast.error('Could not open the document'))}
                             className="p-4 bg-ethereal-surface text-ethereal-primary hover:bg-ethereal-primary hover:text-white rounded-[1.2rem] shadow-sm transition-all" title="Review CV">
                             <FiFileText className="w-6 h-6" />
-                          </a>
+                          </button>
                         </div>
                       </div>
                       {app.coverLetter && (

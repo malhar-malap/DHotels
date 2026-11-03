@@ -5,14 +5,15 @@ import { PiArrowLeft, PiCheck, PiFloppyDisk, PiInfo, PiMapPin, PiWarning } from 
 import { listingsAPI, masterAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { formatPrice } from '../../utils/formatPrice';
+import { AREA_UNITS, toSqft, fromSqft } from '../../utils/area';
 import { CATEGORIES, TITLE_TYPES, getCategoryMeta, isHotelCategory, priceLabelFor } from '../../utils/hospitality';
 import ListingCard from '../../components/marketplace/ListingCard';
 
 const EMPTY_FORM = {
   title: '', categoryId: '', dealTypeId: '', cityName: '',
-  askingPrice: '', priceNegotiable: true, shortDescription: '', detailedDescription: '',
-  // Hotels
-  numberOfRooms: '', plotAreaSqft: '', constructedAreaSqft: '', titleType: '',
+  askingPrice: '', priceNotDisclosed: false, priceNegotiable: true, shortDescription: '', detailedDescription: '',
+  // Hotels (plot area is typed in plotAreaUnit and sent to the API in sq ft)
+  numberOfRooms: '', plotAreaSqft: '', plotAreaUnit: 'SQFT', constructedAreaSqft: '', titleType: '',
   // Restaurants, Cafe, Banquet halls, Restaurants and Bar, Resorts
   carpetAreaSqft: '',
 };
@@ -27,7 +28,8 @@ const CITY_SUGGESTIONS = [
 const draftKeyFor = (userId, editId) =>
   editId ? `dhotels_listing_draft_edit_${userId || 'guest'}_${editId}` : `dhotels_listing_draft_new_${userId || 'guest'}`;
 
-const hasContent = (data) => Object.entries(data).some(([key, val]) => key !== 'priceNegotiable' && val !== '' && val !== null && val !== undefined);
+const UNTYPED_KEYS = ['priceNegotiable', 'priceNotDisclosed', 'plotAreaUnit'];
+const hasContent = (data) => Object.entries(data).some(([key, val]) => !UNTYPED_KEYS.includes(key) && val !== '' && val !== null && val !== undefined);
 
 const Section = ({ index, title, hint, children, sectionRef }) => (
   <section ref={sectionRef} className="scroll-mt-28 border-t border-white/[0.06] py-10 first:border-t-0 first:pt-0">
@@ -73,10 +75,12 @@ const CreateListingPage = () => {
         setFormData({
           title: data.title || '', categoryId: data.category?.id || '', dealTypeId: data.dealType?.id || '',
           cityName: data.cityName || '', askingPrice: data.askingPrice || '',
+          priceNotDisclosed: !!data.priceNotDisclosed,
           priceNegotiable: data.priceNegotiable ?? true, shortDescription: data.shortDescription || '',
           detailedDescription: data.detailedDescription || '',
           numberOfRooms: details.numberOfRooms || '',
-          plotAreaSqft: details.plotAreaSqft || '',
+          plotAreaUnit: details.plotAreaUnit === 'ACRE' ? 'ACRE' : 'SQFT',
+          plotAreaSqft: fromSqft(details.plotAreaSqft, details.plotAreaUnit === 'ACRE' ? 'ACRE' : 'SQFT') || '',
           constructedAreaSqft: details.constructedAreaSqft || '',
           titleType: details.titleType || '',
           carpetAreaSqft: details.carpetAreaSqft || '',
@@ -145,7 +149,7 @@ const CreateListingPage = () => {
       { key: 'type', label: 'Property & deal type', done: !!(formData.categoryId && formData.dealTypeId) },
       { key: 'basics', label: 'Title & city', done: !!(formData.title.trim() && formData.cityName.trim()) },
       { key: 'specs', label: 'Property details', done: !!formData.categoryId && specsDone },
-      { key: 'price', label: 'Price', done: !!formData.askingPrice },
+      { key: 'price', label: 'Price', done: formData.priceNotDisclosed || !!formData.askingPrice },
       { key: 'pitch', label: 'Description', done: !!formData.shortDescription.trim() },
     ];
   }, [formData, isHotel]);
@@ -188,13 +192,13 @@ const CreateListingPage = () => {
       return false;
     }
     // asking_price is DECIMAL(15,2); anything above ₹1 lakh crore is almost certainly a typo
-    if (Number(formData.askingPrice) > 1e12) {
+    if (!formData.priceNotDisclosed && Number(formData.askingPrice) > 1e12) {
       toast.error('That price looks too high — please check the number of zeros');
       scrollTo('price');
       return false;
     }
-    if (isHotel && Number(formData.constructedAreaSqft) > Number(formData.plotAreaSqft) * 20) {
-      toast.error('Constructed area looks too large for the plot — please check the units (sq ft)');
+    if (isHotel && Number(formData.constructedAreaSqft) > toSqft(formData.plotAreaSqft, formData.plotAreaUnit) * 20) {
+      toast.error('Constructed area looks too large for the plot — please check the units');
       scrollTo('specs');
       return false;
     }
@@ -216,7 +220,8 @@ const CreateListingPage = () => {
       categoryId: parseInt(formData.categoryId, 10),
       dealTypeId: parseInt(formData.dealTypeId, 10),
       cityName: formData.cityName.trim(),
-      askingPrice: parseFloat(formData.askingPrice),
+      askingPrice: formData.priceNotDisclosed ? null : parseFloat(formData.askingPrice),
+      priceNotDisclosed: formData.priceNotDisclosed,
       priceNegotiable: formData.priceNegotiable,
       shortDescription: formData.shortDescription.trim(),
       detailedDescription: formData.detailedDescription.trim(),
@@ -225,7 +230,8 @@ const CreateListingPage = () => {
     };
     if (isHotel) {
       payload.numberOfRooms = parseInt(formData.numberOfRooms, 10);
-      payload.plotAreaSqft = parseFloat(formData.plotAreaSqft);
+      payload.plotAreaSqft = toSqft(formData.plotAreaSqft, formData.plotAreaUnit);
+      payload.plotAreaUnit = formData.plotAreaUnit;
       payload.constructedAreaSqft = parseFloat(formData.constructedAreaSqft);
       payload.titleType = formData.titleType || null;
     } else {
@@ -265,9 +271,10 @@ const CreateListingPage = () => {
     dealType: dealName || 'For Sale',
     cityName: formData.cityName || 'City',
     askingPrice: formData.askingPrice || null,
+    priceNotDisclosed: formData.priceNotDisclosed,
     priceNegotiable: formData.priceNegotiable,
     categoryDetails: isHotel
-      ? { numberOfRooms: formData.numberOfRooms, plotAreaSqft: formData.plotAreaSqft }
+      ? { numberOfRooms: formData.numberOfRooms, plotAreaSqft: toSqft(formData.plotAreaSqft, formData.plotAreaUnit), plotAreaUnit: formData.plotAreaUnit }
       : { carpetAreaSqft: formData.carpetAreaSqft },
   };
 
@@ -424,8 +431,13 @@ const CreateListingPage = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="field-label" htmlFor="plotAreaSqft">Plot area (sq ft)</label>
-                    <input id="plotAreaSqft" type="number" name="plotAreaSqft" min="0" inputMode="decimal" value={formData.plotAreaSqft} onChange={handleChange} placeholder="e.g. 20000" className="field" />
+                    <label className="field-label" htmlFor="plotAreaSqft">Plot area</label>
+                    <div className="flex gap-2">
+                      <input id="plotAreaSqft" type="number" name="plotAreaSqft" min="0" step="any" inputMode="decimal" value={formData.plotAreaSqft} onChange={handleChange} placeholder={formData.plotAreaUnit === 'ACRE' ? 'e.g. 1.5' : 'e.g. 20000'} className="field min-w-0 flex-1" />
+                      <select name="plotAreaUnit" aria-label="Plot area unit" value={formData.plotAreaUnit} onChange={handleChange} className="field !w-auto shrink-0">
+                        {AREA_UNITS.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
+                      </select>
+                    </div>
                   </div>
                   <div>
                     <label className="field-label" htmlFor="constructedAreaSqft">Constructed area (sq ft)</label>
@@ -446,9 +458,13 @@ const CreateListingPage = () => {
                   <label className="field-label" htmlFor="askingPrice">{priceLabel}</label>
                   <div className="relative">
                     <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
-                    <input id="askingPrice" type="number" name="askingPrice" min="0" inputMode="numeric" value={formData.askingPrice} onChange={handleChange} placeholder="e.g. 85000000" className="field !pl-8" />
+                    <input id="askingPrice" type="number" name="askingPrice" min="0" inputMode="numeric" value={formData.priceNotDisclosed ? '' : formData.askingPrice} onChange={handleChange} disabled={formData.priceNotDisclosed} placeholder={formData.priceNotDisclosed ? 'Not disclosed' : 'e.g. 85000000'} className="field !pl-8 disabled:opacity-50" />
                   </div>
-                  <p className="mt-1.5 h-4 text-sm text-primary-300">{formData.askingPrice ? formatPrice(formData.askingPrice) : ''}</p>
+                  <p className="mt-1.5 h-4 text-sm text-primary-300">{!formData.priceNotDisclosed && formData.askingPrice ? formatPrice(formData.askingPrice) : ''}</p>
+                  <label className="mt-3 flex cursor-pointer items-center gap-2.5 text-sm text-gray-300">
+                    <input type="checkbox" name="priceNotDisclosed" checked={formData.priceNotDisclosed} onChange={handleChange} className="h-4 w-4 rounded border-white/20 bg-gray-900 accent-primary-400" />
+                    Don't show the price — share it with buyers when they connect
+                  </label>
                 </div>
                 <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 px-4 py-3 sm:mb-5">
                   <input type="checkbox" name="priceNegotiable" checked={formData.priceNegotiable} onChange={handleChange} className="peer sr-only" />

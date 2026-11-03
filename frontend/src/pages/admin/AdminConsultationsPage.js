@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import RefreshButton from '../../components/admin/RefreshButton';
 import { Link } from 'react-router-dom';
 import { adminAPI } from '../../services/api';
 import toast from 'react-hot-toast';
@@ -127,7 +128,10 @@ const AdminConsultationsPage = () => {
                         <FiArrowLeft className="w-5 h-5 text-white" />
                     </Link>
                     <div>
-                        <h1 className="text-3xl font-black text-white tracking-tight">Call Requests</h1>
+                        <div className="flex flex-wrap items-center gap-3">
+                          <h1 className="text-3xl font-black text-white tracking-tight">Call Requests</h1>
+                          <RefreshButton onRefresh={() => Promise.all([fetchStats(), fetchConsultations()])} />
+                        </div>
                         <p className="text-sm text-gray-400 mt-1">Manage scheduled call consultations</p>
                     </div>
                 </div>

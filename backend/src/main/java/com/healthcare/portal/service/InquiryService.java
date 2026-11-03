@@ -20,13 +20,18 @@ public class InquiryService {
     private final ListingRepository listingRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final PaymentRepository paymentRepository;
+    private final NotificationService notificationService;
+
 
     @Autowired
-    public InquiryService(InquiryRepository inquiryRepository, ListingRepository listingRepository, UserRepository userRepository, EmailService emailService) {
+    public InquiryService(InquiryRepository inquiryRepository, ListingRepository listingRepository, UserRepository userRepository, EmailService emailService, PaymentRepository paymentRepository, NotificationService notificationService) {
+        this.notificationService = notificationService;
         this.inquiryRepository = inquiryRepository;
         this.listingRepository = listingRepository;
         this.userRepository = userRepository;
         this.emailService = emailService;
+        this.paymentRepository = paymentRepository;
     }
     
     @Transactional
@@ -70,6 +75,8 @@ public class InquiryService {
             request.getMessage(),
             listing.getDisplayTitle()
         );
+        notificationService.notify(seller, NotificationService.INQUIRY_RECEIVED, "New inquiry",
+                buyer.getFullName() + " sent an inquiry about \"" + listing.getDisplayTitle() + "\".", "/dashboard/inquiries");
         
         return mapToResponse(inquiry);
     }
@@ -93,29 +100,40 @@ public class InquiryService {
     }
     
     @Transactional(readOnly = true)
-    public InquiryDTO.InquiryResponse getInquiryById(Long id) {
+    /** Buyer, seller and admins may view an inquiry; others get "not found" so ids can't be probed. */
+    public InquiryDTO.InquiryResponse getInquiryById(Long id, User viewer) {
         Inquiry inquiry = inquiryRepository.findById(id)
+                .filter(i -> viewer.isAdmin() || isParty(i.getBuyer(), viewer) || isParty(i.getSeller(), viewer))
                 .orElseThrow(() -> new RuntimeException("Inquiry not found"));
         
         return mapToResponse(inquiry);
     }
     
     @Transactional
-    public void updateInquiryStatus(Long id, String status) {
-        Inquiry inquiry = inquiryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Inquiry not found"));
+    public void updateInquiryStatus(Long id, String status, User viewer) {
+        Inquiry inquiry = findForSeller(id, viewer);
         
         inquiry.setStatus(Inquiry.InquiryStatus.valueOf(status.toUpperCase()));
         inquiryRepository.save(inquiry);
     }
     
     @Transactional
-    public void markAsRead(Long id) {
-        Inquiry inquiry = inquiryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Inquiry not found"));
+    public void markAsRead(Long id, User viewer) {
+        Inquiry inquiry = findForSeller(id, viewer);
         
         inquiry.setStatus(Inquiry.InquiryStatus.READ);
         inquiryRepository.save(inquiry);
+    }
+
+    /** Only the receiving seller (or an admin) manages an inquiry's status. */
+    private Inquiry findForSeller(Long id, User viewer) {
+        return inquiryRepository.findById(id)
+                .filter(i -> viewer.isAdmin() || isParty(i.getSeller(), viewer))
+                .orElseThrow(() -> new RuntimeException("Inquiry not found"));
+    }
+
+    private static boolean isParty(User party, User viewer) {
+        return party != null && party.getId().equals(viewer.getId());
     }
     
     private InquiryDTO.InquiryResponse mapToResponse(Inquiry inquiry) {
@@ -131,12 +149,16 @@ public class InquiryService {
         response.setCreatedAt(inquiry.getCreatedAt());
         response.setUpdatedAt(inquiry.getUpdatedAt());
         
-        // Seller info
+        // Seller contact details are what buyers pay for, so they're only included once paid
         InquiryDTO.SellerInfo sellerInfo = new InquiryDTO.SellerInfo();
         sellerInfo.setId(inquiry.getSeller().getId());
-        sellerInfo.setFullName(inquiry.getSeller().getFullName());
-        sellerInfo.setEmail(inquiry.getSeller().getEmail());
-        sellerInfo.setMobileNumber(inquiry.getSeller().getMobileNumber());
+        boolean paid = inquiry.getBuyer() != null && paymentRepository.existsByBuyerIdAndListingIdAndStatus(
+                inquiry.getBuyer().getId(), inquiry.getListing().getId(), Payment.PaymentStatus.PAID);
+        if (paid) {
+            sellerInfo.setFullName(inquiry.getSeller().getFullName());
+            sellerInfo.setEmail(inquiry.getSeller().getEmail());
+            sellerInfo.setMobileNumber(inquiry.getSeller().getMobileNumber());
+        }
         response.setSeller(sellerInfo);
         
         return response;

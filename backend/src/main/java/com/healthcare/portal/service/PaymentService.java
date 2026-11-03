@@ -46,17 +46,21 @@ public class PaymentService {
     @Value("${razorpay.company.name}")
     private String companyName;
 
+    private final NotificationService notificationService;
+
     public PaymentService(
             PaymentRepository paymentRepository,
             ListingRepository listingRepository,
             UserRepository userRepository,
             InquiryRepository inquiryRepository,
+            NotificationService notificationService,
             @Value("${razorpay.key.id}") String keyId,
             @Value("${razorpay.key.secret}") String keySecret) throws RazorpayException {
         this.paymentRepository = paymentRepository;
         this.listingRepository = listingRepository;
         this.userRepository = userRepository;
         this.inquiryRepository = inquiryRepository;
+        this.notificationService = notificationService;
         this.razorpayClient = new RazorpayClient(keyId, keySecret);
         logger.info("Razorpay client initialized successfully");
     }
@@ -187,6 +191,7 @@ public class PaymentService {
         listingRepository.save(listing);
 
         logger.info("Inquiry auto-created for buyer: {} on listing: {}", buyerId, listing.getId());
+        notifyContactUnlocked(buyer, seller, listing);
 
         // Build response with seller contact details
         PaymentDTO.PaymentResponse response = new PaymentDTO.PaymentResponse();
@@ -233,6 +238,13 @@ public class PaymentService {
         }
 
         return response;
+    }
+
+    private void notifyContactUnlocked(User buyer, User seller, Listing listing) {
+        notificationService.notify(seller, NotificationService.CONTACT_UNLOCKED, "A buyer unlocked your contact details",
+                buyer.getFullName() + " paid to contact you about \"" + listing.getDisplayTitle() + "\".", "/dashboard/inquiries");
+        notificationService.notify(buyer, NotificationService.CONTACT_UNLOCKED, "Seller contact unlocked",
+                "You can now see the seller's contact details for \"" + listing.getDisplayTitle() + "\".", "/listings/" + listing.getId());
     }
 
     /**
@@ -303,6 +315,7 @@ public class PaymentService {
                         
                         listing.setInquiryCount(listing.getInquiryCount() + 1);
                         listingRepository.save(listing);
+                        notifyContactUnlocked(buyer, seller, listing);
                     }
                 }
             } else if ("attempted".equalsIgnoreCase(status)) {

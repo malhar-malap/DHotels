@@ -17,6 +17,12 @@ WORKDIR /app
 # Copy the compiled JAR file from the build step
 COPY --from=build /app/target/*.jar app.jar
 
+# Run as an unprivileged user (uid 10001). The deploy script gives this uid ownership of the
+# mounted uploads folder so the app can still write to it.
+RUN useradd --system --uid 10001 --no-create-home appuser \
+    && mkdir -p /app/uploads && chown -R appuser /app
+USER appuser
+
 # Expose the internal port your Spring Boot app runs on (usually 8080)
 EXPOSE 8080
 

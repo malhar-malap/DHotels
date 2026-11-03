@@ -13,7 +13,6 @@ const formatExperience = (exp) => {
     'ONE_TO_THREE': '1-3 Yrs',
     'THREE_TO_FIVE': '3-5 Yrs',
     'FIVE_TO_TEN': '5-10 Yrs',
-    'FIVE_PLUS': '5+ Yrs',
     'TEN_PLUS': '10+ Yrs'
   };
   return map[exp] || exp.replace(/_/g, ' ');
@@ -218,7 +217,8 @@ const JobsPage = () => {
                       <option value="FULL_TIME">Full Time</option>
                       <option value="PART_TIME">Part Time</option>
                       <option value="CONTRACT">Contract</option>
-                      <option value="LOCUM">Locum</option>
+                      <option value="TEMPORARY">Temporary</option>
+                      <option value="INTERNSHIP">Internship</option>
                     </select>
                   </div>
                   <div>
@@ -228,7 +228,8 @@ const JobsPage = () => {
                       <option value="FRESHER">Fresher</option>
                       <option value="ONE_TO_THREE">1-3 Years</option>
                       <option value="THREE_TO_FIVE">3-5 Years</option>
-                      <option value="FIVE_PLUS">5+ Years</option>
+                      <option value="FIVE_TO_TEN">5-10 Years</option>
+                      <option value="TEN_PLUS">10+ Years</option>
                     </select>
                   </div>
                   <button onClick={applyFilters} className="btn-gradient w-full py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary-500/10">Update Results</button>

@@ -22,4 +22,12 @@ export const formatPrice = (price) => {
   return `₹${num.toLocaleString('en-IN')}`;
 };
 
+export const PRICE_NOT_DISCLOSED_LABEL = 'Price Not Disclosed';
+
+/** Formats a listing's asking price, honouring the seller's "price not to be disclosed" choice. */
+export const formatListingPrice = (listing) => {
+  if (listing?.priceNotDisclosed) return PRICE_NOT_DISCLOSED_LABEL;
+  return formatPrice(listing?.askingPrice);
+};
+
 export default formatPrice;

@@ -20,12 +20,15 @@ public class MandateService {
 
     private final MandateSubmissionRepository repository;
     private final EmailService emailService;
+    private final NotificationService notificationService;
+
 
     @Value("${app.notification-email}")
     private String notificationEmail;
 
     @Autowired
-    public MandateService(MandateSubmissionRepository repository, EmailService emailService) {
+    public MandateService(MandateSubmissionRepository repository, EmailService emailService, NotificationService notificationService) {
+        this.notificationService = notificationService;
         this.repository = repository;
         this.emailService = emailService;
     }
@@ -40,6 +43,8 @@ public class MandateService {
         entity.setStatus(MandateSubmission.MandateStatus.NEW);
 
         entity = repository.save(entity);
+        notificationService.notifyAdmins(NotificationService.ADMIN_ALERT, "New mandate submitted",
+                request.getName() + " submitted an acquisition mandate.", "/admin/mandates");
 
         emailService.sendMandateNotification(
                 notificationEmail,

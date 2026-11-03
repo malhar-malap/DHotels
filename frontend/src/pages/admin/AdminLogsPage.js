@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import RefreshButton from '../../components/admin/RefreshButton';
 import { Link } from 'react-router-dom';
 import { adminAPI } from '../../services/api';
 import { FiSearch, FiFilter, FiActivity, FiClock, FiUser, FiInfo, FiArrowLeft } from 'react-icons/fi';
@@ -122,7 +123,10 @@ const AdminLogsPage = () => {
               </Link>
               <span className="section-label tracking-[0.2em]">Governance Module</span>
             </div>
-            <h1 className="text-4xl display-title uppercase tracking-tighter">System Audit Logs</h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-4xl display-title uppercase tracking-tighter">System Audit Logs</h1>
+              <RefreshButton onRefresh={() => fetchLogs(pagination.page)} />
+            </div>
             <p className="text-gray-400 mt-1">Track high-value user and system actions.</p>
           </div>
         </div>

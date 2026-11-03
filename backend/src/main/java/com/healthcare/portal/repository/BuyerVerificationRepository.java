@@ -15,6 +15,8 @@ import java.util.Optional;
  */
 @Repository
 public interface BuyerVerificationRepository extends JpaRepository<BuyerVerification, Long> {
+    List<BuyerVerification> findByDocUrlEndingWith(String suffix);
+
     
     List<BuyerVerification> findByUserId(Long userId);
     

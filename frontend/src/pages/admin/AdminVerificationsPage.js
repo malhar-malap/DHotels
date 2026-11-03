@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import RefreshButton from '../../components/admin/RefreshButton';
 import { Link } from 'react-router-dom';
-import { adminAPI } from '../../services/api';
+import { adminAPI, openPrivateFile } from '../../services/api';
 import toast from 'react-hot-toast';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
 import { 
@@ -170,7 +171,10 @@ const AdminVerificationsPage = () => {
                             </Link>
                             <span className="section-label tracking-[0.2em]">Compliance Protocol</span>
                         </div>
-                        <h1 className="text-4xl display-title uppercase tracking-tighter">Verification Queue</h1>
+                        <div className="flex flex-wrap items-center gap-3">
+                          <h1 className="text-4xl display-title uppercase tracking-tighter">Verification Queue</h1>
+                          <RefreshButton onRefresh={fetchVerifications} />
+                        </div>
                         <p className="text-ethereal-on-surface-variant font-medium mt-1">
                             Processing <span className="text-ethereal-primary font-bold">{totalElements}</span> pending KYC validations
                         </p>
@@ -307,11 +311,11 @@ const AdminVerificationsPage = () => {
                                                     <span className="px-3 py-1 bg-gray-900 border border-ethereal-surface text-ethereal-on-surface-variant rounded-lg text-[9px] font-black uppercase tracking-widest">
                                                         {req.docType}
                                                     </span>
-                                                    <a href={req.docUrl} target="_blank" rel="noopener noreferrer" 
+                                                    <button type="button" onClick={() => openPrivateFile(req.docUrl).catch(() => toast.error('Could not open the document'))}
                                                        className="p-3 bg-gray-900 text-ethereal-primary hover:text-ethereal-on-surface hover:shadow-xl hover:-translate-y-1 rounded-[1.2rem] shadow-sm transition-all"
                                                        title="Validate Archetype">
                                                         <FiEye className="w-5 h-5" />
-                                                    </a>
+                                                    </button>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-6">

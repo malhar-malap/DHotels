@@ -7,6 +7,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,9 +30,16 @@ public class ListingService {
     private final PaymentRepository paymentRepository;
     private final AuditLogService auditLogService;
     private final EmailService emailService;
+    private final UserRoleRepository userRoleRepository;
+
+    private final NotificationService notificationService;
+
+    @Value("${app.notification-email}")
+    private String adminInbox;
 
     @Autowired
-    public ListingService(ListingRepository listingRepository, CategoryRepository categoryRepository, DealTypeRepository dealTypeRepository, CityRepository cityRepository, UserRepository userRepository, ListingImageRepository listingImageRepository, HospitalityPropertyDetailRepository hospitalityPropertyDetailRepository, InquiryRepository inquiryRepository, PaymentRepository paymentRepository, AuditLogService auditLogService, EmailService emailService) {
+    public ListingService(ListingRepository listingRepository, CategoryRepository categoryRepository, DealTypeRepository dealTypeRepository, CityRepository cityRepository, UserRepository userRepository, ListingImageRepository listingImageRepository, HospitalityPropertyDetailRepository hospitalityPropertyDetailRepository, InquiryRepository inquiryRepository, PaymentRepository paymentRepository, AuditLogService auditLogService, EmailService emailService, UserRoleRepository userRoleRepository, NotificationService notificationService) {
+        this.notificationService = notificationService;
         this.listingRepository = listingRepository;
         this.categoryRepository = categoryRepository;
         this.dealTypeRepository = dealTypeRepository;
@@ -43,6 +51,7 @@ public class ListingService {
         this.paymentRepository = paymentRepository;
         this.auditLogService = auditLogService;
         this.emailService = emailService;
+        this.userRoleRepository = userRoleRepository;
     }
     
     public PageResponse<ListingDTO.ListingSummaryResponse> searchListings(ListingDTO.ListingSearchRequest request) {
@@ -116,6 +125,30 @@ public class ListingService {
         return mapToDetailResponse(listing);
     }
     
+    /**
+     * Public detail view. Seller contact details are only included for the owner, admins and
+     * buyers who paid for contact access; confidential listings keep their real title hidden.
+     */
+    public ListingDTO.ListingResponse getListingById(Long id, User viewer) {
+        ListingDTO.ListingResponse response = getListingById(id);
+        boolean isOwner = viewer != null && response.getSeller() != null && viewer.getId().equals(response.getSeller().getId());
+        boolean isAdmin = viewer != null && viewer.isAdmin();
+        boolean hasPaid = viewer != null && paymentRepository.existsByBuyerIdAndListingIdAndStatus(
+                viewer.getId(), id, Payment.PaymentStatus.PAID);
+
+        boolean confidential = Boolean.TRUE.equals(response.getIsConfidential());
+        if (response.getSeller() != null && !(isOwner || isAdmin || (hasPaid && !confidential))) {
+            // Keep only the id so the page can tell owners apart; contact details stay behind the paywall
+            ListingDTO.SellerInfo idOnly = new ListingDTO.SellerInfo();
+            idOnly.setId(response.getSeller().getId());
+            response.setSeller(idOnly);
+        }
+        if (confidential && !(isOwner || isAdmin)) {
+            response.setTitle(response.getDisplayTitle());
+        }
+        return response;
+    }
+    
     public List<ListingDTO.ListingSummaryResponse> getFeaturedListings() {
         List<Listing> listings = listingRepository.findFeaturedListings(LocalDateTime.now(), 
                 PageRequest.of(0, 6));
@@ -161,7 +194,7 @@ public class ListingService {
         listing.setShortDescription(request.getShortDescription());
         listing.setDetailedDescription(request.getDetailedDescription());
 
-        listing.setAskingPrice(request.getAskingPrice());
+        applyPrice(listing, request);
         listing.setPriceNegotiable(request.getPriceNegotiable());
         listing.setIsConfidential(request.getIsConfidential());
         listing.setConfidentialTitle(request.getConfidentialTitle());
@@ -185,10 +218,16 @@ public class ListingService {
         
         // Save category-specific details
         saveOrUpdateCategoryDetails(listing, request);
+
+        notificationService.notifyAdmins(NotificationService.LISTING_PENDING, "New listing awaiting approval",
+                "\"" + listing.getTitle() + "\" was submitted by " + user.getFullName() + ".", "/admin/listings?status=PENDING");
         
         return mapToDetailResponse(listing);
     }
     
+    /**
+     * Owner edit: the listing goes back to PENDING for re-verification.
+     */
     @Transactional
     public ListingDTO.ListingResponse updateListing(Long id, ListingDTO.ListingRequest request, Long userId) {
         Listing listing = listingRepository.findById(id)
@@ -198,10 +237,25 @@ public class ListingService {
             throw new RuntimeException("Unauthorized to update this listing");
         }
         
+        return applyUpdate(listing, request, true);
+    }
+
+    /**
+     * Admin edit: the listing keeps its current status (an ACTIVE listing stays live)
+     * and its unique code and images are left untouched.
+     */
+    @Transactional
+    public ListingDTO.ListingResponse updateListingAsAdmin(Long id, ListingDTO.ListingRequest request) {
+        Listing listing = listingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Listing not found"));
+        return applyUpdate(listing, request, false);
+    }
+
+    private ListingDTO.ListingResponse applyUpdate(Listing listing, ListingDTO.ListingRequest request, boolean resetToPending) {
         if (request.getTitle() != null) listing.setTitle(request.getTitle());
         if (request.getShortDescription() != null) listing.setShortDescription(request.getShortDescription());
         if (request.getDetailedDescription() != null) listing.setDetailedDescription(request.getDetailedDescription());
-        if (request.getAskingPrice() != null) listing.setAskingPrice(request.getAskingPrice());
+        applyPrice(listing, request);
         if (request.getPriceNegotiable() != null) listing.setPriceNegotiable(request.getPriceNegotiable());
         if (request.getIsConfidential() != null) listing.setIsConfidential(request.getIsConfidential());
         if (request.getConfidentialTitle() != null) listing.setConfidentialTitle(request.getConfidentialTitle());
@@ -220,7 +274,11 @@ public class ListingService {
         }
         validateCategorySpecifics(listing.getCategory(), listing.getDealType(), request);
         
-        listing.setStatus(Listing.ListingStatus.PENDING); // Reset to pending after update
+        if (resetToPending) {
+            listing.setStatus(Listing.ListingStatus.PENDING); // Owner edits need re-verification
+            notificationService.notifyAdmins(NotificationService.LISTING_PENDING, "Edited listing needs re-verification",
+                    "\"" + listing.getTitle() + "\" was edited by its owner.", "/admin/listings?status=PENDING");
+        }
         
         listing = listingRepository.save(listing);
         
@@ -245,18 +303,53 @@ public class ListingService {
     }
     
     @Transactional
-    public void deleteListing(Long id, Long userId) {
+    public void deleteListing(Long id, Long userId, String reason) {
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
         
         if (!listing.getUser().getId().equals(userId)) {
             throw new RuntimeException("Unauthorized to delete this listing");
         }
+        if (reason == null || reason.trim().isEmpty()) {
+            throw new RuntimeException("Please provide a reason for deleting this listing");
+        }
         
         inquiryRepository.deleteByListingId(id);
         paymentRepository.deleteByListingId(id);
         hospitalityPropertyDetailRepository.deleteByListingId(id);
         listingRepository.delete(listing);
+
+        User owner = listing.getUser();
+        for (String adminEmail : getAdminNotificationEmails()) {
+            emailService.sendListingDeletedByOwnerEmail(adminEmail, owner.getFullName(), owner.getEmail(),
+                    id, listing.getUniqueCode(), listing.getTitle(), reason.trim());
+        }
+
+        notificationService.notifyAdmins(NotificationService.LISTING_DELETED, "Listing deleted by its owner",
+                owner.getFullName() + " deleted \"" + listing.getTitle() + "\". Reason: " + reason.trim(), "/admin/listings");
+        notificationService.notify(owner, NotificationService.LISTING_DELETED, "Listing deleted",
+                "You deleted \"" + listing.getTitle() + "\". Our team has been informed of your reason.", "/dashboard/listings");
+
+        AuditLog log = new AuditLog();
+        log.setUserId(owner.getId());
+        log.setAction("DELETE_OWN_LISTING");
+        log.setEntityType("Listing");
+        log.setEntityId(id);
+        log.setActorName(owner.getFullName());
+        log.setTargetName(listing.getTitle());
+        log.setDetails("Reason: " + reason.trim());
+        auditLogService.saveLogAsync(log);
+    }
+
+    /** The shared admin inbox (also used for contact/consultation alerts) plus every ADMIN user. */
+    private java.util.Set<String> getAdminNotificationEmails() {
+        java.util.Set<String> emails = new java.util.LinkedHashSet<>();
+        emails.add(adminInbox);
+        userRoleRepository.findByRole(UserRole.Role.ADMIN).stream()
+                .map(role -> role.getUser().getEmail())
+                .filter(email -> email != null && !email.isBlank())
+                .forEach(emails::add);
+        return emails;
     }
     
     public PageResponse<ListingDTO.ListingSummaryResponse> getMyListings(Long userId, int page, int size, Long categoryId, String keyword) {
@@ -291,25 +384,30 @@ public class ListingService {
     public void approveListing(Long id, String uniqueCode, java.util.List<String> imageUrls) {
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
-        listing.setStatus(Listing.ListingStatus.ACTIVE);
-        if(uniqueCode != null && !uniqueCode.trim().isEmpty()) {
-            listing.setUniqueCode(uniqueCode);
+        if (uniqueCode == null || uniqueCode.trim().isEmpty()) {
+            throw new RuntimeException("A unique code is required to approve a listing");
         }
+        listing.setStatus(Listing.ListingStatus.ACTIVE);
+        listing.setUniqueCode(uniqueCode.trim());
         
-        if (imageUrls != null && !imageUrls.isEmpty()) {
-            listingImageRepository.deleteByListingId(listing.getId());
-            int order = 0;
-            for (String imageUrl : imageUrls) {
-                ListingImage image = new ListingImage();
-                image.setListing(listing);
-                image.setImageUrl(imageUrl);
-                image.setDisplayOrder(order++);
-                image.setIsPrimary(order == 1);
-                listingImageRepository.save(image);
-            }
+        // Approval always publishes a representative image; the admin only supplies the code
+        if (imageUrls == null || imageUrls.isEmpty()) {
+            imageUrls = List.of(pickSampleImage(listing));
+        }
+        listingImageRepository.deleteByListingId(listing.getId());
+        int order = 0;
+        for (String imageUrl : imageUrls) {
+            ListingImage image = new ListingImage();
+            image.setListing(listing);
+            image.setImageUrl(imageUrl);
+            image.setDisplayOrder(order++);
+            image.setIsPrimary(order == 1);
+            listingImageRepository.save(image);
         }
         listingRepository.save(listing);
         emailService.sendListingApprovedEmail(listing.getUser().getEmail(), listing.getUser().getFullName(), listing.getTitle());
+        notificationService.notify(listing.getUser(), NotificationService.LISTING_APPROVED, "Your listing is live",
+                "\"" + listing.getTitle() + "\" was approved and is now visible on the marketplace.", "/listings/" + listing.getId());
     }
     
     @Transactional
@@ -320,17 +418,89 @@ public class ListingService {
         listing.setRejectionReason(reason);
         listingRepository.save(listing);
         emailService.sendListingRejectedEmail(listing.getUser().getEmail(), listing.getUser().getFullName(), listing.getTitle(), reason);
+        notificationService.notify(listing.getUser(), NotificationService.LISTING_REJECTED, "Your listing was not approved",
+                "\"" + listing.getTitle() + "\" was rejected" + (reason != null && !reason.isBlank() ? ": " + reason : "."), "/dashboard/listings");
     }
     
+    static final int MAX_FEATURE_DAYS = 60;
+    private static final java.time.format.DateTimeFormatter FEATURE_DATE =
+            java.time.format.DateTimeFormatter.ofPattern("d MMM yyyy", java.util.Locale.ENGLISH);
+
+    /**
+     * Features an active listing on the homepage for `days` days starting now; featuredUntil is the
+     * exact expiry (the homepage query hides it from then on). Re-featuring restarts the window.
+     */
     @Transactional
     public void featureListing(Long id, int days) {
+        if (days < 1 || days > MAX_FEATURE_DAYS) {
+            throw new RuntimeException("Featured duration must be between 1 and " + MAX_FEATURE_DAYS + " days");
+        }
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
+        if (listing.getStatus() != Listing.ListingStatus.ACTIVE) {
+            throw new RuntimeException("Only active listings can be featured");
+        }
+        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime until = start.plusDays(days);
         listing.setIsFeatured(true);
-        listing.setFeaturedUntil(LocalDateTime.now().plusDays(days));
+        listing.setFeaturedUntil(until);
         listingRepository.save(listing);
+
+        notificationService.notify(listing.getUser(), NotificationService.LISTING_FEATURED, "Your listing is featured on the homepage",
+                "\"" + listing.getTitle() + "\" is featured on the homepage for " + days + (days == 1 ? " day" : " days")
+                        + " from " + start.format(FEATURE_DATE) + " (until " + until.format(FEATURE_DATE) + ").",
+                "/listings/" + listing.getId());
+    }
+
+    /** Hourly: clear the featured flag once the window has passed so admin views stop showing it. */
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 5 * * * *")
+    @Transactional
+    public void clearExpiredFeatures() {
+        listingRepository.clearExpiredFeatures(LocalDateTime.now());
     }
     
+    private static boolean isCurrentlyFeatured(Listing listing) {
+        return Boolean.TRUE.equals(listing.getIsFeatured())
+                && (listing.getFeaturedUntil() == null || listing.getFeaturedUntil().isAfter(LocalDateTime.now()));
+    }
+
+    /** Price is required unless the seller chose not to disclose it, in which case none is stored. */
+    private void applyPrice(Listing listing, ListingDTO.ListingRequest request) {
+        if (request.getPriceNotDisclosed() != null) {
+            listing.setPriceNotDisclosed(request.getPriceNotDisclosed());
+        }
+        if (Boolean.TRUE.equals(listing.getPriceNotDisclosed())) {
+            listing.setAskingPrice(null);
+        } else if (request.getAskingPrice() != null) {
+            listing.setAskingPrice(request.getAskingPrice());
+        }
+        if (!Boolean.TRUE.equals(listing.getPriceNotDisclosed()) && listing.getAskingPrice() == null) {
+            throw new RuntimeException("Asking price is required unless the price is not to be disclosed");
+        }
+    }
+
+    // Representative photos per category, the same pictures as the category tiles on the site
+    // (frontend/src/utils/hospitality.js). The frontend marks them "for representation purpose only".
+    static final String SAMPLE_IMAGE_BASE = "https://images.unsplash.com/";
+    static final String SAMPLE_IMAGE_PARAMS = "?auto=format&fit=crop&q=70&w=1400";
+    private static final java.util.Map<String, String> SAMPLE_IMAGES = java.util.Map.of(
+            "hotels", "photo-1566073771259-6a8506099945",
+            "resorts", "photo-1582719508461-905c673771fd",
+            "restaurants", "photo-1517248135467-4c7edcad34c4",
+            "restaurants and bar", "photo-1514933651103-005eec06c04b",
+            "cafe", "photo-1554118811-1e0d58224f24",
+            "banquet halls", "photo-1519167758481-83f550bb49b3");
+
+    static String pickSampleImage(Listing listing) {
+        String categoryName = listing.getCategory() != null && listing.getCategory().getName() != null
+                ? listing.getCategory().getName().trim().toLowerCase() : "";
+        return SAMPLE_IMAGE_BASE + SAMPLE_IMAGES.getOrDefault(categoryName, SAMPLE_IMAGES.get("hotels")) + SAMPLE_IMAGE_PARAMS;
+    }
+
+    private static String normalizeAreaUnit(String unit) {
+        return "ACRE".equalsIgnoreCase(unit) ? "ACRE" : "SQFT";
+    }
+
     private void saveOrUpdateCategoryDetails(Listing listing, ListingDTO.ListingRequest request) {
         HospitalityPropertyDetail propertyDetail = hospitalityPropertyDetailRepository.findByListingId(listing.getId())
                 .orElseGet(HospitalityPropertyDetail::new);
@@ -339,12 +509,14 @@ public class ListingService {
         if (isHotel(listing.getCategory())) {
             propertyDetail.setNumberOfRooms(request.getNumberOfRooms());
             propertyDetail.setPlotAreaSqft(request.getPlotAreaSqft());
+            propertyDetail.setPlotAreaUnit(normalizeAreaUnit(request.getPlotAreaUnit()));
             propertyDetail.setConstructedAreaSqft(request.getConstructedAreaSqft());
             propertyDetail.setTitleType(blankToNull(request.getTitleType()));
             propertyDetail.setCarpetAreaSqft(null);
         } else {
             propertyDetail.setNumberOfRooms(null);
             propertyDetail.setPlotAreaSqft(null);
+            propertyDetail.setPlotAreaUnit(null);
             propertyDetail.setConstructedAreaSqft(null);
             propertyDetail.setTitleType(null);
             propertyDetail.setCarpetAreaSqft(request.getCarpetAreaSqft());
@@ -367,20 +539,20 @@ public class ListingService {
      */
     private void validateCategorySpecifics(Category category, DealType dealType, ListingDTO.ListingRequest request) {
         if (dealType.getCategory() != null && !dealType.getCategory().getId().equals(category.getId())) {
-            throw new IllegalArgumentException("Deal type '" + dealType.getName() + "' is not available for " + category.getName());
+            throw new RuntimeException("Deal type '" + dealType.getName() + "' is not available for " + category.getName());
         }
         if (isHotel(category)) {
             if (request.getNumberOfRooms() == null || request.getNumberOfRooms() < 1) {
-                throw new IllegalArgumentException("Number of rooms is required for hotels");
+                throw new RuntimeException("Number of rooms is required for hotels");
             }
             if (request.getPlotAreaSqft() == null || request.getPlotAreaSqft().signum() <= 0) {
-                throw new IllegalArgumentException("Plot area is required for hotels");
+                throw new RuntimeException("Plot area is required for hotels");
             }
             if (request.getConstructedAreaSqft() == null || request.getConstructedAreaSqft().signum() <= 0) {
-                throw new IllegalArgumentException("Constructed area is required for hotels");
+                throw new RuntimeException("Constructed area is required for hotels");
             }
         } else if (request.getCarpetAreaSqft() == null || request.getCarpetAreaSqft().signum() <= 0) {
-            throw new IllegalArgumentException("Carpet area is required for " + category.getName());
+            throw new RuntimeException("Carpet area is required for " + category.getName());
         }
     }
     
@@ -391,6 +563,7 @@ public class ListingService {
         response.setDisplayTitle(listing.getDisplayTitle());
         response.setShortDescription(listing.getShortDescription());
         response.setAskingPrice(listing.getAskingPrice());
+        response.setPriceNotDisclosed(Boolean.TRUE.equals(listing.getPriceNotDisclosed()));
         response.setPriceNegotiable(listing.getPriceNegotiable());
         response.setIsConfidential(listing.getIsConfidential());
         response.setStatus(listing.getStatus().name());
@@ -428,13 +601,15 @@ public class ListingService {
         response.setShortDescription(listing.getShortDescription());
         response.setDetailedDescription(listing.getDetailedDescription());
         response.setAskingPrice(listing.getAskingPrice());
+        response.setPriceNotDisclosed(Boolean.TRUE.equals(listing.getPriceNotDisclosed()));
         response.setPriceNegotiable(listing.getPriceNegotiable());
         response.setIsConfidential(listing.getIsConfidential());
         response.setStatus(listing.getStatus().name());
         response.setRejectionReason(listing.getRejectionReason());
         response.setViewCount(listing.getViewCount());
         response.setInquiryCount(listing.getInquiryCount());
-        response.setIsFeatured(listing.getIsFeatured());
+        response.setIsFeatured(isCurrentlyFeatured(listing));
+        response.setFeaturedUntil(isCurrentlyFeatured(listing) ? listing.getFeaturedUntil() : null);
         response.setCreatedAt(listing.getCreatedAt());
         response.setUpdatedAt(listing.getUpdatedAt());
         response.setExpiresAt(listing.getExpiresAt());
@@ -468,16 +643,14 @@ public class ListingService {
                 .collect(Collectors.toList());
         response.setImages(imageUrls);
         
-        // Seller info (hide for confidential listings)
-        if (!Boolean.TRUE.equals(listing.getIsConfidential())) {
-            ListingDTO.SellerInfo sellerInfo = new ListingDTO.SellerInfo();
-            sellerInfo.setId(listing.getUser().getId());
-            sellerInfo.setFullName(listing.getUser().getFullName());
-            sellerInfo.setEmail(listing.getUser().getEmail());
-            sellerInfo.setMobileNumber(listing.getUser().getMobileNumber());
-            sellerInfo.setCompanyName(listing.getUser().getCompanyName());
-            response.setSeller(sellerInfo);
-        }
+        // Seller info; the public detail view (getListingById(id, viewer)) redacts it for other users
+        ListingDTO.SellerInfo sellerInfo = new ListingDTO.SellerInfo();
+        sellerInfo.setId(listing.getUser().getId());
+        sellerInfo.setFullName(listing.getUser().getFullName());
+        sellerInfo.setEmail(listing.getUser().getEmail());
+        sellerInfo.setMobileNumber(listing.getUser().getMobileNumber());
+        sellerInfo.setCompanyName(listing.getUser().getCompanyName());
+        response.setSeller(sellerInfo);
         
         // Category specific details
         hospitalityPropertyDetailRepository.findByListingId(listing.getId())

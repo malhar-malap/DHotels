@@ -5,12 +5,13 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import { FaBriefcase } from 'react-icons/fa';
-import { listingsAPI, jobsAPI, userAPI, inquiriesAPI, masterAPI } from '../services/api';
+import { listingsAPI, jobsAPI, userAPI, inquiriesAPI, masterAPI, openPrivateFile } from '../services/api';
 import toast from 'react-hot-toast';
 import { FaEye, FaEyeSlash, FaMapMarkerAlt, FaRupeeSign, FaLock } from 'react-icons/fa';
 import ConfirmationModal from '../components/common/ConfirmationModal';
-import { FiXCircle } from 'react-icons/fi';
+import { FiXCircle, FiTrash2 } from 'react-icons/fi';
 import { generateSlug } from '../utils/slugify';
+import { PRICE_NOT_DISCLOSED_LABEL } from '../utils/formatPrice';
 
 // Generic placeholder component
 const PlaceholderPage = ({ title, description, linkText, linkHref }) => (
@@ -71,6 +72,8 @@ export const MyListingsPage = () => {
 
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, listingId: null });
   const [closing, setClosing] = useState(false);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, listingId: null });
+  const [deleting, setDeleting] = useState(false);
 
   const fetchListings = async () => {
     setLoading(true);
@@ -115,6 +118,23 @@ export const MyListingsPage = () => {
       toast.error('Failed to close listing');
     } finally {
       setClosing(false);
+    }
+  };
+
+  const confirmDelete = async (reason) => {
+    const id = deleteModal.listingId;
+    setDeleteModal({ isOpen: false, listingId: null });
+    if (!id || !reason?.trim()) return;
+
+    setDeleting(true);
+    try {
+      await listingsAPI.delete(id, reason.trim());
+      toast.success('Listing deleted');
+      fetchListings();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to delete listing');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -247,8 +267,12 @@ export const MyListingsPage = () => {
                         <div className="flex flex-col">
                           <span className="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Asking Price</span>
                           <span className="text-lg font-black text-white flex items-center leading-none">
-                            <FaRupeeSign size={14} className="mr-0.5 text-primary-400" />
-                            {listing.askingPrice?.toLocaleString()}
+                            {listing.priceNotDisclosed ? PRICE_NOT_DISCLOSED_LABEL : (
+                              <>
+                                <FaRupeeSign size={14} className="mr-0.5 text-primary-400" />
+                                {listing.askingPrice?.toLocaleString()}
+                              </>
+                            )}
                           </span>
                         </div>
                         
@@ -276,6 +300,14 @@ export const MyListingsPage = () => {
                               <FiXCircle size={14} />
                             </button>
                           )}
+                          <button 
+                            onClick={() => setDeleteModal({ isOpen: true, listingId: listing.id })}
+                            disabled={deleting}
+                            className="p-2.5 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all shadow-sm disabled:opacity-50"
+                            title="Delete Listing"
+                          >
+                            <FiTrash2 size={14} />
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -320,6 +352,17 @@ export const MyListingsPage = () => {
           isDanger={true}
           requireReason={true}
           reasonLabel="Reason for closing (Required)"
+      />
+      <ConfirmationModal
+          isOpen={deleteModal.isOpen}
+          onClose={() => setDeleteModal({ isOpen: false, listingId: null })}
+          onConfirm={confirmDelete}
+          title="Delete Listing"
+          message="This permanently deletes the listing and its inquiries. This cannot be undone. Our team will be notified of your reason."
+          confirmText="Delete Listing"
+          isDanger={true}
+          requireReason={true}
+          reasonLabel="Reason for deleting (Required)"
       />
     </div>
     </DashboardLayout>
@@ -703,11 +746,11 @@ export const MyApplicationsPage = () => {
                             </h3>
                           </div>
                           <span className={`self-start sm:self-center px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-full border ${
-                            ['ACCEPTED', 'HIRED'].includes(app.status) 
-                              ? 'bg-green-50 text-green-700 border-green-100' 
+                            ['SHORTLISTED', 'HIRED'].includes(app.status) 
+                              ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' 
                               : app.status === 'REJECTED' 
-                                ? 'bg-red-50 text-red-700 border-red-100' 
-                                : 'bg-blue-50 text-blue-700 border-blue-100'
+                                ? 'bg-rose-500/15 text-rose-300 border-rose-500/30' 
+                                : 'bg-sky-500/15 text-sky-300 border-sky-500/30'
                           }`}>
                             {app.status}
                           </span>
@@ -738,29 +781,28 @@ export const MyApplicationsPage = () => {
                             )}
                           </div>
                           {app.cvUrl && (
-                            <a 
-                              href={app.cvUrl.replace('/api/listings/media/', '/api/uploads/')} 
-                              target="_blank" 
-                              rel="noopener noreferrer" 
+                            <button 
+                              type="button"
+                              onClick={() => openPrivateFile(app.cvUrl).catch(() => toast.error('Could not open the document'))}
                               className="px-6 py-2 bg-ethereal-surface-low border border-ethereal-primary/20 text-ethereal-primary font-bold rounded-xl hover:bg-ethereal-primary hover:text-white transition-all duration-300 flex items-center gap-2"
                             >
                               <FaEye size={14} /> View Document
-                            </a>
+                            </button>
                           )}
                         </div>
                       </div>
 
-                      {activeTab === 'received' && app.status === 'APPLIED' && (
+                      {activeTab === 'received' && ['SUBMITTED', 'VIEWED'].includes(app.status) && (
                         <div className="flex lg:flex-col items-stretch gap-3 lg:w-48 lg:border-l border-ethereal-outline-variant/30 lg:pl-8 pt-8 lg:pt-0">
                           <button 
-                            onClick={() => handleStatusChange(app.id, 'ACCEPTED')} 
+                            onClick={() => handleStatusChange(app.id, 'SHORTLISTED')} 
                             className="flex-1 bg-ethereal-secondary text-white py-3 rounded-2xl font-bold shadow-lg shadow-primary-500/10 hover:shadow-primary-500/20 hover:scale-[1.02] transition-all"
                           >
                             Shortlist
                           </button>
                           <button 
                             onClick={() => handleStatusChange(app.id, 'REJECTED')} 
-                            className="flex-1 bg-red-50 text-red-600 py-3 rounded-2xl font-bold hover:bg-red-100 transition-all border border-red-100"
+                            className="flex-1 bg-rose-500/10 text-rose-300 py-3 rounded-2xl font-bold hover:bg-rose-500/20 transition-all border border-rose-500/30"
                           >
                             Decline
                           </button>

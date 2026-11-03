@@ -91,7 +91,7 @@ public class Job {
     private List<JobApplication> applications = new ArrayList<>();
     
     public enum EmploymentType {
-        FULL_TIME, PART_TIME, CONTRACT, LOCUM
+        FULL_TIME, PART_TIME, CONTRACT, TEMPORARY, INTERNSHIP
     }
     
     public enum ExperienceLevel {

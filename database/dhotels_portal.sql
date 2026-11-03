@@ -171,6 +171,7 @@ CREATE TABLE hospitality_property_details (
     listing_id BIGINT NOT NULL UNIQUE,
     number_of_rooms INT NULL,               -- Hotels only
     plot_area_sqft DECIMAL(12, 2) NULL,     -- Hotels only
+    plot_area_unit VARCHAR(10) NULL,        -- SQFT or ACRE, as the seller entered it
     constructed_area_sqft DECIMAL(12, 2) NULL, -- Hotels only
     title_type VARCHAR(50) NULL,            -- Hotels only (Freehold / Leasehold)
     carpet_area_sqft DECIMAL(12, 2) NULL,   -- Restaurants, Cafe, Banquet halls, Restaurants and Bar, Resorts
@@ -252,7 +253,7 @@ CREATE TABLE jobs (
     title VARCHAR(200) NOT NULL,
     job_category_id BIGINT NOT NULL,
     specialisation VARCHAR(100),
-    employment_type ENUM('FULL_TIME', 'PART_TIME', 'CONTRACT', 'LOCUM') NOT NULL,
+    employment_type VARCHAR(20) NOT NULL,  -- FULL_TIME, PART_TIME, CONTRACT, TEMPORARY, INTERNSHIP
     salary_min_lpa DECIMAL(10, 2),
     salary_max_lpa DECIMAL(10, 2),
     city_id BIGINT NOT NULL,
@@ -475,16 +476,11 @@ INSERT INTO site_settings (setting_key, setting_value, description) VALUES
 ('contact_email', 'contact@dhotels24.in', 'Contact email displayed on site'),
 ('support_phone', '1800-XXX-XXXX', 'Support phone number');
 
--- Insert Default Admin User
--- Password: Admin@123 (BCrypt encoded)
-INSERT INTO users (full_name, email, password_hash, mobile_number, is_email_verified, status) VALUES
-('System Admin', 'admin@dhotels24.in', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.qW0Ll6UXrFxI5dWt3C', '9999999999', TRUE, 'ACTIVE');
-
-INSERT INTO user_roles (user_id, role) VALUES
-((SELECT id FROM users WHERE email = 'admin@dhotels24.in'), 'ADMIN'),
-((SELECT id FROM users WHERE email = 'admin@dhotels24.in'), 'BUYER'),
-((SELECT id FROM users WHERE email = 'admin@dhotels24.in'), 'SELLER'),
-((SELECT id FROM users WHERE email = 'admin@dhotels24.in'), 'EMPLOYER');
+-- No default admin account is created (a shared, known password would be a backdoor).
+-- To create one: sign up normally on the site, then grant the role in the database:
+--   INSERT INTO user_roles (user_id, role, created_at)
+--   SELECT id, 'ADMIN', NOW() FROM users WHERE email = 'you@example.com';
+-- For local development, SEED_SAMPLE_USER=true also creates sample user and admin accounts (see DataInitializer).
 
 -- Views
 CREATE VIEW vw_active_listings AS

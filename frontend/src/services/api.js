@@ -86,7 +86,6 @@ api.interceptors.response.use(
 // Auth API
 export const authAPI = {
   login: (credentials) => api.post('/auth/login', credentials),
-  register: (userData) => api.post('/auth/register', userData),
   sendOtp: (email) => api.post('/auth/send-otp', { email }),
   verifyOtpRegister: (data) => api.post('/auth/verify-otp-register', data),
   refreshToken: (refreshToken) => api.post('/auth/refresh-token', { refreshToken }),
@@ -104,6 +103,11 @@ export const userAPI = {
   updateProfilePhoto: (photoUrl) => api.put('/users/profile-photo', null, { params: { photoUrl } }),
   getVerificationStatus: () => api.get('/users/verification'),
   submitVerification: (data) => api.post('/users/verification', data),
+  uploadVerificationDocument: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/users/verification/document', formData, { headers: { 'Content-Type': undefined } });
+  },
 };
 
 // Listings API
@@ -115,7 +119,7 @@ export const listingsAPI = {
   getMy: (params) => api.get('/listings/my', { params }),
   create: (data) => api.post('/listings', data),
   update: (id, data) => api.put(`/listings/${id}`, data),
-  delete: (id) => api.delete(`/listings/${id}`),
+  delete: (id, reason) => api.delete(`/listings/${id}`, { data: { reason } }),
   close: (id, reason) => api.post(`/listings/${id}/close`, { reason }),
 };
 
@@ -168,12 +172,12 @@ export const adminAPI = {
   getListings: (params) => api.get('/admin/listings', { params }),
   getListingById: (id) => api.get(`/admin/listings/${id}`),
   editListing: (id, data) => api.put(`/admin/listings/${id}`, data),
-  approveListing: (id, uniqueCode, imageUrls) => api.post(`/admin/listings/${id}/approve`, { uniqueCode, imageUrls }),
+  approveListing: (id, uniqueCode, imageUrls = []) => api.post(`/admin/listings/${id}/approve`, { uniqueCode, imageUrls }),
   rejectListing: (id, reason) => api.post(`/admin/listings/${id}/reject`, { rejectionReason: reason }),
-  deleteListing: (id) => api.delete(`/admin/listings/${id}`),
+  deleteListing: (id, reason) => api.delete(`/admin/listings/${id}`, { data: { reason } }),
   featureListing: (id, days) => api.post(`/admin/listings/${id}/feature`, null, { params: { days } }),
   bulkApproveListings: (ids) => api.post('/admin/listings/bulk-approve', { ids }),
-  bulkDeleteListings: (ids) => api.post('/admin/listings/bulk-delete', { ids }),
+  bulkDeleteListings: (ids, reason) => api.post('/admin/listings/bulk-delete', { ids, reason }),
   getJobs: (params) => api.get('/admin/jobs', { params }),
   approveJob: (id) => api.post(`/admin/jobs/${id}/approve`),
   rejectJob: (id, reason) => api.post(`/admin/jobs/${id}/reject`, { rejectionReason: reason }),
@@ -239,6 +243,14 @@ export const mandateAPI = {
   submit: (data) => api.post('/mandates/submit', data),
 };
 
+// In-app notifications for the signed-in user
+export const notificationsAPI = {
+  getAll: (params) => api.get('/notifications', { params }),
+  getUnreadCount: () => api.get('/notifications/unread-count'),
+  markRead: (id) => api.put(`/notifications/${id}/read`),
+  markAllRead: () => api.put('/notifications/read-all'),
+};
+
 export const mediaAPI = {
   upload: (file) => {
     const formData = new FormData();
@@ -249,6 +261,29 @@ export const mediaAPI = {
     const formData = new FormData();
     Array.from(files).forEach(file => formData.append('files', file));
     return api.post('/listings/media/upload-multiple', formData, { headers: { 'Content-Type': undefined } });
+  }
+};
+
+/**
+ * Opens a private document (CV / KYC proof). These need the login token, so a plain link
+ * won't work: fetch it as a blob and show it in a new tab.
+ */
+export const openPrivateFile = async (url) => {
+  const marker = '/files/private/';
+  if (!url || !url.includes(marker)) {
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
+    return;
+  }
+  // Open the tab synchronously so popup blockers allow it, then point it at the file
+  const tab = window.open('', '_blank');
+  try {
+    const response = await api.get(url.slice(url.indexOf(marker)), { responseType: 'blob' });
+    const blobUrl = URL.createObjectURL(response.data);
+    if (tab) tab.location.href = blobUrl; else window.location.href = blobUrl;
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+  } catch (error) {
+    if (tab) tab.close();
+    throw error;
   }
 };
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { userAPI, mediaAPI } from '../services/api';
+import { userAPI } from '../services/api';
 import { FiUploadCloud, FiShield } from 'react-icons/fi';
 
 const VerificationModal = ({ isOpen, onClose, onSuccess }) => {
@@ -26,7 +26,7 @@ const VerificationModal = ({ isOpen, onClose, onSuccess }) => {
     setSubmitting(true);
     try {
       // 1. Upload the file
-      const uploadRes = await mediaAPI.upload(file);
+      const uploadRes = await userAPI.uploadVerificationDocument(file);
       const docUrl = uploadRes.data.data;
 
       // 2. Submit verification request

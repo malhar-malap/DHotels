@@ -28,6 +28,10 @@ public class HospitalityPropertyDetail {
     
     @Column(name = "plot_area_sqft", precision = 12, scale = 2)
     private BigDecimal plotAreaSqft;
+
+    // Unit the seller entered the plot area in (SQFT or ACRE); the value itself is always stored in sq ft
+    @Column(name = "plot_area_unit", length = 10)
+    private String plotAreaUnit;
     
     @Column(name = "constructed_area_sqft", precision = 12, scale = 2)
     private BigDecimal constructedAreaSqft;
@@ -57,6 +61,8 @@ public class HospitalityPropertyDetail {
     
     public BigDecimal getPlotAreaSqft() { return plotAreaSqft; }
     public void setPlotAreaSqft(BigDecimal plotAreaSqft) { this.plotAreaSqft = plotAreaSqft; }
+    public String getPlotAreaUnit() { return plotAreaUnit; }
+    public void setPlotAreaUnit(String plotAreaUnit) { this.plotAreaUnit = plotAreaUnit; }
     
     public BigDecimal getConstructedAreaSqft() { return constructedAreaSqft; }
     public void setConstructedAreaSqft(BigDecimal constructedAreaSqft) { this.constructedAreaSqft = constructedAreaSqft; }

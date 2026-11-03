@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { getRedirectTarget } from '../../utils/authRedirect';
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -13,7 +14,7 @@ const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
-    const redirect = location.search ? location.search.split('=')[1] : '/dashboard';
+    const redirect = getRedirectTarget(location.search);
 
     useEffect(() => { if (isAuthenticated) navigate(redirect); }, [isAuthenticated, navigate, redirect]);
 
@@ -154,7 +155,7 @@ const LoginPage = () => {
 
           <div className="mt-8 text-center flex flex-col sm:flex-row items-center justify-center gap-4">
             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Don't have an account?</p>
-            <Link to="/register" className="px-5 py-2 border border-gray-800 hover:border-gray-700 text-primary-500 hover:text-primary-600 text-[10px] font-bold uppercase tracking-wider rounded-xl transition bg-gray-950/20 inline-block">Sign Up</Link>
+            <Link to={location.search ? `/register${location.search}` : '/register'} className="px-5 py-2 border border-gray-800 hover:border-gray-700 text-primary-500 hover:text-primary-600 text-[10px] font-bold uppercase tracking-wider rounded-xl transition bg-gray-950/20 inline-block">Sign Up</Link>
           </div>
         </div>
       </div>

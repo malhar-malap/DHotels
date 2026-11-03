@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * DataInitializer - Seeds sample user account on startup if not present or updates password.
+ * DataInitializer - Seeds sample accounts on startup (user@gmail.com / user@123, buyer@gmail.com / buyer@123, admin@gmail.com / admin@123).
  * Local development only: disabled unless app.seed-sample-user=true (SEED_SAMPLE_USER env var).
  */
 @Component
@@ -35,64 +35,46 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        seedSampleUser();
+        seedAccount("user@gmail.com", "user@123", "Sample User", "9876543210",
+                List.of(UserRole.Role.BUYER, UserRole.Role.SELLER, UserRole.Role.EMPLOYER, UserRole.Role.JOB_SEEKER));
+        seedAccount("buyer@gmail.com", "buyer@123", "Sample Buyer", "9876543212",
+                List.of(UserRole.Role.BUYER));
+        seedAccount("admin@gmail.com", "admin@123", "Sample Admin", "9876543211",
+                List.of(UserRole.Role.ADMIN, UserRole.Role.BUYER, UserRole.Role.SELLER, UserRole.Role.EMPLOYER));
     }
 
-    private void seedSampleUser() {
-        String email = "user@gmail.com";
-        Optional<User> existingUserOpt = userRepository.findByEmail(email);
-
-        if (existingUserOpt.isPresent()) {
-            User user = existingUserOpt.get();
-            user.setPasswordHash(passwordEncoder.encode("user@123"));
-            user.setStatus(User.UserStatus.ACTIVE);
-            user.setIsEmailVerified(true);
-            user.setIsPhoneVerified(true);
-            user.setIsVerifiedBuyer(true);
-            
-            List<UserRole> existingRoles = userRoleRepository.findByUser(user);
-            if (existingRoles == null || existingRoles.isEmpty()) {
-                List<UserRole> roles = new ArrayList<>();
-                for (UserRole.Role roleEnum : List.of(UserRole.Role.BUYER, UserRole.Role.SELLER, UserRole.Role.EMPLOYER, UserRole.Role.JOB_SEEKER)) {
-                    UserRole role = new UserRole();
-                    role.setUser(user);
-                    role.setRole(roleEnum);
-                    roles.add(userRoleRepository.save(role));
-                }
-                user.setRoles(roles);
-            }
-            userRepository.save(user);
-            System.out.println("====== SAMPLE USER ALREADY EXISTS - PASSWORD & ROLES SYNCED: " + email + " ======");
-        } else {
-            User user = new User();
-            user.setFullName("Sample User");
+    /** Creates the account, or resets its password and verification flags and adds any missing roles. */
+    private void seedAccount(String email, String password, String fullName, String mobile, List<UserRole.Role> wantedRoles) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        boolean created = user == null;
+        if (created) {
+            user = new User();
+            user.setFullName(fullName);
             user.setEmail(email);
-            user.setPasswordHash(passwordEncoder.encode("user@123"));
-            
-            String mobile = "9876543210";
             if (userRepository.existsByMobileNumber(mobile)) {
                 mobile = "99999" + (System.currentTimeMillis() % 100000);
             }
             user.setMobileNumber(mobile);
             user.setCompanyName("DHotels24.in Group");
-            user.setIsEmailVerified(true);
-            user.setIsPhoneVerified(true);
-            user.setIsVerifiedBuyer(true);
-            user.setStatus(User.UserStatus.ACTIVE);
+        }
+        user.setPasswordHash(passwordEncoder.encode(password));
+        user.setStatus(User.UserStatus.ACTIVE);
+        user.setIsEmailVerified(true);
+        user.setIsPhoneVerified(true);
+        user.setIsVerifiedBuyer(true);
+        user = userRepository.save(user);
 
-            user = userRepository.save(user);
-
-            List<UserRole> roles = new ArrayList<>();
-            for (UserRole.Role roleEnum : List.of(UserRole.Role.BUYER, UserRole.Role.SELLER, UserRole.Role.EMPLOYER, UserRole.Role.JOB_SEEKER)) {
+        List<UserRole> roles = new ArrayList<>(Optional.ofNullable(userRoleRepository.findByUser(user)).orElse(List.of()));
+        for (UserRole.Role roleEnum : wantedRoles) {
+            if (roles.stream().noneMatch(r -> r.getRole() == roleEnum)) {
                 UserRole role = new UserRole();
                 role.setUser(user);
                 role.setRole(roleEnum);
                 roles.add(userRoleRepository.save(role));
             }
-            user.setRoles(roles);
-            userRepository.save(user);
-            System.out.println("====== SAMPLE USER CREATED: " + email + " with password user@123 ======");
         }
+        user.setRoles(roles);
+        userRepository.save(user);
+        System.out.println("====== SAMPLE ACCOUNT " + (created ? "CREATED" : "SYNCED") + ": " + email + " ======");
     }
 }
-

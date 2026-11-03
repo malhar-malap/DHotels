@@ -1,4 +1,4 @@
-name: Deploy DHealth
+name: Deploy DHotels
 
 on:
   push:
@@ -24,6 +24,26 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
 
           script: |
-            cd "/root/DHealth Website"
-            git pull origin main
+            cd /root/DHotels
+
+            # backend/uploads holds user-uploaded files and is no longer tracked in git.
+            # Back it up before pulling (a pull that untracks files deletes them) and restore after.
+            # The backup is a fresh snapshot each deploy, so files deleted through the app aren't resurrected.
+            UPLOADS_BACKUP=/root/dhotels-uploads-backup
+            rm -rf "$UPLOADS_BACKUP"
+            mkdir -p "$UPLOADS_BACKUP"
+            if [ -d backend/uploads ]; then
+              cp -a backend/uploads/. "$UPLOADS_BACKUP"/
+            fi
+
+            # Match GitHub exactly (works even after a history rewrite / force-push).
+            # Untracked, git-ignored files such as .env and backend/uploads are left alone.
+            git fetch origin main
+            git reset --hard origin/main
+
+            mkdir -p backend/uploads
+            cp -a "$UPLOADS_BACKUP"/. backend/uploads/
+            # The backend container runs as uid 10001 (see backend/Dockerfile)
+            chown -R 10001:10001 backend/uploads
+
             docker compose up --build -d

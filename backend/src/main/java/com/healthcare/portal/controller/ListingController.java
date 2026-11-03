@@ -53,7 +53,7 @@ public class ListingController {
     @GetMapping("/{id}")
     @Operation(summary = "Get listing by ID", description = "Returns detailed listing information")
     public ResponseEntity<ApiResponse<ListingDTO.ListingResponse>> getListingById(@PathVariable Long id) {
-        ListingDTO.ListingResponse listing = listingService.getListingById(id);
+        ListingDTO.ListingResponse listing = listingService.getListingById(id, authService.getCurrentUserOrNull());
         return ResponseEntity.ok(ApiResponse.success(listing));
     }
     
@@ -99,16 +99,20 @@ public class ListingController {
             @PathVariable Long id,
             @Valid @RequestBody ListingDTO.ListingRequest request) {
         User currentUser = authService.getCurrentUserEntity();
-        ListingDTO.ListingResponse response = listingService.updateListing(id, request, currentUser.getId());
+        ListingDTO.ListingResponse response = currentUser.isAdmin()
+                ? listingService.updateListingAsAdmin(id, request)
+                : listingService.updateListing(id, request, currentUser.getId());
         return ResponseEntity.ok(ApiResponse.success("Listing updated successfully", response));
     }
     
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete listing", description = "Deletes a listing")
+    @Operation(summary = "Delete listing", description = "Deletes the current user's listing; a reason is required and sent to the admins")
     @SecurityRequirement(name = "Bearer Authentication")
-    public ResponseEntity<ApiResponse<Void>> deleteListing(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteListing(@PathVariable Long id,
+            @RequestBody(required = false) java.util.Map<String, String> payload) {
         User currentUser = authService.getCurrentUserEntity();
-        listingService.deleteListing(id, currentUser.getId());
+        String reason = payload != null ? payload.get("reason") : null;
+        listingService.deleteListing(id, currentUser.getId(), reason);
         return ResponseEntity.ok(ApiResponse.success("Listing deleted successfully", null));
     }
     
@@ -125,7 +129,7 @@ public class ListingController {
     @PostMapping("/media/upload")
     @Operation(summary = "Upload a listing image", description = "Uploads a single image for a listing")
     public ResponseEntity<ApiResponse<String>> uploadFile(@RequestParam("file") MultipartFile file) {
-        String fileName = fileStorageService.storeFile(file);
+        String fileName = fileStorageService.storeImage(file);
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/uploads/")
                 .path(fileName)
@@ -139,7 +143,7 @@ public class ListingController {
         List<String> fileUrls = Arrays.asList(files)
                 .stream()
                 .map(file -> {
-                    String fileName = fileStorageService.storeFile(file);
+                    String fileName = fileStorageService.storeImage(file);
                     return ServletUriComponentsBuilder.fromCurrentContextPath()
                             .path("/uploads/")
                             .path(fileName)

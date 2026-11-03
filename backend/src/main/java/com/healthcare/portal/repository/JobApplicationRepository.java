@@ -16,6 +16,8 @@ import java.util.Optional;
  */
 @Repository
 public interface JobApplicationRepository extends JpaRepository<JobApplication, Long> {
+    List<JobApplication> findByCvUrlEndingWith(String suffix);
+
     
     List<JobApplication> findByJobId(Long jobId);
     
