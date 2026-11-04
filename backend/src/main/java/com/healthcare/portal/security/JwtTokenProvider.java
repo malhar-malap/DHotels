@@ -27,9 +27,29 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
     
+    /** "typ" claim values: an access token can't be used to refresh, nor a refresh token to call the API. */
+    public static final String ACCESS = "access";
+    public static final String REFRESH = "refresh";
+
+    /** Fails startup instead of signing tokens with a missing or guessable secret. */
+    @jakarta.annotation.PostConstruct
+    void checkSecret() {
+        if (jwtSecret == null || jwtSecret.getBytes(StandardCharsets.UTF_8).length < 32) {
+            throw new IllegalStateException("JWT_SECRET must be set to at least 32 characters");
+        }
+    }
+
     private SecretKey getSigningKey() {
         byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    private Claims parse(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
     
     public String generateAccessToken(User user) {
@@ -38,6 +58,7 @@ public class JwtTokenProvider {
                 .map(role -> role.getRole().name())
                 .collect(Collectors.toList()));
         claims.put("email", user.getEmail());
+        claims.put("typ", ACCESS);
         
         return Jwts.builder()
                 .claims(claims)
@@ -50,6 +71,7 @@ public class JwtTokenProvider {
     
     public String generateRefreshToken(User user) {
         return Jwts.builder()
+                .claim("typ", REFRESH)
                 .subject(user.getId().toString())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
@@ -58,32 +80,32 @@ public class JwtTokenProvider {
     }
     
     public Long getUserIdFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return Long.parseLong(claims.getSubject());
+        return Long.parseLong(parse(token).getSubject());
     }
     
-    public boolean validateToken(String token) {
+    /** True when the token is correctly signed, unexpired and of the given type (ACCESS or REFRESH). */
+    public boolean validateToken(String token, String type) {
         try {
-            Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token);
-            return true;
+            return type.equals(parse(token).get("typ", String.class));
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
     
     public String getEmailFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.get("email", String.class);
+        return parse(token).get("email", String.class);
+    }
+
+    /**
+     * True when the token was issued before the user's password last changed (or they were signed
+     * out everywhere), so older stolen tokens stop working. JWT times have second precision.
+     */
+    public boolean issuedBefore(String token, java.time.LocalDateTime credentialsChangedAt) {
+        if (credentialsChangedAt == null) {
+            return false;
+        }
+        Date issuedAt = parse(token).getIssuedAt();
+        long changedSecond = credentialsChangedAt.atZone(java.time.ZoneId.systemDefault()).toEpochSecond();
+        return issuedAt == null || issuedAt.getTime() / 1000 < changedSecond;
     }
 }

@@ -43,7 +43,7 @@ public class JobController {
     @GetMapping("/{id}")
     @Operation(summary = "Get job by ID", description = "Returns detailed job information")
     public ResponseEntity<ApiResponse<JobDTO.JobResponse>> getJobById(@PathVariable Long id) {
-        JobDTO.JobResponse job = jobService.getJobById(id);
+        JobDTO.JobResponse job = jobService.getJobById(id, authService.getCurrentUserOrNull());
         return ResponseEntity.ok(ApiResponse.success(job));
     }
     

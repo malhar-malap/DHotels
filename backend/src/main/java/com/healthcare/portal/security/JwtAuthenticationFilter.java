@@ -37,10 +37,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         
         String token = getTokenFromRequest(request);
         
-        if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
+        if (StringUtils.hasText(token) && tokenProvider.validateToken(token, JwtTokenProvider.ACCESS)) {
             String email = tokenProvider.getEmailFromToken(token);
             
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            UserDetails userDetails;
+            try {
+                userDetails = userDetailsService.loadUserByUsername(email);
+            } catch (org.springframework.security.core.userdetails.UsernameNotFoundException e) {
+                // Account deleted since the token was issued: treat the request as anonymous
+                filterChain.doFilter(request, response);
+                return;
+            }
+            if (userDetails instanceof CustomUserDetailsService.AppUserDetails appUser
+                    && tokenProvider.issuedBefore(token, appUser.getCredentialsChangedAt())) {
+                // Password changed after this token was issued
+                filterChain.doFilter(request, response);
+                return;
+            }
             
             if (!userDetails.isEnabled()) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

@@ -34,6 +34,7 @@ public class AuthService {
     private final EmailService emailService;
     private final OtpService otpService;
     private final NotificationService notificationService;
+    private final LoginAttemptService loginAttemptService;
 
 
     public AuthService(UserRepository userRepository, 
@@ -43,8 +44,10 @@ public class AuthService {
                       JwtTokenProvider tokenProvider, 
                       PasswordEncoder passwordEncoder,
                       EmailService emailService,
-                      OtpService otpService, NotificationService notificationService) {
+                      OtpService otpService, NotificationService notificationService,
+                      LoginAttemptService loginAttemptService) {
         this.notificationService = notificationService;
+        this.loginAttemptService = loginAttemptService;
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
         this.cityRepository = cityRepository;
@@ -135,9 +138,17 @@ public class AuthService {
     }
     
     public AuthDTO.AuthResponse login(AuthDTO.LoginRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+        loginAttemptService.checkAllowed(request.getEmail());
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
+        } catch (org.springframework.security.authentication.BadCredentialsException e) {
+            loginAttemptService.recordFailure(request.getEmail());
+            throw e;
+        }
+        loginAttemptService.recordSuccess(request.getEmail());
         
         SecurityContextHolder.getContext().setAuthentication(authentication);
         
@@ -165,13 +176,20 @@ public class AuthService {
     }
     
     public AuthDTO.AuthResponse refreshToken(AuthDTO.RefreshTokenRequest request) {
-        if (!tokenProvider.validateToken(request.getRefreshToken())) {
+        if (request.getRefreshToken() == null
+                || !tokenProvider.validateToken(request.getRefreshToken(), JwtTokenProvider.REFRESH)) {
             throw new RuntimeException("Invalid refresh token");
         }
         
         Long userId = tokenProvider.getUserIdFromToken(request.getRefreshToken());
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+        if (tokenProvider.issuedBefore(request.getRefreshToken(), user.getCredentialsChangedAt())) {
+            throw new RuntimeException("Invalid refresh token");
+        }
+        if (user.getStatus() == User.UserStatus.SUSPENDED) {
+            throw new RuntimeException("Your account has been suspended, unable to login. For more info contact us.");
+        }
         
         String accessToken = tokenProvider.generateAccessToken(user);
         String refreshToken = tokenProvider.generateRefreshToken(user);
@@ -212,7 +230,20 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        // Signs out every device that was using the old password
+        user.setCredentialsChangedAt(java.time.LocalDateTime.now());
         userRepository.save(user);
+        loginAttemptService.recordSuccess(user.getEmail());
+    }
+
+    /** Fresh tokens for a signed-in user, e.g. so the device that changed the password stays signed in. */
+    public AuthDTO.AuthResponse issueTokens(User user) {
+        AuthDTO.AuthResponse response = new AuthDTO.AuthResponse();
+        response.setAccessToken(tokenProvider.generateAccessToken(user));
+        response.setRefreshToken(tokenProvider.generateRefreshToken(user));
+        response.setExpiresIn(3600000L);
+        response.setUser(mapToUserResponse(user));
+        return response;
     }
     
     public UserDTO.UserResponse getCurrentUserResponse() {

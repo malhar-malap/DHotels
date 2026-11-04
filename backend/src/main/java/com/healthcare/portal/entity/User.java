@@ -59,6 +59,10 @@ public class User {
     
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
+
+    /** Tokens issued before this moment are rejected (set when the password changes). */
+    @Column(name = "credentials_changed_at")
+    private LocalDateTime credentialsChangedAt;
     
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<UserRole> roles = new ArrayList<>();
@@ -97,6 +101,8 @@ public class User {
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     public LocalDateTime getLastLoginAt() { return lastLoginAt; }
     public void setLastLoginAt(LocalDateTime lastLoginAt) { this.lastLoginAt = lastLoginAt; }
+    public LocalDateTime getCredentialsChangedAt() { return credentialsChangedAt; }
+    public void setCredentialsChangedAt(LocalDateTime credentialsChangedAt) { this.credentialsChangedAt = credentialsChangedAt; }
     public List<UserRole> getRoles() { return roles; }
     public void setRoles(List<UserRole> roles) { this.roles = roles; }
     

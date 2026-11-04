@@ -31,16 +31,27 @@ public class CustomUserDetailsService implements UserDetailsService {
         
         boolean enabled = user.getStatus() != User.UserStatus.SUSPENDED;
         
-        return new org.springframework.security.core.userdetails.User(
+        return new AppUserDetails(
                 user.getEmail(),
                 user.getPasswordHash(),
                 enabled,
-                true,
-                true,
-                true,
                 user.getRoles().stream()
                         .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRole().name()))
-                        .collect(Collectors.toList())
+                        .collect(Collectors.toList()),
+                user.getCredentialsChangedAt()
         );
+    }
+
+    /** Spring's user plus when the credentials last changed, so the JWT filter can reject older tokens. */
+    public static class AppUserDetails extends org.springframework.security.core.userdetails.User {
+        private final java.time.LocalDateTime credentialsChangedAt;
+
+        AppUserDetails(String email, String passwordHash, boolean enabled,
+                       java.util.Collection<SimpleGrantedAuthority> authorities, java.time.LocalDateTime credentialsChangedAt) {
+            super(email, passwordHash, enabled, true, true, true, authorities);
+            this.credentialsChangedAt = credentialsChangedAt;
+        }
+
+        public java.time.LocalDateTime getCredentialsChangedAt() { return credentialsChangedAt; }
     }
 }

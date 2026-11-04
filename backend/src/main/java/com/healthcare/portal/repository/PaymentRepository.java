@@ -20,6 +20,11 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     Optional<Payment> findByRazorpayOrderId(String razorpayOrderId);
 
+    /** Row-locked lookup so two concurrent verify calls for one order can't both unlock it. */
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.Query("SELECT p FROM Payment p WHERE p.razorpayOrderId = :orderId")
+    Optional<Payment> findByRazorpayOrderIdForUpdate(@org.springframework.data.repository.query.Param("orderId") String razorpayOrderId);
+
     boolean existsByBuyerIdAndListingIdAndStatus(Long buyerId, Long listingId, Payment.PaymentStatus status);
 
     Optional<Payment> findByBuyerIdAndListingIdAndStatus(Long buyerId, Long listingId, Payment.PaymentStatus status);

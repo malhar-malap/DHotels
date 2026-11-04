@@ -83,9 +83,15 @@ public class JobService {
         return PageResponse.from(responsePage);
     }
     
-    public JobDTO.JobResponse getJobById(Long id) {
+    public JobDTO.JobResponse getJobById(Long id, User viewer) {
         Job job = jobRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Job not found with id: " + id));
+        // Jobs awaiting approval are only visible to the employer who posted them and admins
+        boolean ownerOrAdmin = viewer != null && (viewer.isAdmin()
+                || (job.getEmployer() != null && viewer.getId().equals(job.getEmployer().getId())));
+        if (job.getStatus() == Job.JobStatus.PENDING && !ownerOrAdmin) {
+            throw new RuntimeException("Job not found with id: " + id);
+        }
         
         // Increment view count
         job.setViewCount(job.getViewCount() + 1);

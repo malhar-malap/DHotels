@@ -113,6 +113,9 @@ public class ListingService {
         return PageResponse.from(responsePage);
     }
     
+    private static final java.util.Set<Listing.ListingStatus> NON_PUBLIC_STATUSES = java.util.EnumSet.of(
+            Listing.ListingStatus.PENDING, Listing.ListingStatus.REJECTED, Listing.ListingStatus.WITHDRAWN);
+
     public ListingDTO.ListingResponse getListingById(Long id) {
         Listing listing = listingRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Listing not found with id: " + id));
@@ -130,9 +133,16 @@ public class ListingService {
      * buyers who paid for contact access; confidential listings keep their real title hidden.
      */
     public ListingDTO.ListingResponse getListingById(Long id, User viewer) {
+        Listing stored = listingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Listing not found with id: " + id));
+        boolean isAdmin = viewer != null && viewer.isAdmin();
+        boolean ownsStored = viewer != null && stored.getUser() != null && viewer.getId().equals(stored.getUser().getId());
+        // Listings awaiting approval, rejected or withdrawn are only visible to their owner and admins
+        if (NON_PUBLIC_STATUSES.contains(stored.getStatus()) && !(ownsStored || isAdmin)) {
+            throw new RuntimeException("Listing not found with id: " + id);
+        }
         ListingDTO.ListingResponse response = getListingById(id);
         boolean isOwner = viewer != null && response.getSeller() != null && viewer.getId().equals(response.getSeller().getId());
-        boolean isAdmin = viewer != null && viewer.isAdmin();
         boolean hasPaid = viewer != null && paymentRepository.existsByBuyerIdAndListingIdAndStatus(
                 viewer.getId(), id, Payment.PaymentStatus.PAID);
 

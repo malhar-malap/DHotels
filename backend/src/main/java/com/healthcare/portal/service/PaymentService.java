@@ -139,12 +139,18 @@ public class PaymentService {
     @LogActivity(action = "VERIFY_PAYMENT", entityType = "Payment")
     public PaymentDTO.PaymentResponse verifyPayment(PaymentDTO.VerifyPaymentRequest request, Long buyerId) {
         // Find the payment record
-        Payment payment = paymentRepository.findByRazorpayOrderId(request.getRazorpayOrderId())
+        Payment payment = paymentRepository.findByRazorpayOrderIdForUpdate(request.getRazorpayOrderId())
                 .orElseThrow(() -> new RuntimeException("Payment order not found"));
 
         // Validate this payment belongs to the current buyer
         if (!payment.getBuyer().getId().equals(buyerId)) {
             throw new RuntimeException("Unauthorized: This payment does not belong to you");
+        }
+
+        // Replays of an already-verified payment return the unlocked details without creating
+        // another inquiry or touching the stored payment
+        if (payment.getStatus() == Payment.PaymentStatus.PAID) {
+            return checkPaymentStatus(payment.getListing().getId(), buyerId).getPaymentDetails();
         }
 
         // Verify Razorpay signature using HMAC SHA256
@@ -153,7 +159,9 @@ public class PaymentService {
                 razorpayKeySecret
         );
 
-        if (!generatedSignature.equals(request.getRazorpaySignature())) {
+        if (request.getRazorpaySignature() == null || !java.security.MessageDigest.isEqual(
+                generatedSignature.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                request.getRazorpaySignature().getBytes(java.nio.charset.StandardCharsets.UTF_8))) {
             // Mark payment as failed
             payment.setStatus(Payment.PaymentStatus.FAILED);
             paymentRepository.save(payment);

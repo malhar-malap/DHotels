@@ -5,9 +5,15 @@ services:
     restart: always
     ports:
       - "127.0.0.1:3307:3306"
+    # The app signs in as dhotels_app, which only has rights on dhotels_portal; root stays for admin work
     environment:
-      - MYSQL_ROOT_PASSWORD=${SPRING_DATASOURCE_PASSWORD:?set SPRING_DATASOURCE_PASSWORD in .env}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:?set DB_ROOT_PASSWORD in .env}
       - MYSQL_DATABASE=dhotels_portal
+      - MYSQL_USER=dhotels_app
+      - MYSQL_PASSWORD=${SPRING_DATASOURCE_PASSWORD:?set SPRING_DATASOURCE_PASSWORD in .env}
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 1g
     volumes:
       - dhotels_mysql_data:/var/lib/mysql
       - ./database/dhotels_portal.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -23,11 +29,10 @@ services:
       - "127.0.0.1:8081:8080"
     depends_on:
       - db
-    env_file:
-      - .env
+    # Only the settings the app reads, so the MySQL root password never reaches this container
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/dhotels_portal?useSSL=false&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_USERNAME=dhotels_app
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:?set SPRING_DATASOURCE_PASSWORD in .env}
       - JWT_SECRET=${JWT_SECRET:?set JWT_SECRET in .env}
       - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
@@ -36,6 +41,14 @@ services:
       - SPRING_MAIL_PORT=${SPRING_MAIL_PORT}
       - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}
       - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}
+      - NOTIFICATION_EMAIL=${NOTIFICATION_EMAIL:-d@dhotels24.com}
+      - SITE_URL=${SITE_URL:-https://dhotels24.in}
+      - SEED_SAMPLE_USER=${SEED_SAMPLE_USER:-false}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://dhotels24.in}
+      - JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=70
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 1g
     volumes:
       - ./backend/uploads:/app/uploads
     entrypoint: java -jar app.jar --spring.mail.properties.mail.smtp.ssl.enable=true --spring.mail.properties.mail.smtp.starttls.enable=false
@@ -50,6 +63,9 @@ services:
     # reaches this container over the shared dhotels_proxy network (see deploy/proxy/dhotels.conf)
     depends_on:
       - backend
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
     networks:
       - default
       - dhotels_proxy

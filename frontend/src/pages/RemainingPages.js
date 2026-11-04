@@ -903,7 +903,13 @@ export const ProfilePage = () => {
 
     setPasswordLoading(true);
     try {
-      await userAPI.changePassword({ currentPassword, newPassword });
+      const res = await userAPI.changePassword({ currentPassword, newPassword });
+      // Other devices are signed out; keep this one signed in with the fresh tokens
+      const tokens = res.data?.data;
+      if (tokens?.accessToken && tokens?.refreshToken) {
+        localStorage.setItem('accessToken', tokens.accessToken);
+        localStorage.setItem('refreshToken', tokens.refreshToken);
+      }
       toast.success('Password changed successfully');
       setCurrentPassword('');
       setNewPassword('');

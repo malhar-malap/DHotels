@@ -47,6 +47,9 @@ public class SecurityConfig {
                         // Listing photo uploads are admin-only (owners don't upload images)
                         .requestMatchers("/listings/media/**", "/api/listings/media/**").hasRole("ADMIN")
                         // Public endpoints - matching both with and without /api prefix
+                        // Personal lists under otherwise public GET paths
+                        .requestMatchers(HttpMethod.GET, "/listings/my", "/api/listings/my", "/jobs/my", "/api/jobs/my",
+                                "/jobs/applications/**", "/api/jobs/applications/**", "/jobs/*/applications", "/api/jobs/*/applications").authenticated()
                         .requestMatchers("/auth/**", "/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/listings/**", "/api/listings/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/jobs/**", "/api/jobs/**").permitAll()

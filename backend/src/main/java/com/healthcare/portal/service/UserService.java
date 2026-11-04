@@ -120,11 +120,18 @@ public class UserService {
         }
         
         user.setPasswordHash(passwordEncoder.encode(newPassword));
+        // Signs out other devices; the caller hands this device fresh tokens
+        user.setCredentialsChangedAt(java.time.LocalDateTime.now());
         userRepository.save(user);
     }
     
     @Transactional
     public void updateProfilePhoto(String photoUrl) {
+        // Only our own uploads or an https image, never javascript:/data: or plain-http URLs
+        if (photoUrl == null || !(photoUrl.startsWith("/uploads/") || photoUrl.startsWith("/api/uploads/")
+                || photoUrl.startsWith("https://")) || photoUrl.length() > 500) {
+            throw new RuntimeException("Invalid photo URL");
+        }
         User user = getCurrentAuthenticatedUser();
         user.setProfilePhotoUrl(photoUrl);
         userRepository.save(user);

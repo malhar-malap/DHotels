@@ -46,10 +46,12 @@ public class UserController {
     
     @PutMapping("/password")
     @Operation(summary = "Change password", description = "Changes the current user's password")
-    public ResponseEntity<ApiResponse<Void>> changePassword(
+    public ResponseEntity<ApiResponse<AuthDTO.AuthResponse>> changePassword(
             @Valid @RequestBody AuthDTO.ChangePasswordRequest request) {
         userService.changePassword(request.getCurrentPassword(), request.getNewPassword());
-        return ResponseEntity.ok(ApiResponse.success("Password changed successfully", null));
+        // Older tokens are now rejected, so this device gets new ones
+        AuthDTO.AuthResponse tokens = authService.issueTokens(authService.getCurrentUserEntity());
+        return ResponseEntity.ok(ApiResponse.success("Password changed successfully", tokens));
     }
     
     @PutMapping("/profile-photo")
