@@ -51,11 +51,11 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
            "(:dealTypeName IS NULL OR LOWER(dt.name) = LOWER(:dealTypeName)) AND " +
            "(:cityId IS NULL OR city.id = :cityId) AND " +
            "(:stateId IS NULL OR s.id = :stateId) AND " +
-           "(:cityName IS NULL OR LOWER(l.cityName) LIKE LOWER(CONCAT('%', :cityName, '%')) OR LOWER(city.name) LIKE LOWER(CONCAT('%', :cityName, '%'))) AND " +
+           "(:cityName IS NULL OR LOWER(l.cityName) LIKE LOWER(CONCAT('%', :cityName, '%')) OR LOWER(l.locality) LIKE LOWER(CONCAT('%', :cityName, '%')) OR LOWER(l.stateName) LIKE LOWER(CONCAT('%', :cityName, '%')) OR LOWER(city.name) LIKE LOWER(CONCAT('%', :cityName, '%'))) AND " +
            "(:minPrice IS NULL OR l.askingPrice >= :minPrice) AND " +
            "(:maxPrice IS NULL OR l.askingPrice <= :maxPrice) AND " +
            "(:isConfidential IS NULL OR l.isConfidential = :isConfidential) AND " +
-           "(:keyword IS NULL OR LOWER(CONCAT(COALESCE(l.title, ''), ' ', COALESCE(l.shortDescription, ''), ' ', COALESCE(l.detailedDescription, ''), ' ', COALESCE(c.name, ''), ' ', COALESCE(l.cityName, ''), ' ', COALESCE(dt.name, ''))) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+           "(:keyword IS NULL OR LOWER(CONCAT(COALESCE(l.title, ''), ' ', COALESCE(l.shortDescription, ''), ' ', COALESCE(l.detailedDescription, ''), ' ', COALESCE(c.name, ''), ' ', COALESCE(l.cityName, ''), ' ', COALESCE(l.locality, ''), ' ', COALESCE(l.stateName, ''), ' ', COALESCE(dt.name, ''))) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Listing> searchListings(@Param("categoryId") Long categoryId,
                                  @Param("dealTypeId") Long dealTypeId,
                                  @Param("dealTypeName") String dealTypeName,
@@ -75,7 +75,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
            "(:dealTypeName IS NULL OR LOWER(dt.name) = LOWER(:dealTypeName)) AND " +
            "(:cityId IS NULL OR city.id = :cityId) AND " +
            "(:stateId IS NULL OR s.id = :stateId) AND " +
-           "(:cityName IS NULL OR LOWER(l.cityName) LIKE LOWER(CONCAT('%', :cityName, '%')) OR LOWER(city.name) LIKE LOWER(CONCAT('%', :cityName, '%'))) AND " +
+           "(:cityName IS NULL OR LOWER(l.cityName) LIKE LOWER(CONCAT('%', :cityName, '%')) OR LOWER(l.locality) LIKE LOWER(CONCAT('%', :cityName, '%')) OR LOWER(l.stateName) LIKE LOWER(CONCAT('%', :cityName, '%')) OR LOWER(city.name) LIKE LOWER(CONCAT('%', :cityName, '%'))) AND " +
            "(:minPrice IS NULL OR l.askingPrice >= :minPrice) AND " +
            "(:maxPrice IS NULL OR l.askingPrice <= :maxPrice) AND " +
            "(:isConfidential IS NULL OR l.isConfidential = :isConfidential) AND " +
@@ -100,7 +100,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
            "(:cityId IS NULL OR city.id = :cityId) AND " +
            "(:stateId IS NULL OR s.id = :stateId) AND " +
            "(:sellerId IS NULL OR l.user.id = :sellerId) AND " +
-           "(:keyword IS NULL OR LOWER(CONCAT(COALESCE(l.title, ''), ' ', COALESCE(l.shortDescription, ''), ' ', COALESCE(l.detailedDescription, ''), ' ', COALESCE(c.name, ''), ' ', COALESCE(l.cityName, ''), ' ', COALESCE(dt.name, ''))) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+           "(:keyword IS NULL OR LOWER(CONCAT(COALESCE(l.title, ''), ' ', COALESCE(l.shortDescription, ''), ' ', COALESCE(l.detailedDescription, ''), ' ', COALESCE(c.name, ''), ' ', COALESCE(l.cityName, ''), ' ', COALESCE(l.locality, ''), ' ', COALESCE(l.stateName, ''), ' ', COALESCE(dt.name, ''))) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Listing> adminSearchListings(@Param("status") Listing.ListingStatus status,
                                      @Param("categoryId") Long categoryId,
                                      @Param("dealTypeId") Long dealTypeId,
@@ -128,6 +128,13 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
                                                @Param("numericKeyword") Long numericKeyword,
                                                Pageable pageable);
     
+    Optional<Listing> findByUniqueCode(String uniqueCode);
+
+    boolean existsByUniqueCode(String uniqueCode);
+
+    @Query("SELECT l.uniqueCode FROM Listing l WHERE l.uniqueCode LIKE CONCAT(:prefix, '%')")
+    List<String> findUniqueCodesStartingWith(@Param("prefix") String prefix);
+
     @Query("SELECT COUNT(l) FROM Listing l WHERE l.status = :status")
     long countByStatus(@Param("status") Listing.ListingStatus status);
     
@@ -140,7 +147,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
     @Query("SELECT l FROM Listing l LEFT JOIN l.category c LEFT JOIN l.dealType dt LEFT JOIN l.city city LEFT JOIN city.state s WHERE " +
            "l.user.id = :userId AND " +
            "(:categoryId IS NULL OR c.id = :categoryId) AND " +
-           "(:keyword IS NULL OR (LOWER(l.uniqueCode) LIKE LOWER(CONCAT('%', :keyword, '%')) OR (l.uniqueCode IS NULL AND :numericKeyword IS NOT NULL AND l.id = :numericKeyword) OR LOWER(CONCAT(COALESCE(l.title, ''), ' ', COALESCE(l.shortDescription, ''), ' ', COALESCE(l.detailedDescription, ''), ' ', COALESCE(c.name, ''), ' ', COALESCE(l.cityName, ''), ' ', COALESCE(dt.name, ''))) LIKE LOWER(CONCAT('%', :keyword, '%'))))")
+           "(:keyword IS NULL OR (LOWER(l.uniqueCode) LIKE LOWER(CONCAT('%', :keyword, '%')) OR (l.uniqueCode IS NULL AND :numericKeyword IS NOT NULL AND l.id = :numericKeyword) OR LOWER(CONCAT(COALESCE(l.title, ''), ' ', COALESCE(l.shortDescription, ''), ' ', COALESCE(l.detailedDescription, ''), ' ', COALESCE(c.name, ''), ' ', COALESCE(l.cityName, ''), ' ', COALESCE(l.locality, ''), ' ', COALESCE(l.stateName, ''), ' ', COALESCE(dt.name, ''))) LIKE LOWER(CONCAT('%', :keyword, '%'))))")
     Page<Listing> searchMyListings(@Param("userId") Long userId,
                                    @Param("categoryId") Long categoryId,
                                    @Param("keyword") String keyword,

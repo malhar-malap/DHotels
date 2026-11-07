@@ -110,6 +110,35 @@ export const getCategoryMeta = (nameOrPath) => {
 };
 
 export const isHotelCategory = (name) => normalize(name) === 'hotels';
+// Resorts may list rooms/cottages and land like hotels, but only hotels require them
+export const isResortCategory = (name) => normalize(name) === 'resorts';
+
+// What askingPrice is quoted per (Listing.priceUnit); empty means an outright price
+export const PRICE_UNITS = [
+  { value: 'TOTAL', label: 'Total / outright', suffix: '' },
+  { value: 'PER_MONTH', label: 'Per month', suffix: '/ month' },
+  { value: 'PER_YEAR', label: 'Per year', suffix: '/ year' },
+  { value: 'PER_SQFT_MONTH', label: 'Per sq ft per month', suffix: '/ sq ft / month' },
+];
+export const priceUnitSuffix = (unit) => PRICE_UNITS.find((u) => u.value === unit)?.suffix || '';
+
+export const OPERATIONAL_STATUSES = ['Running', 'Bare shell', 'Fully furnished', 'Under construction', 'New'];
+
+/** "Vagator, Goa": locality, city and state without repeats (a city can share its state's name). */
+export const formatLocation = (listing) => {
+  const parts = [];
+  [listing?.locality, listing?.cityName, listing?.stateName].forEach((part) => {
+    const value = String(part ?? '').trim();
+    if (value && !parts.some((p) => p.toLowerCase() === value.toLowerCase())) parts.push(value);
+  });
+  return parts.join(', ');
+};
+
+/** Comma-separated amenities -> list for chips. */
+export const parseAmenities = (details) => String(details?.amenities ?? '')
+  .split(',')
+  .map((a) => a.trim())
+  .filter(Boolean);
 
 export const CATEGORY_FALLBACK_IMAGE = CATEGORIES[0].image;
 
@@ -121,8 +150,10 @@ export const formatArea = (sqft, unit) => {
   return formatAreaInUnit(sqft, unit === 'ACRE' ? 'ACRE' : 'SQFT');
 };
 
-// Approval assigns the category photo when an owner uploaded none (ListingService.pickSampleImage)
-export const isSampleImage = (src) => typeof src === 'string' && src.startsWith('https://images.unsplash.com/');
+// Approval and imports assign category photos when an owner uploaded none (ListingService.pickSampleImages)
+export const SAMPLE_IMAGE_DIR = '/images/listing-samples/';
+export const isSampleImage = (src) => typeof src === 'string'
+  && (src.startsWith(SAMPLE_IMAGE_DIR) || src.startsWith('https://images.unsplash.com/'));
 export const SAMPLE_IMAGE_NOTE = 'Image for representation purpose only';
 
 /**
@@ -131,7 +162,7 @@ export const SAMPLE_IMAGE_NOTE = 'Image for representation purpose only';
  */
 export const getSpecs = (categoryName, details) => {
   if (!details) return [];
-  const specs = isHotelCategory(categoryName)
+  const specs = isHotelCategory(categoryName) || isResortCategory(categoryName)
     ? [
         { key: 'numberOfRooms', label: 'Rooms', value: details.numberOfRooms ? `${details.numberOfRooms}` : null },
         { key: 'plotAreaSqft', label: 'Plot area', value: formatArea(details.plotAreaSqft, details.plotAreaUnit) },
@@ -139,13 +170,29 @@ export const getSpecs = (categoryName, details) => {
         { key: 'titleType', label: 'Title', value: details.titleType || null },
       ]
     : [{ key: 'carpetAreaSqft', label: 'Carpet area', value: formatArea(details.carpetAreaSqft) }];
+  if (isResortCategory(categoryName)) {
+    specs.push({ key: 'carpetAreaSqft', label: 'Carpet area', value: formatArea(details.carpetAreaSqft) });
+  }
   return specs.filter((s) => s.value);
+};
+
+/** Optional descriptive facts shared by every category, for the details list. */
+export const getPropertyFacts = (details) => {
+  if (!details) return [];
+  return [
+    { key: 'starCategory', label: 'Category / rating', value: details.starCategory },
+    { key: 'operationalStatus', label: 'Status', value: details.operationalStatus },
+    { key: 'floors', label: 'Floors', value: details.floors },
+    { key: 'kitchenPermissions', label: 'Kitchen & permissions', value: details.kitchenPermissions },
+    { key: 'securityDeposit', label: 'Security deposit', value: details.securityDeposit },
+    { key: 'annualTurnover', label: 'Annual turnover', value: details.annualTurnover },
+  ].filter((f) => f.value);
 };
 
 /** One-line summary for cards, e.g. "48 rooms · 22,000 sq ft plot" */
 export const getSpecSummary = (categoryName, details) => {
   if (!details) return '';
-  if (isHotelCategory(categoryName)) {
+  if (isHotelCategory(categoryName) || (isResortCategory(categoryName) && details.numberOfRooms)) {
     return [
       details.numberOfRooms ? `${details.numberOfRooms} rooms` : null,
       details.plotAreaSqft ? `${formatArea(details.plotAreaSqft, details.plotAreaUnit)} plot` : null,

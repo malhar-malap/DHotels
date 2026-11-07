@@ -203,6 +203,16 @@ public class AdminService {
     }
     
     @Transactional
+    @LogActivity(action = "IMPORT_LISTINGS", entityType = "Listing")
+    public java.util.Map<String, Object> importListings(java.util.List<ListingDTO.ImportItem> items, User admin) {
+        return listingService.importListings(items, admin);
+    }
+
+    public String suggestUniqueCode(Long id) {
+        return listingService.suggestUniqueCode(id);
+    }
+    
+    @Transactional
     @LogActivity(action = "REJECT_LISTING", entityType = "Listing")
     public void rejectListing(Long id, String reason) {
         listingService.rejectListing(id, reason);

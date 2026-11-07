@@ -56,6 +56,27 @@ public class ListingDTO {
         private String titleType;
         private BigDecimal carpetAreaSqft;
 
+        @Size(max = 100, message = "State must not exceed 100 characters")
+        private String stateName;
+        @Size(max = 150, message = "Locality must not exceed 150 characters")
+        private String locality;
+        // TOTAL, PER_MONTH, PER_YEAR or PER_SQFT_MONTH (ListingService.normalizePriceUnit)
+        private String priceUnit;
+        @Size(max = 50, message = "Star category must not exceed 50 characters")
+        private String starCategory;
+        @Size(max = 2000, message = "Amenities must not exceed 2000 characters")
+        private String amenities;
+        @Size(max = 100, message = "Floors must not exceed 100 characters")
+        private String floors;
+        @Size(max = 50, message = "Operational status must not exceed 50 characters")
+        private String operationalStatus;
+        @Size(max = 100, message = "Security deposit must not exceed 100 characters")
+        private String securityDeposit;
+        @Size(max = 100, message = "Annual turnover must not exceed 100 characters")
+        private String annualTurnover;
+        @Size(max = 200, message = "Kitchen permissions must not exceed 200 characters")
+        private String kitchenPermissions;
+
         public String getTitle() { return title; }
         public void setTitle(String title) { this.title = title; }
         public Long getCategoryId() { return categoryId; }
@@ -93,6 +114,26 @@ public class ListingDTO {
         public void setTitleType(String titleType) { this.titleType = titleType; }
         public BigDecimal getCarpetAreaSqft() { return carpetAreaSqft; }
         public void setCarpetAreaSqft(BigDecimal carpetAreaSqft) { this.carpetAreaSqft = carpetAreaSqft; }
+        public String getStateName() { return stateName; }
+        public void setStateName(String stateName) { this.stateName = stateName; }
+        public String getLocality() { return locality; }
+        public void setLocality(String locality) { this.locality = locality; }
+        public String getPriceUnit() { return priceUnit; }
+        public void setPriceUnit(String priceUnit) { this.priceUnit = priceUnit; }
+        public String getStarCategory() { return starCategory; }
+        public void setStarCategory(String starCategory) { this.starCategory = starCategory; }
+        public String getAmenities() { return amenities; }
+        public void setAmenities(String amenities) { this.amenities = amenities; }
+        public String getFloors() { return floors; }
+        public void setFloors(String floors) { this.floors = floors; }
+        public String getOperationalStatus() { return operationalStatus; }
+        public void setOperationalStatus(String operationalStatus) { this.operationalStatus = operationalStatus; }
+        public String getSecurityDeposit() { return securityDeposit; }
+        public void setSecurityDeposit(String securityDeposit) { this.securityDeposit = securityDeposit; }
+        public String getAnnualTurnover() { return annualTurnover; }
+        public void setAnnualTurnover(String annualTurnover) { this.annualTurnover = annualTurnover; }
+        public String getKitchenPermissions() { return kitchenPermissions; }
+        public void setKitchenPermissions(String kitchenPermissions) { this.kitchenPermissions = kitchenPermissions; }
     }
     
     public static class ListingResponse {
@@ -106,6 +147,9 @@ public class ListingDTO {
         private DealTypeDTO dealType;
         private String cityName;
         private String stateName;
+        private String locality;
+        private String priceUnit;
+        private SourceInfo sourceInfo; // admins only
         private BigDecimal askingPrice;
         private Boolean priceNotDisclosed;
         private Boolean priceNegotiable;
@@ -176,6 +220,12 @@ public class ListingDTO {
         public void setCategoryDetails(Object categoryDetails) { this.categoryDetails = categoryDetails; }
         public SellerInfo getSeller() { return seller; }
         public void setSeller(SellerInfo seller) { this.seller = seller; }
+        public String getLocality() { return locality; }
+        public void setLocality(String locality) { this.locality = locality; }
+        public String getPriceUnit() { return priceUnit; }
+        public void setPriceUnit(String priceUnit) { this.priceUnit = priceUnit; }
+        public SourceInfo getSourceInfo() { return sourceInfo; }
+        public void setSourceInfo(SourceInfo sourceInfo) { this.sourceInfo = sourceInfo; }
     }
     
     public static class ListingSummaryResponse {
@@ -192,6 +242,8 @@ public class ListingDTO {
         private String dealType;
         private String cityName;
         private String stateName;
+        private String locality;
+        private String priceUnit;
         private String primaryImage;
         private LocalDateTime createdAt;
         private Integer viewCount;
@@ -238,8 +290,62 @@ public class ListingDTO {
         public void setFeaturedUntil(LocalDateTime featuredUntil) { this.featuredUntil = featuredUntil; }
         public Object getCategoryDetails() { return categoryDetails; }
         public void setCategoryDetails(Object categoryDetails) { this.categoryDetails = categoryDetails; }
+        public String getLocality() { return locality; }
+        public void setLocality(String locality) { this.locality = locality; }
+        public String getPriceUnit() { return priceUnit; }
+        public void setPriceUnit(String priceUnit) { this.priceUnit = priceUnit; }
     }
-    
+
+    /** Where an admin-sourced mandate came from; never sent to non-admins. */
+    public static class SourceInfo {
+        private String contactName;
+        private String contactPhone;
+        private String link;
+        private String notes;
+
+        public String getContactName() { return contactName; }
+        public void setContactName(String contactName) { this.contactName = contactName; }
+        public String getContactPhone() { return contactPhone; }
+        public void setContactPhone(String contactPhone) { this.contactPhone = contactPhone; }
+        public String getLink() { return link; }
+        public void setLink(String link) { this.link = link; }
+        public String getNotes() { return notes; }
+        public void setNotes(String notes) { this.notes = notes; }
+    }
+
+    /** One row of an admin bulk import; upserted by uniqueCode and published straight away. */
+    public static class ImportItem extends ListingRequest {
+        private String uniqueCode;
+        private String categoryName;
+        private String dealTypeName;
+        private String sourceContactName;
+        private String sourceContactPhone;
+        private String sourceLink;
+        private String internalNotes;
+
+        public String getUniqueCode() { return uniqueCode; }
+        public void setUniqueCode(String uniqueCode) { this.uniqueCode = uniqueCode; }
+        public String getCategoryName() { return categoryName; }
+        public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
+        public String getDealTypeName() { return dealTypeName; }
+        public void setDealTypeName(String dealTypeName) { this.dealTypeName = dealTypeName; }
+        public String getSourceContactName() { return sourceContactName; }
+        public void setSourceContactName(String sourceContactName) { this.sourceContactName = sourceContactName; }
+        public String getSourceContactPhone() { return sourceContactPhone; }
+        public void setSourceContactPhone(String sourceContactPhone) { this.sourceContactPhone = sourceContactPhone; }
+        public String getSourceLink() { return sourceLink; }
+        public void setSourceLink(String sourceLink) { this.sourceLink = sourceLink; }
+        public String getInternalNotes() { return internalNotes; }
+        public void setInternalNotes(String internalNotes) { this.internalNotes = internalNotes; }
+    }
+
+    public static class ImportRequest {
+        private List<ImportItem> listings;
+
+        public List<ImportItem> getListings() { return listings; }
+        public void setListings(List<ImportItem> listings) { this.listings = listings; }
+    }
+
     public static class CategoryDTO {
         private Long id;
         private String name;

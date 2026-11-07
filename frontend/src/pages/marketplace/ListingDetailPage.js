@@ -7,9 +7,9 @@ import {
 } from 'react-icons/pi';
 import { listingsAPI, paymentAPI } from '../../services/api';
 import { generateSlug } from '../../utils/slugify';
-import { formatListingPrice } from '../../utils/formatPrice';
+import { formatListingPrice, listingPriceParts } from '../../utils/formatPrice';
 import { loadRazorpay } from '../../utils/loadRazorpay';
-import { getCategoryMeta, getSpecs, categoryImage, resolveImage, priceLabelFor, isSampleImage, SAMPLE_IMAGE_NOTE, CONTACT_FEE } from '../../utils/hospitality';
+import { getCategoryMeta, getSpecs, getPropertyFacts, parseAmenities, formatLocation, categoryImage, resolveImage, priceLabelFor, isSampleImage, SAMPLE_IMAGE_NOTE, CONTACT_FEE } from '../../utils/hospitality';
 import { useAuth } from '../../context/AuthContext';
 import Seo, { absoluteUrl, truncate, SITE_URL } from '../../components/common/Seo';
 import toast from 'react-hot-toast';
@@ -167,7 +167,10 @@ const ListingDetailPage = () => {
   const specs = getSpecs(categoryName, listing.categoryDetails);
   const images = (listing.images || []).map(resolveImage).filter(Boolean);
   const gallery = images.length > 0 ? images : [categoryImage(categoryName)];
-  const place = [listing.cityName, listing.stateName].filter(Boolean).join(', ');
+  const place = formatLocation(listing);
+  const facts = getPropertyFacts(listing.categoryDetails);
+  const amenities = parseAmenities(listing.categoryDetails);
+  const priceParts = listingPriceParts(listing);
   const listedOn = listing.createdAt ? new Date(listing.createdAt).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : null;
   const priceLabel = priceLabelFor(dealName);
 
@@ -307,7 +310,10 @@ const ListingDetailPage = () => {
             <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.06] xl:grid-cols-4">
               <div className="bg-gray-950 p-5">
                 <dt className="text-xs text-gray-500">{priceLabel}</dt>
-                <dd className="stat-value mt-1 whitespace-nowrap text-2xl">{formatListingPrice(listing)}</dd>
+                <dd className="stat-value mt-1 whitespace-nowrap text-2xl">
+                  {priceParts.price}
+                  {priceParts.suffix && <span className="ml-1 font-sans text-sm font-normal text-gray-400">{priceParts.suffix}</span>}
+                </dd>
               </div>
               {specs.map((s) => (
                 <div key={s.key} className="bg-gray-950 p-5">
@@ -337,6 +343,17 @@ const ListingDetailPage = () => {
               </section>
             )}
 
+            {amenities.length > 0 && (
+              <section className="mt-10">
+                <h2 className="eyebrow">Amenities &amp; features</h2>
+                <ul className="mt-4 flex flex-wrap gap-2">
+                  {amenities.map((a) => (
+                    <li key={a} className="chip">{a}</li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
             <section className="mt-10 border-t border-white/[0.06] pt-8">
               <h2 className="eyebrow">Listing details</h2>
               <dl className="mt-4 grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
@@ -345,6 +362,7 @@ const ListingDetailPage = () => {
                   ['Deal type', dealName],
                   ['Location', place],
                   ...specs.map((s) => [s.label, s.value]),
+                  ...facts.map((f) => [f.label, f.value]),
                   ['Price negotiable', listing.priceNegotiable ? 'Yes' : 'No'],
                   ['Listing code', listing.uniqueCode],
                 ].filter(([, v]) => v).map(([k, v]) => (
@@ -359,6 +377,31 @@ const ListingDetailPage = () => {
                 {listing.viewCount != null && <span className="flex items-center gap-1.5"><PiEye className="h-4 w-4" /> {listing.viewCount} views</span>}
               </div>
             </section>
+
+            {/* Sent by the API to admins only */}
+            {listing.sourceInfo && (
+              <section className="mt-10 rounded-2xl border border-amber-400/20 bg-amber-400/[0.04] p-6">
+                <h2 className="eyebrow !text-amber-300">Mandate source · admins only</h2>
+                <dl className="mt-4 grid gap-y-3 text-sm">
+                  {[
+                    ['Contact', listing.sourceInfo.contactName],
+                    ['Phone', listing.sourceInfo.contactPhone],
+                  ].filter(([, v]) => v).map(([k, v]) => (
+                    <div key={k} className="flex justify-between gap-4 border-b border-white/[0.04] pb-3">
+                      <dt className="text-gray-500">{k}</dt>
+                      <dd className="text-right font-medium text-gray-100">{v}</dd>
+                    </div>
+                  ))}
+                  {listing.sourceInfo.link && /^https?:\/\//i.test(listing.sourceInfo.link) && (
+                    <div className="flex justify-between gap-4 border-b border-white/[0.04] pb-3">
+                      <dt className="text-gray-500">Source</dt>
+                      <dd className="truncate text-right"><a href={listing.sourceInfo.link} target="_blank" rel="noopener noreferrer nofollow" className="text-primary-200 hover:underline">{listing.sourceInfo.link}</a></dd>
+                    </div>
+                  )}
+                </dl>
+                {listing.sourceInfo.notes && <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-gray-300">{listing.sourceInfo.notes}</p>}
+              </section>
+            )}
           </div>
 
           {/* Contact card */}

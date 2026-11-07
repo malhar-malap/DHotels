@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
  * HospitalityPropertyDetail Entity - Category-specific specifications for hospitality assets:
  * - Hotels: numberOfRooms, plotAreaSqft, constructedAreaSqft, titleType
  * - Restaurants, Cafe, Banquet halls, Restaurants and Bar, Resorts: carpetAreaSqft
+ * - Every category: star category, amenities, floors, operational status, deposit, turnover, kitchen permissions
  */
 @Entity
 @Table(name = "hospitality_property_details")
@@ -44,6 +45,28 @@ public class HospitalityPropertyDetail {
     @Column(name = "carpet_area_sqft", precision = 12, scale = 2)
     private BigDecimal carpetAreaSqft;
     
+    // Facts that apply to every category; all optional
+    @Column(name = "star_category", length = 50)
+    private String starCategory; // e.g. 3 Star, Boutique, Homestay
+
+    @Column(name = "amenities", columnDefinition = "TEXT")
+    private String amenities; // comma-separated, e.g. "Swimming pool, Bar, Parking"
+
+    @Column(name = "floors", length = 100)
+    private String floors; // e.g. "B + G + 1"
+
+    @Column(name = "operational_status", length = 50)
+    private String operationalStatus; // e.g. Running, Bare shell, Fully furnished
+
+    @Column(name = "security_deposit", length = 100)
+    private String securityDeposit; // e.g. "6 months' rent"
+
+    @Column(name = "annual_turnover", length = 100)
+    private String annualTurnover;
+
+    @Column(name = "kitchen_permissions", length = 200)
+    private String kitchenPermissions; // e.g. "Gas cooking, non-veg and liquor allowed"
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
     
@@ -73,6 +96,20 @@ public class HospitalityPropertyDetail {
     public BigDecimal getCarpetAreaSqft() { return carpetAreaSqft; }
     public void setCarpetAreaSqft(BigDecimal carpetAreaSqft) { this.carpetAreaSqft = carpetAreaSqft; }
     
+    public String getStarCategory() { return starCategory; }
+    public void setStarCategory(String starCategory) { this.starCategory = starCategory; }
+    public String getAmenities() { return amenities; }
+    public void setAmenities(String amenities) { this.amenities = amenities; }
+    public String getFloors() { return floors; }
+    public void setFloors(String floors) { this.floors = floors; }
+    public String getOperationalStatus() { return operationalStatus; }
+    public void setOperationalStatus(String operationalStatus) { this.operationalStatus = operationalStatus; }
+    public String getSecurityDeposit() { return securityDeposit; }
+    public void setSecurityDeposit(String securityDeposit) { this.securityDeposit = securityDeposit; }
+    public String getAnnualTurnover() { return annualTurnover; }
+    public void setAnnualTurnover(String annualTurnover) { this.annualTurnover = annualTurnover; }
+    public String getKitchenPermissions() { return kitchenPermissions; }
+    public void setKitchenPermissions(String kitchenPermissions) { this.kitchenPermissions = kitchenPermissions; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     

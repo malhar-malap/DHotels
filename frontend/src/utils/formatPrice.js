@@ -24,10 +24,23 @@ export const formatPrice = (price) => {
 
 export const PRICE_NOT_DISCLOSED_LABEL = 'Price Not Disclosed';
 
-/** Formats a listing's asking price, honouring the seller's "price not to be disclosed" choice. */
+// Keep in step with PRICE_UNITS in utils/hospitality.js
+const PRICE_UNIT_SUFFIX = { PER_MONTH: '/ month', PER_YEAR: '/ year', PER_SQFT_MONTH: '/ sq ft / month' };
+
+/**
+ * Formats a listing's asking price, honouring the seller's "price not to be disclosed" choice
+ * and the unit the price is quoted in, e.g. "₹22 L / month".
+ */
 export const formatListingPrice = (listing) => {
-  if (listing?.priceNotDisclosed) return PRICE_NOT_DISCLOSED_LABEL;
-  return formatPrice(listing?.askingPrice);
+  const { price, suffix } = listingPriceParts(listing);
+  return suffix ? `${price} ${suffix}` : price;
+};
+
+/** The price and its unit separately, for layouts that set the unit in smaller type. */
+export const listingPriceParts = (listing) => {
+  if (listing?.priceNotDisclosed) return { price: PRICE_NOT_DISCLOSED_LABEL, suffix: '' };
+  const price = formatPrice(listing?.askingPrice);
+  return { price, suffix: price !== '—' ? PRICE_UNIT_SUFFIX[listing?.priceUnit] || '' : '' };
 };
 
 export default formatPrice;

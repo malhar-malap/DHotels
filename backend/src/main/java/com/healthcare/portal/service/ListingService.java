@@ -156,6 +156,9 @@ public class ListingService {
         if (confidential && !(isOwner || isAdmin)) {
             response.setTitle(response.getDisplayTitle());
         }
+        if (!isAdmin) {
+            response.setSourceInfo(null);
+        }
         return response;
     }
     
@@ -191,7 +194,7 @@ public class ListingService {
         DealType dealType = dealTypeRepository.findById(request.getDealTypeId())
                 .orElseThrow(() -> new RuntimeException("Deal type not found"));
         
-        validateCategorySpecifics(category, dealType, request);
+        validateCategorySpecifics(category, dealType, request, true);
         
         // City is now a string entered manually and city entity is optional
         
@@ -200,6 +203,7 @@ public class ListingService {
         listing.setCategory(category);
         listing.setDealType(dealType);
         listing.setCityName(request.getCityName());
+        applyLocationAndPriceUnit(listing, request);
         listing.setTitle(request.getTitle());
         listing.setShortDescription(request.getShortDescription());
         listing.setDetailedDescription(request.getDetailedDescription());
@@ -270,6 +274,7 @@ public class ListingService {
         if (request.getIsConfidential() != null) listing.setIsConfidential(request.getIsConfidential());
         if (request.getConfidentialTitle() != null) listing.setConfidentialTitle(request.getConfidentialTitle());
         if (request.getCityName() != null) listing.setCityName(request.getCityName());
+        applyLocationAndPriceUnit(listing, request);
 
         
         if (request.getCategoryId() != null) {
@@ -282,7 +287,8 @@ public class ListingService {
                     .orElseThrow(() -> new RuntimeException("Deal type not found"));
             listing.setDealType(dealType);
         }
-        validateCategorySpecifics(listing.getCategory(), listing.getDealType(), request);
+        // Owners must fill every required spec; admins can save incomplete mandates (e.g. imported ones)
+        validateCategorySpecifics(listing.getCategory(), listing.getDealType(), request, resetToPending);
         
         if (resetToPending) {
             listing.setStatus(Listing.ListingStatus.PENDING); // Owner edits need re-verification
@@ -394,16 +400,93 @@ public class ListingService {
     public void approveListing(Long id, String uniqueCode, java.util.List<String> imageUrls) {
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
-        if (uniqueCode == null || uniqueCode.trim().isEmpty()) {
-            throw new RuntimeException("A unique code is required to approve a listing");
-        }
+        listing.setUniqueCode(resolveUniqueCode(listing, uniqueCode));
         listing.setStatus(Listing.ListingStatus.ACTIVE);
-        listing.setUniqueCode(uniqueCode.trim());
         
-        // Approval always publishes a representative image; the admin only supplies the code
-        if (imageUrls == null || imageUrls.isEmpty()) {
-            imageUrls = List.of(pickSampleImage(listing));
+        // Approval always publishes images: the admin's, or the category's representative photos
+        replaceImages(listing, imageUrls == null || imageUrls.isEmpty() ? pickSampleImages(listing) : imageUrls);
+        listingRepository.save(listing);
+        emailService.sendListingApprovedEmail(listing.getUser().getEmail(), listing.getUser().getFullName(), listing.getTitle());
+        notificationService.notify(listing.getUser(), NotificationService.LISTING_APPROVED, "Your listing is live",
+                "\"" + listing.getTitle() + "\" was approved and is now visible on the marketplace.", "/listings/" + listing.getId());
+    }
+
+    /**
+     * Admin bulk import (e.g. from the mandate spreadsheet). Rows are matched on uniqueCode, so
+     * re-running an import updates listings instead of duplicating them. Imported listings are
+     * owned by the importing admin, go live immediately and get representative photos.
+     */
+    @Transactional
+    public java.util.Map<String, Object> importListings(java.util.List<ListingDTO.ImportItem> items, User owner) {
+        if (items == null || items.isEmpty()) {
+            throw new RuntimeException("Nothing to import");
         }
+        List<Category> categories = categoryRepository.findAll();
+        List<String> created = new java.util.ArrayList<>();
+        List<String> updated = new java.util.ArrayList<>();
+        List<String> errors = new java.util.ArrayList<>();
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (ListingDTO.ImportItem item : items) {
+            String code = blankToNull(item.getUniqueCode());
+            String label = code != null ? code : "row " + (created.size() + updated.size() + errors.size() + 1);
+            try {
+                if (code == null) throw new RuntimeException("unique code is required");
+                code = code.toUpperCase();
+                if (!seen.add(code)) throw new RuntimeException("duplicate code in this import");
+                if (blankToNull(item.getTitle()) == null) throw new RuntimeException("title is required");
+                if (blankToNull(item.getCityName()) == null) throw new RuntimeException("city is required");
+                String categoryName = blankToNull(item.getCategoryName());
+                Category category = categories.stream()
+                        .filter(c -> c.getName() != null && c.getName().trim().equalsIgnoreCase(categoryName))
+                        .findFirst().orElseThrow(() -> new RuntimeException("unknown category '" + categoryName + "'"));
+                DealType dealType = dealTypeRepository.findByCategoryId(category.getId()).stream()
+                        .filter(d -> d.getName().equalsIgnoreCase(String.valueOf(item.getDealTypeName()).trim()))
+                        .findFirst().orElseThrow(() -> new RuntimeException("deal type '" + item.getDealTypeName() + "' is not available for " + category.getName()));
+
+                Listing listing = listingRepository.findByUniqueCode(code).orElse(null);
+                boolean isNew = listing == null;
+                if (isNew) {
+                    listing = new Listing();
+                    listing.setUser(owner);
+                    listing.setUniqueCode(code);
+                }
+                listing.setCategory(category);
+                listing.setDealType(dealType);
+                listing.setTitle(item.getTitle().trim());
+                listing.setShortDescription(blankToNull(item.getShortDescription()));
+                listing.setDetailedDescription(blankToNull(item.getDetailedDescription()));
+                listing.setCityName(item.getCityName().trim());
+                applyLocationAndPriceUnit(listing, item);
+                listing.setPriceNotDisclosed(item.getAskingPrice() == null);
+                listing.setAskingPrice(item.getAskingPrice());
+                listing.setPriceNegotiable(item.getPriceNegotiable() == null || item.getPriceNegotiable());
+                listing.setIsConfidential(false);
+                listing.setSourceContactName(blankToNull(item.getSourceContactName()));
+                listing.setSourceContactPhone(blankToNull(item.getSourceContactPhone()));
+                listing.setSourceLink(blankToNull(item.getSourceLink()));
+                listing.setInternalNotes(blankToNull(item.getInternalNotes()));
+                listing.setStatus(Listing.ListingStatus.ACTIVE);
+                if (listing.getExpiresAt() == null) {
+                    listing.setExpiresAt(LocalDateTime.now().plusDays(365));
+                }
+                listing = listingRepository.save(listing);
+                if (listingImageRepository.findByListingIdOrderByDisplayOrderAsc(listing.getId()).isEmpty()) {
+                    replaceImages(listing, pickSampleImages(listing));
+                }
+                saveOrUpdateCategoryDetails(listing, item);
+                (isNew ? created : updated).add(code);
+            } catch (RuntimeException e) {
+                errors.add(label + ": " + e.getMessage());
+            }
+        }
+        java.util.Map<String, Object> result = new java.util.LinkedHashMap<>();
+        result.put("created", created);
+        result.put("updated", updated);
+        result.put("errors", errors);
+        return result;
+    }
+
+    private void replaceImages(Listing listing, List<String> imageUrls) {
         listingImageRepository.deleteByListingId(listing.getId());
         int order = 0;
         for (String imageUrl : imageUrls) {
@@ -414,10 +497,56 @@ public class ListingService {
             image.setIsPrimary(order == 1);
             listingImageRepository.save(image);
         }
-        listingRepository.save(listing);
-        emailService.sendListingApprovedEmail(listing.getUser().getEmail(), listing.getUser().getFullName(), listing.getTitle());
-        notificationService.notify(listing.getUser(), NotificationService.LISTING_APPROVED, "Your listing is live",
-                "\"" + listing.getTitle() + "\" was approved and is now visible on the marketplace.", "/listings/" + listing.getId());
+    }
+
+    // Unique code prefix and minimum digit count per category, e.g. HTL00121, RRL025
+    private static final java.util.Map<String, String[]> CODE_FORMATS = java.util.Map.of(
+            "hotels", new String[] {"HTL", "5"},
+            "resorts", new String[] {"RES", "5"},
+            "restaurants", new String[] {"RRL", "3"},
+            "restaurants and bar", new String[] {"RRL", "3"},
+            "cafe", new String[] {"CAF", "3"},
+            "banquet halls", new String[] {"BQH", "3"});
+
+    /** The admin's code if given (must be unused), otherwise the listing's existing code or the next free one. */
+    private String resolveUniqueCode(Listing listing, String requested) {
+        String code = blankToNull(requested);
+        if (code == null) {
+            return listing.getUniqueCode() != null ? listing.getUniqueCode() : nextUniqueCode(listing.getCategory());
+        }
+        code = code.toUpperCase();
+        Listing holder = listingRepository.findByUniqueCode(code).orElse(null);
+        if (holder != null && !holder.getId().equals(listing.getId())) {
+            throw new RuntimeException("Unique code " + code + " is already used by another listing");
+        }
+        return code;
+    }
+
+    public String suggestUniqueCode(Long id) {
+        Listing listing = listingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Listing not found"));
+        return listing.getUniqueCode() != null ? listing.getUniqueCode() : nextUniqueCode(listing.getCategory());
+    }
+
+    /** Next code in the category's series: one past the highest number already used with that prefix. */
+    String nextUniqueCode(Category category) {
+        String[] format = codeFormat(category);
+        String prefix = format[0];
+        int digits = Integer.parseInt(format[1]);
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("^" + prefix + "(\\d+)$");
+        long max = 0;
+        for (String existing : listingRepository.findUniqueCodesStartingWith(prefix)) {
+            java.util.regex.Matcher m = pattern.matcher(existing.toUpperCase());
+            if (m.matches()) {
+                max = Math.max(max, Long.parseLong(m.group(1)));
+            }
+        }
+        return prefix + String.format("%0" + digits + "d", max + 1);
+    }
+
+    static String[] codeFormat(Category category) {
+        String name = category != null && category.getName() != null ? category.getName().trim().toLowerCase() : "";
+        return CODE_FORMATS.getOrDefault(name, new String[] {"DHL", "5"});
     }
     
     @Transactional
@@ -489,22 +618,64 @@ public class ListingService {
         }
     }
 
-    // Representative photos per category, the same pictures as the category tiles on the site
-    // (frontend/src/utils/hospitality.js). The frontend marks them "for representation purpose only".
-    static final String SAMPLE_IMAGE_BASE = "https://images.unsplash.com/";
-    static final String SAMPLE_IMAGE_PARAMS = "?auto=format&fit=crop&q=70&w=1400";
-    private static final java.util.Map<String, String> SAMPLE_IMAGES = java.util.Map.of(
-            "hotels", "photo-1566073771259-6a8506099945",
-            "resorts", "photo-1582719508461-905c673771fd",
-            "restaurants", "photo-1517248135467-4c7edcad34c4",
-            "restaurants and bar", "photo-1514933651103-005eec06c04b",
-            "cafe", "photo-1554118811-1e0d58224f24",
-            "banquet halls", "photo-1519167758481-83f550bb49b3");
+    // Representative photos per category, served by the frontend from public/images/listing-samples.
+    // The frontend marks them "for representation purpose only". Use new file names whenever the
+    // pictures change: browsers cache these files for a week.
+    static final String SAMPLE_IMAGE_DIR = "/images/listing-samples/";
+    static final int SAMPLE_GALLERY_SIZE = 3;
+    private static final java.util.Map<String, List<String>> SAMPLE_IMAGES = java.util.Map.of(
+            "hotels", samplePool("hotel", 5),
+            "resorts", samplePool("resort", 4),
+            "restaurants", samplePool("restaurant", 4),
+            "restaurants and bar", samplePool("bar", 3),
+            "cafe", samplePool("cafe", 3),
+            "banquet halls", samplePool("banquet", 3));
 
-    static String pickSampleImage(Listing listing) {
+    private static List<String> samplePool(String name, int count) {
+        List<String> pool = new java.util.ArrayList<>();
+        for (int i = 1; i <= count; i++) {
+            pool.add(SAMPLE_IMAGE_DIR + name + "-photo-" + i + ".webp");
+        }
+        return List.copyOf(pool);
+    }
+
+    /**
+     * A small gallery from the category's pool, rotated by listing id so neighbouring listings
+     * lead with different photos.
+     */
+    static List<String> pickSampleImages(Listing listing) {
         String categoryName = listing.getCategory() != null && listing.getCategory().getName() != null
                 ? listing.getCategory().getName().trim().toLowerCase() : "";
-        return SAMPLE_IMAGE_BASE + SAMPLE_IMAGES.getOrDefault(categoryName, SAMPLE_IMAGES.get("hotels")) + SAMPLE_IMAGE_PARAMS;
+        List<String> pool = SAMPLE_IMAGES.getOrDefault(categoryName, SAMPLE_IMAGES.get("hotels"));
+        int start = (int) Math.floorMod(listing.getId() != null ? listing.getId() : 0L, (long) pool.size());
+        List<String> picked = new java.util.ArrayList<>();
+        for (int i = 0; i < Math.min(SAMPLE_GALLERY_SIZE, pool.size()); i++) {
+            picked.add(pool.get((start + i) % pool.size()));
+        }
+        return picked;
+    }
+
+    static String pickSampleImage(Listing listing) {
+        return pickSampleImages(listing).get(0);
+    }
+
+    static final java.util.Set<String> PRICE_UNITS = java.util.Set.of("TOTAL", "PER_MONTH", "PER_YEAR", "PER_SQFT_MONTH");
+
+    static String normalizePriceUnit(String unit) {
+        String value = blankToNull(unit);
+        if (value == null) return null;
+        value = value.toUpperCase();
+        if (!PRICE_UNITS.contains(value)) {
+            throw new RuntimeException("Unknown price unit: " + unit);
+        }
+        return value;
+    }
+
+    /** State, locality and price unit; null leaves a value unchanged and a blank string clears it. */
+    private static void applyLocationAndPriceUnit(Listing listing, ListingDTO.ListingRequest request) {
+        if (request.getStateName() != null) listing.setStateName(blankToNull(request.getStateName()));
+        if (request.getLocality() != null) listing.setLocality(blankToNull(request.getLocality()));
+        if (request.getPriceUnit() != null) listing.setPriceUnit(normalizePriceUnit(request.getPriceUnit()));
     }
 
     private static String normalizeAreaUnit(String unit) {
@@ -515,7 +686,8 @@ public class ListingService {
         HospitalityPropertyDetail propertyDetail = hospitalityPropertyDetailRepository.findByListingId(listing.getId())
                 .orElseGet(HospitalityPropertyDetail::new);
         propertyDetail.setListing(listing);
-        // Only keep the fields that apply to the category, so switching category never leaves stale specs
+        // Only keep the fields that apply to the category, so switching category never leaves stale specs.
+        // Resorts may also list rooms/cottages and land, but only hotels require them.
         if (isHotel(listing.getCategory())) {
             propertyDetail.setNumberOfRooms(request.getNumberOfRooms());
             propertyDetail.setPlotAreaSqft(request.getPlotAreaSqft());
@@ -523,6 +695,13 @@ public class ListingService {
             propertyDetail.setConstructedAreaSqft(request.getConstructedAreaSqft());
             propertyDetail.setTitleType(blankToNull(request.getTitleType()));
             propertyDetail.setCarpetAreaSqft(null);
+        } else if (isResort(listing.getCategory())) {
+            propertyDetail.setNumberOfRooms(request.getNumberOfRooms());
+            propertyDetail.setPlotAreaSqft(request.getPlotAreaSqft());
+            propertyDetail.setPlotAreaUnit(request.getPlotAreaSqft() != null ? normalizeAreaUnit(request.getPlotAreaUnit()) : null);
+            propertyDetail.setConstructedAreaSqft(request.getConstructedAreaSqft());
+            propertyDetail.setTitleType(null);
+            propertyDetail.setCarpetAreaSqft(request.getCarpetAreaSqft());
         } else {
             propertyDetail.setNumberOfRooms(null);
             propertyDetail.setPlotAreaSqft(null);
@@ -531,12 +710,25 @@ public class ListingService {
             propertyDetail.setTitleType(null);
             propertyDetail.setCarpetAreaSqft(request.getCarpetAreaSqft());
         }
+        // Shared facts: null leaves the stored value, a blank string clears it
+        if (request.getStarCategory() != null) propertyDetail.setStarCategory(blankToNull(request.getStarCategory()));
+        if (request.getAmenities() != null) propertyDetail.setAmenities(blankToNull(request.getAmenities()));
+        if (request.getFloors() != null) propertyDetail.setFloors(blankToNull(request.getFloors()));
+        if (request.getOperationalStatus() != null) propertyDetail.setOperationalStatus(blankToNull(request.getOperationalStatus()));
+        if (request.getSecurityDeposit() != null) propertyDetail.setSecurityDeposit(blankToNull(request.getSecurityDeposit()));
+        if (request.getAnnualTurnover() != null) propertyDetail.setAnnualTurnover(blankToNull(request.getAnnualTurnover()));
+        if (request.getKitchenPermissions() != null) propertyDetail.setKitchenPermissions(blankToNull(request.getKitchenPermissions()));
         hospitalityPropertyDetailRepository.save(propertyDetail);
     }
     
     private static boolean isHotel(Category category) {
         return category != null && category.getName() != null
                 && category.getName().trim().equalsIgnoreCase("Hotels");
+    }
+    
+    private static boolean isResort(Category category) {
+        return category != null && category.getName() != null
+                && category.getName().trim().equalsIgnoreCase("Resorts");
     }
     
     private static String blankToNull(String value) {
@@ -547,9 +739,15 @@ public class ListingService {
      * Hotels need rooms, plot area and constructed area; every other category needs carpet area.
      * The deal type must also belong to the chosen category (e.g. Profit Sharing is Hotels-only).
      */
-    private void validateCategorySpecifics(Category category, DealType dealType, ListingDTO.ListingRequest request) {
+    private void validateCategorySpecifics(Category category, DealType dealType, ListingDTO.ListingRequest request, boolean requireSpecs) {
         if (dealType.getCategory() != null && !dealType.getCategory().getId().equals(category.getId())) {
             throw new RuntimeException("Deal type '" + dealType.getName() + "' is not available for " + category.getName());
+        }
+        if (request.getPriceUnit() != null) {
+            normalizePriceUnit(request.getPriceUnit());
+        }
+        if (!requireSpecs) {
+            return;
         }
         if (isHotel(category)) {
             if (request.getNumberOfRooms() == null || request.getNumberOfRooms() < 1) {
@@ -566,6 +764,13 @@ public class ListingService {
         }
     }
     
+    private static String stateNameOf(Listing listing) {
+        if (listing.getCity() != null && listing.getCity().getState() != null) {
+            return listing.getCity().getState().getName();
+        }
+        return listing.getStateName();
+    }
+
     private ListingDTO.ListingSummaryResponse mapToSummaryResponse(Listing listing) {
         ListingDTO.ListingSummaryResponse response = new ListingDTO.ListingSummaryResponse();
         response.setId(listing.getId());
@@ -580,10 +785,9 @@ public class ListingService {
         response.setCategoryName(listing.getCategory().getName());
         response.setDealType(listing.getDealType().getName());
         response.setCityName(listing.getCityName());
-        
-        if (listing.getCity() != null && listing.getCity().getState() != null) {
-            response.setStateName(listing.getCity().getState().getName());
-        }
+        response.setLocality(listing.getLocality());
+        response.setPriceUnit(listing.getPriceUnit());
+        response.setStateName(stateNameOf(listing));
         
         response.setCreatedAt(listing.getCreatedAt());
         
@@ -640,8 +844,18 @@ public class ListingService {
         
         // City & State
         response.setCityName(listing.getCityName());
-        if (listing.getCity() != null && listing.getCity().getState() != null) {
-            response.setStateName(listing.getCity().getState().getName());
+        response.setLocality(listing.getLocality());
+        response.setPriceUnit(listing.getPriceUnit());
+        response.setStateName(stateNameOf(listing));
+        if (listing.getSourceContactName() != null || listing.getSourceContactPhone() != null
+                || listing.getSourceLink() != null || listing.getInternalNotes() != null) {
+            // Stripped for non-admins in getListingById(id, viewer)
+            ListingDTO.SourceInfo source = new ListingDTO.SourceInfo();
+            source.setContactName(listing.getSourceContactName());
+            source.setContactPhone(listing.getSourceContactPhone());
+            source.setLink(listing.getSourceLink());
+            source.setNotes(listing.getInternalNotes());
+            response.setSourceInfo(source);
         }
         
 

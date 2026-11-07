@@ -44,6 +44,13 @@ public class Listing {
 
     @Column(name = "city_name", length = 100)
     private String cityName;
+
+    // Free-text state and neighbourhood, used when the city is not in the master list
+    @Column(name = "state_name", length = 100)
+    private String stateName;
+
+    @Column(name = "locality", length = 150)
+    private String locality;
     
 
     // Null when the seller chose not to disclose the price
@@ -53,6 +60,10 @@ public class Listing {
     @Column(name = "price_not_disclosed")
     private Boolean priceNotDisclosed = false;
     
+    // What askingPrice is quoted per: TOTAL (outright), PER_MONTH, PER_YEAR or PER_SQFT_MONTH
+    @Column(name = "price_unit", length = 20)
+    private String priceUnit;
+
     @Column(name = "price_negotiable")
     private Boolean priceNegotiable = true;
     
@@ -72,6 +83,19 @@ public class Listing {
     @Column(name = "rejection_reason", columnDefinition = "TEXT")
     private String rejectionReason;
     
+    // Where the mandate came from (broker or owner contact, source link, notes). Admin-only, never public.
+    @Column(name = "source_contact_name", length = 150)
+    private String sourceContactName;
+
+    @Column(name = "source_contact_phone", length = 100)
+    private String sourceContactPhone;
+
+    @Column(name = "source_link", length = 500)
+    private String sourceLink;
+
+    @Column(name = "internal_notes", columnDefinition = "TEXT")
+    private String internalNotes;
+
     @Column(name = "view_count")
     private Integer viewCount = 0;
     
@@ -151,6 +175,21 @@ public class Listing {
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     public String getCityName() { return cityName; }
     public void setCityName(String cityName) { this.cityName = cityName; }
+    public String getStateName() { return stateName; }
+    public void setStateName(String stateName) { this.stateName = stateName; }
+    public String getLocality() { return locality; }
+    public void setLocality(String locality) { this.locality = locality; }
+    public String getPriceUnit() { return priceUnit; }
+    public void setPriceUnit(String priceUnit) { this.priceUnit = priceUnit; }
+    public String getSourceContactName() { return sourceContactName; }
+    public void setSourceContactName(String sourceContactName) { this.sourceContactName = sourceContactName; }
+    public String getSourceContactPhone() { return sourceContactPhone; }
+    public void setSourceContactPhone(String sourceContactPhone) { this.sourceContactPhone = sourceContactPhone; }
+    public String getSourceLink() { return sourceLink; }
+    public void setSourceLink(String sourceLink) { this.sourceLink = sourceLink; }
+    public String getInternalNotes() { return internalNotes; }
+    public void setInternalNotes(String internalNotes) { this.internalNotes = internalNotes; }
+
     public List<ListingImage> getImages() { return images; }
     public void setImages(List<ListingImage> images) { this.images = images; }
     public HospitalityPropertyDetail getPropertyDetail() { return propertyDetail; }

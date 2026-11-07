@@ -6,15 +6,16 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Approval assigns the category's photo; the frontend labels these URLs "for representation
- * purpose only", so they must stay the same pictures as the category tiles in hospitality.js.
+ * Approval and import assign the category's representative photos.
+ * The paths must exist under frontend/public/images/listing-samples.
  */
 class ListingSampleImageTest {
 
@@ -31,32 +32,37 @@ class ListingSampleImageTest {
     }
 
     @Test
-    void everyCategoryHasItsOwnPhoto() {
-        long distinct = CATEGORIES.stream().map(c -> ListingService.pickSampleImage(listing(1, c))).distinct().count();
-        assertEquals(CATEGORIES.size(), distinct);
+    void everyCategoryGetsAGalleryOfItsOwnExistingPhotos() {
+        for (String category : CATEGORIES) {
+            List<String> gallery = ListingService.pickSampleImages(listing(1, category));
+            assertEquals(ListingService.SAMPLE_GALLERY_SIZE, gallery.size(), category);
+            assertEquals(gallery.size(), new HashSet<>(gallery).size(), category + " gallery repeats a photo");
+            for (String image : gallery) {
+                assertTrue(image.startsWith(ListingService.SAMPLE_IMAGE_DIR), image);
+                assertTrue(Files.exists(Path.of("../frontend/public" + image)), image + " is missing");
+            }
+        }
+    }
+
+    @Test
+    void neighbouringHotelsLeadWithDifferentPhotos() {
+        Set<String> primaries = new HashSet<>();
+        for (long id = 1; id <= 5; id++) {
+            primaries.add(ListingService.pickSampleImage(listing(id, "Hotels")));
+        }
+        assertEquals(5, primaries.size());
     }
 
     @Test
     void categoryNamesMatchIgnoringCaseAndSpaces() {
-        assertEquals(ListingService.pickSampleImage(listing(1, "Hotels")), ListingService.pickSampleImage(listing(2, "  hotels ")));
-        assertNotEquals(ListingService.pickSampleImage(listing(1, "Hotels")), ListingService.pickSampleImage(listing(1, "Cafe")));
+        assertEquals(ListingService.pickSampleImages(listing(1, "Hotels")), ListingService.pickSampleImages(listing(1, "  hotels ")));
+        assertTrue(ListingService.pickSampleImage(listing(1, "Cafe")).contains("/cafe-photo-"));
+        assertTrue(ListingService.pickSampleImage(listing(1, "Restaurants and Bar")).contains("/bar-photo-"));
     }
 
     @Test
-    void unknownCategoryFallsBackToHotelPhoto() {
-        assertEquals(ListingService.pickSampleImage(listing(1, "Hotels")), ListingService.pickSampleImage(listing(1, "Something new")));
-        assertEquals(ListingService.pickSampleImage(listing(1, "Hotels")), ListingService.pickSampleImage(new Listing()));
-    }
-
-    @Test
-    void photosAreTheCategoryTilesUsedOnTheSite() throws Exception {
-        Path categories = Path.of("../frontend/src/utils/hospitality.js");
-        String source = Files.readString(categories);
-        for (String category : CATEGORIES) {
-            String url = ListingService.pickSampleImage(listing(1, category));
-            assertTrue(url.startsWith(ListingService.SAMPLE_IMAGE_BASE), url);
-            String photoId = url.substring(ListingService.SAMPLE_IMAGE_BASE.length(), url.indexOf('?'));
-            assertTrue(source.contains("'" + photoId + "'"), category + " photo " + photoId + " is not a category image in hospitality.js");
-        }
+    void unknownCategoryFallsBackToHotelPhotos() {
+        assertEquals(ListingService.pickSampleImages(listing(1, "Hotels")), ListingService.pickSampleImages(listing(1, "Something new")));
+        assertTrue(ListingService.pickSampleImage(new Listing()).contains("/hotel-photo-"));
     }
 }

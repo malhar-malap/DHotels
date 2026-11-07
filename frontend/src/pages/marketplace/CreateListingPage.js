@@ -6,7 +6,7 @@ import { listingsAPI, masterAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { formatPrice } from '../../utils/formatPrice';
 import { AREA_UNITS, toSqft, fromSqft } from '../../utils/area';
-import { CATEGORIES, TITLE_TYPES, getCategoryMeta, isHotelCategory, priceLabelFor } from '../../utils/hospitality';
+import { CATEGORIES, TITLE_TYPES, PRICE_UNITS, OPERATIONAL_STATUSES, getCategoryMeta, isHotelCategory, priceLabelFor } from '../../utils/hospitality';
 import ListingCard from '../../components/marketplace/ListingCard';
 
 const EMPTY_FORM = {
@@ -16,7 +16,12 @@ const EMPTY_FORM = {
   numberOfRooms: '', plotAreaSqft: '', plotAreaUnit: 'SQFT', constructedAreaSqft: '', titleType: '',
   // Restaurants, Cafe, Banquet halls, Restaurants and Bar, Resorts
   carpetAreaSqft: '',
+  // Optional, every category
+  locality: '', stateName: '', priceUnit: 'TOTAL',
+  starCategory: '', operationalStatus: '', floors: '', kitchenPermissions: '', securityDeposit: '', annualTurnover: '', amenities: '',
 };
+
+const OPTIONAL_TEXT_FIELDS = ['locality', 'stateName', 'starCategory', 'operationalStatus', 'floors', 'kitchenPermissions', 'securityDeposit', 'annualTurnover', 'amenities'];
 
 const CITY_SUGGESTIONS = [
   'Mumbai', 'Delhi', 'Bengaluru', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Goa',
@@ -28,7 +33,7 @@ const CITY_SUGGESTIONS = [
 const draftKeyFor = (userId, editId) =>
   editId ? `dhotels_listing_draft_edit_${userId || 'guest'}_${editId}` : `dhotels_listing_draft_new_${userId || 'guest'}`;
 
-const UNTYPED_KEYS = ['priceNegotiable', 'priceNotDisclosed', 'plotAreaUnit'];
+const UNTYPED_KEYS = ['priceUnit', 'priceNegotiable', 'priceNotDisclosed', 'plotAreaUnit'];
 const hasContent = (data) => Object.entries(data).some(([key, val]) => !UNTYPED_KEYS.includes(key) && val !== '' && val !== null && val !== undefined);
 
 const Section = ({ index, title, hint, children, sectionRef }) => (
@@ -84,6 +89,11 @@ const CreateListingPage = () => {
           constructedAreaSqft: details.constructedAreaSqft || '',
           titleType: details.titleType || '',
           carpetAreaSqft: details.carpetAreaSqft || '',
+          locality: data.locality || '', stateName: data.stateName || '', priceUnit: data.priceUnit || 'TOTAL',
+          starCategory: details.starCategory || '', operationalStatus: details.operationalStatus || '',
+          floors: details.floors || '', kitchenPermissions: details.kitchenPermissions || '',
+          securityDeposit: details.securityDeposit || '', annualTurnover: details.annualTurnover || '',
+          amenities: details.amenities || '',
         });
       }).catch(() => toast.error('Could not load this listing'))
         .finally(() => setLoading(false));
@@ -227,7 +237,10 @@ const CreateListingPage = () => {
       detailedDescription: formData.detailedDescription.trim(),
       isConfidential: false,
       confidentialTitle: null,
+      priceUnit: formData.priceUnit || 'TOTAL',
     };
+    // Sent even when empty so clearing a field on edit removes the stored value
+    OPTIONAL_TEXT_FIELDS.forEach((key) => { payload[key] = (formData[key] || '').trim(); });
     if (isHotel) {
       payload.numberOfRooms = parseInt(formData.numberOfRooms, 10);
       payload.plotAreaSqft = toSqft(formData.plotAreaSqft, formData.plotAreaUnit);
@@ -270,6 +283,9 @@ const CreateListingPage = () => {
     categoryName: categoryName || 'Hotels',
     dealType: dealName || 'For Sale',
     cityName: formData.cityName || 'City',
+    locality: formData.locality,
+    stateName: formData.stateName,
+    priceUnit: formData.priceUnit,
     askingPrice: formData.askingPrice || null,
     priceNotDisclosed: formData.priceNotDisclosed,
     priceNegotiable: formData.priceNegotiable,
@@ -407,6 +423,16 @@ const CreateListingPage = () => {
                   {CITY_SUGGESTIONS.map((c) => <option key={c} value={c} />)}
                 </datalist>
               </div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div>
+                  <label className="field-label" htmlFor="locality">Locality / area <span className="normal-case tracking-normal text-gray-500">(optional)</span></label>
+                  <input id="locality" name="locality" maxLength={150} value={formData.locality} onChange={handleChange} placeholder="e.g. Andheri West, near Veera Desai Rd" className="field" />
+                </div>
+                <div>
+                  <label className="field-label" htmlFor="stateName">State <span className="normal-case tracking-normal text-gray-500">(optional)</span></label>
+                  <input id="stateName" name="stateName" maxLength={100} value={formData.stateName} onChange={handleChange} placeholder="e.g. Maharashtra" className="field" />
+                </div>
+              </div>
             </Section>
 
             <Section
@@ -450,6 +476,42 @@ const CreateListingPage = () => {
                   <input id="carpetAreaSqft" type="number" name="carpetAreaSqft" min="0" inputMode="decimal" value={formData.carpetAreaSqft} onChange={handleChange} placeholder="e.g. 2500" className="field" />
                 </div>
               )}
+              {formData.categoryId && (
+                <div className="grid gap-5 border-t border-white/[0.06] pt-5 sm:grid-cols-2">
+                  <p className="text-sm text-gray-400 sm:col-span-2">More details <span className="text-gray-500">(optional)</span></p>
+                  <div>
+                    <label className="field-label" htmlFor="starCategory">Category / star rating</label>
+                    <input id="starCategory" name="starCategory" maxLength={50} value={formData.starCategory} onChange={handleChange} placeholder="e.g. 3 Star, Boutique, Homestay" className="field" />
+                  </div>
+                  <div>
+                    <label className="field-label" htmlFor="operationalStatus">Status</label>
+                    <input id="operationalStatus" name="operationalStatus" maxLength={50} value={formData.operationalStatus} onChange={handleChange} list="status-list" placeholder="e.g. Running" className="field" />
+                    <datalist id="status-list">
+                      {OPERATIONAL_STATUSES.map((st) => <option key={st} value={st} />)}
+                    </datalist>
+                  </div>
+                  <div>
+                    <label className="field-label" htmlFor="floors">Floors</label>
+                    <input id="floors" name="floors" maxLength={100} value={formData.floors} onChange={handleChange} placeholder="e.g. Ground + 2" className="field" />
+                  </div>
+                  <div>
+                    <label className="field-label" htmlFor="kitchenPermissions">Kitchen &amp; permissions</label>
+                    <input id="kitchenPermissions" name="kitchenPermissions" maxLength={200} value={formData.kitchenPermissions} onChange={handleChange} placeholder="e.g. Gas cooking, liquor licence" className="field" />
+                  </div>
+                  <div>
+                    <label className="field-label" htmlFor="securityDeposit">Security deposit</label>
+                    <input id="securityDeposit" name="securityDeposit" maxLength={100} value={formData.securityDeposit} onChange={handleChange} placeholder="e.g. 6 months' rent" className="field" />
+                  </div>
+                  <div>
+                    <label className="field-label" htmlFor="annualTurnover">Annual turnover</label>
+                    <input id="annualTurnover" name="annualTurnover" maxLength={100} value={formData.annualTurnover} onChange={handleChange} placeholder="e.g. ₹7 Cr" className="field" />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="field-label" htmlFor="amenities">Amenities &amp; features</label>
+                    <input id="amenities" name="amenities" maxLength={2000} value={formData.amenities} onChange={handleChange} placeholder="Comma separated, e.g. Swimming pool, Bar, Banquet, Parking" className="field" />
+                  </div>
+                </div>
+              )}
             </Section>
 
             <Section index={4} title="Price" sectionRef={sectionRefs.price}>
@@ -461,6 +523,10 @@ const CreateListingPage = () => {
                     <input id="askingPrice" type="number" name="askingPrice" min="0" inputMode="numeric" value={formData.priceNotDisclosed ? '' : formData.askingPrice} onChange={handleChange} disabled={formData.priceNotDisclosed} placeholder={formData.priceNotDisclosed ? 'Not disclosed' : 'e.g. 85000000'} className="field !pl-8 disabled:opacity-50" />
                   </div>
                   <p className="mt-1.5 h-4 text-sm text-primary-300">{!formData.priceNotDisclosed && formData.askingPrice ? formatPrice(formData.askingPrice) : ''}</p>
+                  <label className="field-label mt-3" htmlFor="priceUnit">Price is quoted</label>
+                  <select id="priceUnit" name="priceUnit" value={formData.priceUnit} onChange={handleChange} disabled={formData.priceNotDisclosed} className="field cursor-pointer disabled:opacity-50">
+                    {PRICE_UNITS.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
+                  </select>
                   <label className="mt-3 flex cursor-pointer items-center gap-2.5 text-sm text-gray-300">
                     <input type="checkbox" name="priceNotDisclosed" checked={formData.priceNotDisclosed} onChange={handleChange} className="h-4 w-4 rounded border-white/20 bg-gray-900 accent-primary-400" />
                     Don't show the price — share it with buyers when they connect

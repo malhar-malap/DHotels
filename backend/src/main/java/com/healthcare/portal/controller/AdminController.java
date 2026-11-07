@@ -133,6 +133,19 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 
+    @PostMapping("/listings/import")
+    @Operation(summary = "Import listings", description = "Creates or updates listings by unique code and publishes them with representative photos")
+    public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> importListings(@RequestBody ListingDTO.ImportRequest request) {
+        java.util.Map<String, Object> result = adminService.importListings(request.getListings(), authService.getCurrentUserEntity());
+        return ResponseEntity.ok(ApiResponse.success("Import finished", result));
+    }
+
+    @GetMapping("/listings/{id}/next-code")
+    @Operation(summary = "Suggest a unique code", description = "The code approval would assign if the admin leaves it blank")
+    public ResponseEntity<ApiResponse<String>> suggestUniqueCode(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(adminService.suggestUniqueCode(id)));
+    }
+
     @PostMapping("/listings/bulk-delete")
     @Operation(summary = "Bulk delete listings", description = "Deletes multiple listings at once")
     public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> bulkDeleteListings(

@@ -110,15 +110,19 @@ const AdminListingsPage = () => {
   const handleApprove = (id) => {
     setApproveModalId(id);
     setApproveUniqueCode('');
+    // Pre-fill the next free code in the category's series; the admin can overwrite or clear it
+    adminAPI.suggestListingCode(id)
+      .then((res) => setApproveUniqueCode((current) => current || res.data?.data || ''))
+      .catch(() => {});
   };
 
   const handleApproveConfirm = async () => {
-    if (!approveUniqueCode.trim()) { toast.error('Please enter a unique code'); return; }
     setActionLoading(approveModalId);
     try {
-      // No image is sent: the backend assigns a representative image for the listing's category
+      // No image is sent: the backend assigns representative photos for the listing's category,
+      // and generates the next code in the series when the field is blank
       await adminAPI.approveListing(approveModalId, approveUniqueCode.trim());
-      toast.success('Listing approved with code: ' + approveUniqueCode.trim());
+      toast.success(approveUniqueCode.trim() ? 'Listing approved with code: ' + approveUniqueCode.trim().toUpperCase() : 'Listing approved with an auto-assigned code');
       setApproveModalId(null);
       setApproveUniqueCode('');
       fetchListings();
@@ -616,7 +620,7 @@ const AdminListingsPage = () => {
         <div className="fixed inset-0 bg-ethereal-surface/80 backdrop-blur-md flex items-center justify-center z-50 p-6 animate-fadeIn">
           <div className="glass-card bg-gray-900/95 border border-white/10 p-10 rounded-3xl shadow-2xl w-full max-w-lg animate-scaleIn">
             <h3 className="text-2xl font-bold text-ethereal-on-surface tracking-tight mb-4 uppercase">Listing Verification</h3>
-            <p className="text-sm font-medium text-ethereal-on-surface-variant mb-8 opacity-60">Assign a unique code to approve and publish this listing.</p>
+            <p className="text-sm font-medium text-ethereal-on-surface-variant mb-8 opacity-60">Confirm the unique code to approve and publish this listing. Leave it blank to auto-assign the next code for its category.</p>
             
             <div className="space-y-6">
               {/* Unique Code */}
@@ -626,8 +630,8 @@ const AdminListingsPage = () => {
                   type="text"
                   value={approveUniqueCode}
                   onChange={(e) => setApproveUniqueCode(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' && approveUniqueCode.trim()) handleApproveConfirm(); }}
-                  placeholder="e.g. DH-HOTEL-001"
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleApproveConfirm(); }}
+                  placeholder="Auto-assign (e.g. HTL00121)"
                   autoFocus
                   className="w-full px-6 py-5 bg-gray-800 border border-white/10 rounded-2xl focus:bg-gray-950 focus:ring-4 focus:ring-ethereal-primary/20 transition-all outline-none text-lg font-bold tracking-wider"
                 />
@@ -637,7 +641,7 @@ const AdminListingsPage = () => {
               <div className="flex items-start gap-3 p-4 rounded-2xl bg-gray-800">
                 <FiImage className="w-5 h-5 text-ethereal-primary shrink-0 mt-0.5" />
                 <p className="text-xs font-medium text-ethereal-on-surface-variant leading-relaxed">
-                  A representative image for this listing's category is assigned automatically and replaces any owner-uploaded photos.
+                  Representative photos for this listing's category are assigned automatically and replace any owner-uploaded photos.
                 </p>
               </div>
             </div>

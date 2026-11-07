@@ -44,6 +44,9 @@ services:
       - NOTIFICATION_EMAIL=${NOTIFICATION_EMAIL:-d@dhotels24.com}
       - SITE_URL=${SITE_URL:-https://dhotels24.in}
       - SEED_SAMPLE_USER=${SEED_SAMPLE_USER:-false}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-}
+      - ADMIN_INITIAL_PASSWORD=${ADMIN_INITIAL_PASSWORD:-}
+      - ADMIN_MOBILE=${ADMIN_MOBILE:-}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://dhotels24.in}
       - JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=70
     security_opt:

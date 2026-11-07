@@ -3,7 +3,7 @@ import RefreshButton from '../../components/admin/RefreshButton';
 import { adminAPI, masterAPI, mediaAPI } from '../../services/api';
 import { formatPrice, formatListingPrice } from '../../utils/formatPrice';
 import { formatArea, toSqft, fromSqft } from '../../utils/area';
-import { isHotelCategory, TITLE_TYPES } from '../../utils/hospitality';
+import { isHotelCategory, isResortCategory, formatLocation, TITLE_TYPES, PRICE_UNITS } from '../../utils/hospitality';
 import toast from 'react-hot-toast';
 import { FiX, FiEdit2, FiSave, FiMapPin, FiDollarSign, FiCalendar, FiUser, FiMail } from 'react-icons/fi';
 
@@ -11,18 +11,42 @@ const PLOT_AREA_UNIT_FIELD = { key: 'plotAreaUnit', label: 'Plot Area Unit', typ
 // Stored in sq ft; edited in the listing's plot area unit
 const LAND_AREA_KEYS = ['plotAreaSqft'];
 
+// Optional fields every category has; text values are sent as typed so clearing one removes it
+const SHARED_FIELDS = [
+  { key: 'locality', label: 'Locality / Area', type: 'text' },
+  { key: 'stateName', label: 'State', type: 'text' },
+  { key: 'priceUnit', label: 'Price Quoted', type: 'select', options: PRICE_UNITS.map((u) => [u.value, u.label]) },
+  { key: 'starCategory', label: 'Category / Star Rating', type: 'text' },
+  { key: 'operationalStatus', label: 'Status', type: 'text' },
+  { key: 'floors', label: 'Floors', type: 'text' },
+  { key: 'kitchenPermissions', label: 'Kitchen & Permissions', type: 'text' },
+  { key: 'securityDeposit', label: 'Security Deposit', type: 'text' },
+  { key: 'annualTurnover', label: 'Annual Turnover', type: 'text' },
+  { key: 'amenities', label: 'Amenities (comma separated)', type: 'text' },
+];
+// Listing-level fields edited alongside the category details
+const LISTING_LEVEL_KEYS = ['locality', 'stateName', 'priceUnit'];
+
+const ROOM_AND_LAND_FIELDS = [
+  { key: 'numberOfRooms', label: 'Number of Rooms', type: 'int' },
+  { key: 'plotAreaSqft', label: 'Plot Area', type: 'number' },
+  PLOT_AREA_UNIT_FIELD,
+  { key: 'constructedAreaSqft', label: 'Constructed Area (sq ft)', type: 'number' },
+];
+
 // Editable category-specific fields, mirroring the owner's create/edit form
 const getDetailFields = (categoryName) => {
   if (isHotelCategory(categoryName)) {
     return [
-      { key: 'numberOfRooms', label: 'Number of Rooms', type: 'int' },
-      { key: 'plotAreaSqft', label: 'Plot Area', type: 'number' },
-      PLOT_AREA_UNIT_FIELD,
-      { key: 'constructedAreaSqft', label: 'Constructed Area (sq ft)', type: 'number' },
+      ...ROOM_AND_LAND_FIELDS,
       { key: 'titleType', label: 'Title', type: 'select', options: TITLE_TYPES.map((t) => [t, t]) },
+      ...SHARED_FIELDS,
     ];
   }
-  return [{ key: 'carpetAreaSqft', label: 'Carpet Area (sq ft)', type: 'number' }];
+  if (isResortCategory(categoryName)) {
+    return [...ROOM_AND_LAND_FIELDS, { key: 'carpetAreaSqft', label: 'Carpet Area (sq ft)', type: 'number' }, ...SHARED_FIELDS];
+  }
+  return [{ key: 'carpetAreaSqft', label: 'Carpet Area (sq ft)', type: 'number' }, ...SHARED_FIELDS];
 };
 
 const DETAIL_META_KEYS = ['id', 'listingId', 'listing', 'createdAt', 'updatedAt'];
@@ -54,6 +78,7 @@ const AdminListingDetailModal = ({ listingId, onClose, onUpdated, onVerifyClick 
         if (DETAIL_META_KEYS.includes(key) || (value !== null && typeof value === 'object')) return;
         details[key] = value ?? '';
       });
+      LISTING_LEVEL_KEYS.forEach((key) => { details[key] = data[key] ?? ''; });
       if (data.categoryDetails && 'plotAreaUnit' in data.categoryDetails) {
         details.plotAreaUnit = data.categoryDetails.plotAreaUnit === 'ACRE' ? 'ACRE' : 'SQFT';
         LAND_AREA_KEYS.forEach(k => { if (k in details) details[k] = fromSqft(details[k], details.plotAreaUnit); });
@@ -98,6 +123,7 @@ const AdminListingDetailModal = ({ listingId, onClose, onUpdated, onVerifyClick 
     const detailPayload = {};
     const fieldTypes = Object.fromEntries(getDetailFields(listing.category?.name).map(f => [f.key, f.type]));
     Object.entries(details || {}).forEach(([key, value]) => {
+      if (fieldTypes[key] === 'text') { detailPayload[key] = value ?? ''; return; }
       if (value === '' || value === null || value === undefined) { detailPayload[key] = null; return; }
       if (LAND_AREA_KEYS.includes(key)) detailPayload[key] = toSqft(value, details.plotAreaUnit);
       else if (fieldTypes[key] === 'int') detailPayload[key] = parseInt(value, 10);
@@ -252,7 +278,7 @@ const AdminListingDetailModal = ({ listingId, onClose, onUpdated, onVerifyClick 
                 <FiMapPin className="w-3 h-3" /> Deployment
               </div>
               <p className="text-base font-black text-ethereal-on-surface tracking-tight truncate">
-                {listing.cityName}{listing.stateName ? `, ${listing.stateName}` : ''}
+                {formatLocation(listing)}
               </p>
             </div>
             <div className="bg-gray-800 p-6 rounded-2xl">

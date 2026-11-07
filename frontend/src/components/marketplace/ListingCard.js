@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { PiMapPin, PiLockKey, PiArrowUpRight } from 'react-icons/pi';
 import { formatListingPrice } from '../../utils/formatPrice';
 import { generateSlug } from '../../utils/slugify';
-import { getCategoryMeta, getSpecSummary, categoryImage, resolveImage, priceLabelFor, isSampleImage } from '../../utils/hospitality';
+import { getCategoryMeta, getSpecSummary, categoryImage, resolveImage, priceLabelFor, isSampleImage, formatLocation } from '../../utils/hospitality';
 
 export const listingPath = (listing) =>
   `/listings/${listing.id}-${generateSlug(listing.displayTitle || listing.title, listing.cityName)}`;
@@ -18,7 +18,7 @@ const ListingCard = ({ listing }) => {
   const image = resolveImage(listing.primaryImage) || categoryImage(listing.categoryName);
   const representative = isSampleImage(image);
   const specSummary = getSpecSummary(listing.categoryName, listing.categoryDetails);
-  const location = [listing.cityName, listing.stateName].filter(Boolean).join(', ');
+  const location = formatLocation(listing);
 
   return (
     <Link
