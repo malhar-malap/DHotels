@@ -155,6 +155,8 @@ export const SAMPLE_IMAGE_DIR = '/images/listing-samples/';
 export const isSampleImage = (src) => typeof src === 'string'
   && (src.startsWith(SAMPLE_IMAGE_DIR) || src.startsWith('https://images.unsplash.com/'));
 export const SAMPLE_IMAGE_NOTE = 'Image for representation purpose only';
+// Self-hosted samples carry the note burned into a band along their bottom edge
+export const hasBurnedInNote = (src) => typeof src === 'string' && src.startsWith(SAMPLE_IMAGE_DIR);
 
 /**
  * Category-specific facts in display order.

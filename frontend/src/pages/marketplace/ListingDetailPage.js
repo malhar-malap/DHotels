@@ -9,7 +9,7 @@ import { listingsAPI, paymentAPI } from '../../services/api';
 import { generateSlug } from '../../utils/slugify';
 import { formatListingPrice, listingPriceParts } from '../../utils/formatPrice';
 import { loadRazorpay } from '../../utils/loadRazorpay';
-import { getCategoryMeta, getSpecs, getPropertyFacts, parseAmenities, formatLocation, categoryImage, resolveImage, priceLabelFor, isSampleImage, SAMPLE_IMAGE_NOTE, CONTACT_FEE } from '../../utils/hospitality';
+import { getCategoryMeta, getSpecs, getPropertyFacts, parseAmenities, formatLocation, categoryImage, resolveImage, priceLabelFor, isSampleImage, hasBurnedInNote, SAMPLE_IMAGE_NOTE, CONTACT_FEE } from '../../utils/hospitality';
 import { useAuth } from '../../context/AuthContext';
 import Seo, { absoluteUrl, truncate, SITE_URL } from '../../components/common/Seo';
 import toast from 'react-hot-toast';
@@ -259,7 +259,7 @@ const ListingDetailPage = () => {
               src={gallery[imageIndex]}
               alt={listing.displayTitle}
               onError={(e) => { e.currentTarget.src = categoryImage(categoryName); }}
-              className="h-full w-full object-cover"
+              className={`h-full w-full object-cover ${hasBurnedInNote(gallery[imageIndex]) ? 'object-bottom' : ''}`}
             />
             {gallery.length > 1 && (
               <>
@@ -269,12 +269,12 @@ const ListingDetailPage = () => {
                 <button type="button" onClick={() => step(1)} aria-label="Next photo" className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-gray-950/70 text-gray-50 backdrop-blur transition-opacity md:opacity-0 md:group-hover:opacity-100">
                   <PiCaretRight className="h-5 w-5" />
                 </button>
-                <span className="absolute bottom-4 right-4 rounded-full bg-gray-950/70 px-3 py-1 text-xs font-medium text-gray-100 backdrop-blur">
+                <span className={`absolute right-4 rounded-full bg-gray-950/70 px-3 py-1 text-xs font-medium text-gray-100 backdrop-blur ${hasBurnedInNote(gallery[imageIndex]) ? 'bottom-12' : 'bottom-4'}`}>
                   {imageIndex + 1} / {gallery.length}
                 </span>
               </>
             )}
-            {(images.length === 0 || isSampleImage(gallery[imageIndex])) && (
+            {(images.length === 0 || isSampleImage(gallery[imageIndex])) && !hasBurnedInNote(gallery[imageIndex]) && (
               <span className="absolute bottom-4 left-4 rounded-full bg-gray-950/70 px-3 py-1 text-xs text-gray-300 backdrop-blur">{SAMPLE_IMAGE_NOTE}</span>
             )}
           </div>

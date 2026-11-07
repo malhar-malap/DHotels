@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { PiMapPin, PiLockKey, PiArrowUpRight } from 'react-icons/pi';
 import { formatListingPrice } from '../../utils/formatPrice';
 import { generateSlug } from '../../utils/slugify';
-import { getCategoryMeta, getSpecSummary, categoryImage, resolveImage, priceLabelFor, isSampleImage, formatLocation } from '../../utils/hospitality';
+import { getCategoryMeta, getSpecSummary, categoryImage, resolveImage, priceLabelFor, isSampleImage, hasBurnedInNote, formatLocation } from '../../utils/hospitality';
 
 export const listingPath = (listing) =>
   `/listings/${listing.id}-${generateSlug(listing.displayTitle || listing.title, listing.cityName)}`;
@@ -16,7 +16,8 @@ const ListingCard = ({ listing }) => {
   const [loaded, setLoaded] = useState(false);
   const meta = getCategoryMeta(listing.categoryName);
   const image = resolveImage(listing.primaryImage) || categoryImage(listing.categoryName);
-  const representative = isSampleImage(image);
+  const captioned = hasBurnedInNote(image);
+  const representative = isSampleImage(image) && !captioned;
   const specSummary = getSpecSummary(listing.categoryName, listing.categoryDetails);
   const location = formatLocation(listing);
 
@@ -58,7 +59,8 @@ const ListingCard = ({ listing }) => {
           </span>
         )}
 
-        <div className="absolute bottom-3 left-3 right-3 flex items-center gap-1.5 text-xs font-medium text-gray-100">
+        {/* Sits above the caption band burned into sample photos */}
+        <div className={`absolute left-3 right-3 flex items-center gap-1.5 text-xs font-medium text-gray-100 ${captioned ? 'bottom-7' : 'bottom-3'}`}>
           <PiMapPin className="h-4 w-4 shrink-0 text-primary-300" />
           <span className="truncate">{location || 'India'}</span>
           {representative && <span className="ml-auto shrink-0 text-[10px] font-normal text-gray-300/80">Representative image</span>}
