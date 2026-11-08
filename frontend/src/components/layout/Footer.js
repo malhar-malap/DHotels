@@ -59,7 +59,7 @@ const Footer = () => (
         <div>
           <Link to="/" className="flex items-center gap-2.5">
             <img src="/images/logo.png" alt="" className="h-9 w-9 object-contain" />
-            <span className="font-display text-2xl text-gray-50">DHotels24<span className="text-primary-400">.in</span></span>
+            <span className="font-display text-2xl text-gray-50">DHotels24<span className="text-primary-400">.com</span></span>
           </Link>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-gray-400">
             India's marketplace to buy, sell, lease and co-own hotels, resorts, restaurants, cafés, bars and banquet halls.
