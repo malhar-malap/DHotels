@@ -38,7 +38,7 @@ public class AdminBootstrap implements ApplicationRunner {
     private String fullName;
     @Value("${app.bootstrap-admin.mobile:}")
     private String mobile;
-    @Value("${app.bootstrap-admin.company:Dhumavati Consulting LLP (DHotels24.in)}")
+    @Value("${app.bootstrap-admin.company:Dhumavati Consulting LLP (DHotels24.com)}")
     private String company;
 
     public AdminBootstrap(UserRepository userRepository, UserRoleRepository userRoleRepository, PasswordEncoder passwordEncoder) {

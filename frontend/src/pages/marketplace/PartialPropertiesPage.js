@@ -27,7 +27,7 @@ const PartialPropertiesPage = () => {
   return (
     <div className="bg-gray-950">
       <Seo
-        title="Profit Sharing & Hotel Co-Investments | DHotels24.in"
+        title="Profit Sharing & Hotel Co-Investments | DHotels24.com"
         description="Hotels across India open to profit-sharing partnerships — invest in or operate a hotel and share in its operating profit. Reviewed listings with rooms, area and title."
         path="/partial-properties"
       />

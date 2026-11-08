@@ -31,15 +31,15 @@ public class EmailService {
     // ========== 1. Welcome Email on Sign-Up ==========
     @Async
     public void sendWelcomeEmail(String toEmail, String fullName) {
-        String subject = "Welcome to DHotels24.in!";
+        String subject = "Welcome to DHotels24.com!";
         String body = "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;margin:0;padding:0;background:#0c1222;'>"
             + "<div style='max-width:600px;margin:30px auto;background:#111827;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.3);'>"
             + "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);padding:30px;text-align:center;border-bottom:3px solid #f7b538;'>"
-            + "<h1 style='color:#f7b538;margin:0;font-size:28px;'>Welcome to DHotels24.in!</h1>"
+            + "<h1 style='color:#f7b538;margin:0;font-size:28px;'>Welcome to DHotels24.com!</h1>"
             + "</div>"
             + "<div style='padding:30px;'>"
             + "<h2 style='color:#e5e7eb;'>Hello " + fullName + ",</h2>"
-            + "<p style='color:#9ca3af;font-size:16px;line-height:1.6;'>Thank you for registering on <strong style='color:#f7b538;'>DHotels24.in</strong> — India's premier hospitality marketplace.</p>"
+            + "<p style='color:#9ca3af;font-size:16px;line-height:1.6;'>Thank you for registering on <strong style='color:#f7b538;'>DHotels24.com</strong> — India's premier hospitality marketplace.</p>"
             + "<p style='color:#9ca3af;font-size:16px;line-height:1.6;'>You can now:</p>"
             + "<ul style='color:#9ca3af;font-size:15px;line-height:1.8;'>"
             + "<li>Browse and post listings for hotels, cafes, restaurants, resto-bars, banquet halls & resorts</li>"
@@ -47,12 +47,12 @@ public class EmailService {
             + "<li>Connect with verified owners, operators, and investors</li>"
             + "</ul>"
             + "<div style='text-align:center;margin:30px 0;'>"
-            + "<a href='https://dhotels24.in/dashboard' style='background:#f7b538;color:#1a1a2e;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>Go to Dashboard</a>"
+            + "<a href='https://dhotels24.com/dashboard' style='background:#f7b538;color:#1a1a2e;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>Go to Dashboard</a>"
             + "</div>"
             + "<p style='color:#6b7280;font-size:13px;'>If you did not create this account, please ignore this email.</p>"
             + "</div>"
             + "<div style='background:#0f172a;padding:15px;text-align:center;border-top:1px solid #1e293b;'>"
-            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.in. All rights reserved.</p>"
+            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.com. All rights reserved.</p>"
             + "</div></div></body></html>";
 
         sendHtmlEmail(toEmail, subject, body);
@@ -61,7 +61,7 @@ public class EmailService {
     // ========== 2. Buyer Verified / Approved Email ==========
     @Async
     public void sendBuyerApprovedEmail(String toEmail, String fullName) {
-        String subject = "Your Buyer Verification is Approved — DHotels24.in";
+        String subject = "Your Buyer Verification is Approved — DHotels24.com";
         String body = "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;margin:0;padding:0;background:#0c1222;'>"
             + "<div style='max-width:600px;margin:30px auto;background:#111827;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.3);'>"
             + "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);padding:30px;text-align:center;border-bottom:3px solid #f7b538;'>"
@@ -77,11 +77,11 @@ public class EmailService {
             + "<li>Priority access to premium listings</li>"
             + "</ul>"
             + "<div style='text-align:center;margin:30px 0;'>"
-            + "<a href='https://dhotels24.in/listings' style='background:#f7b538;color:#1a1a2e;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>Browse Listings</a>"
+            + "<a href='https://dhotels24.com/listings' style='background:#f7b538;color:#1a1a2e;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>Browse Listings</a>"
             + "</div>"
             + "</div>"
             + "<div style='background:#0f172a;padding:15px;text-align:center;border-top:1px solid #1e293b;'>"
-            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.in. All rights reserved.</p>"
+            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.com. All rights reserved.</p>"
             + "</div></div></body></html>";
 
         sendHtmlEmail(toEmail, subject, body);
@@ -111,11 +111,11 @@ public class EmailService {
             + "<p style='color:#d1d5db;font-size:15px;line-height:1.6;background:#111827;padding:12px;border-radius:6px;border:1px solid #374151;'>" + message + "</p>"
             + "</div>"
             + "<div style='text-align:center;margin:25px 0;'>"
-            + "<a href='https://dhotels24.in/dashboard/inquiries' style='background:#f7b538;color:#1a1a2e;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>View Inquiries</a>"
+            + "<a href='https://dhotels24.com/dashboard/inquiries' style='background:#f7b538;color:#1a1a2e;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>View Inquiries</a>"
             + "</div>"
             + "</div>"
             + "<div style='background:#0f172a;padding:15px;text-align:center;border-top:1px solid #1e293b;'>"
-            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.in. All rights reserved.</p>"
+            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.com. All rights reserved.</p>"
             + "</div></div></body></html>";
 
         sendHtmlEmail(sellerEmail, subject, body);
@@ -142,11 +142,11 @@ public class EmailService {
             + "</table>"
             + "</div>"
             + "<div style='text-align:center;margin:25px 0;'>"
-            + "<a href='https://dhotels24.in/dashboard/applications' style='background:#f7b538;color:#1a1a2e;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>View Applications</a>"
+            + "<a href='https://dhotels24.com/dashboard/applications' style='background:#f7b538;color:#1a1a2e;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>View Applications</a>"
             + "</div>"
             + "</div>"
             + "<div style='background:#0f172a;padding:15px;text-align:center;border-top:1px solid #1e293b;'>"
-            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.in. All rights reserved.</p>"
+            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.com. All rights reserved.</p>"
             + "</div></div></body></html>";
 
         sendHtmlEmail(employerEmail, subject, body);
@@ -154,14 +154,14 @@ public class EmailService {
 
     // ========== 5. OTP Verification Email ==========
     public void sendOtpEmail(String toEmail, String otp) {
-        String subject = "Your DHotels24.in Verification Code: " + otp;
+        String subject = "Your DHotels24.com Verification Code: " + otp;
         String body = "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;margin:0;padding:0;background:#0c1222;'>"
             + "<div style='max-width:600px;margin:30px auto;background:#111827;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.3);'>"
             + "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);padding:30px;text-align:center;border-bottom:3px solid #f7b538;'>"
             + "<h1 style='color:#f7b538;margin:0;font-size:28px;'>🔐 Email Verification</h1>"
             + "</div>"
             + "<div style='padding:30px;text-align:center;'>"
-            + "<p style='color:#9ca3af;font-size:16px;line-height:1.6;'>Use the following verification code to complete your registration on <strong style='color:#f7b538;'>DHotels24.in</strong>.</p>"
+            + "<p style='color:#9ca3af;font-size:16px;line-height:1.6;'>Use the following verification code to complete your registration on <strong style='color:#f7b538;'>DHotels24.com</strong>.</p>"
             + "<div style='background:#1e293b;border:2px dashed #f7b538;border-radius:12px;padding:25px;margin:25px auto;max-width:280px;'>"
             + "<p style='font-size:40px;font-weight:bold;color:#f7b538;letter-spacing:12px;margin:0;font-family:monospace;'>" + otp + "</p>"
             + "</div>"
@@ -169,7 +169,7 @@ public class EmailService {
             + "<p style='color:#6b7280;font-size:13px;margin-top:20px;'>If you did not request this code, please ignore this email.</p>"
             + "</div>"
             + "<div style='background:#0f172a;padding:15px;text-align:center;border-top:1px solid #1e293b;'>"
-            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.in. All rights reserved.</p>"
+            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.com. All rights reserved.</p>"
             + "</div></div></body></html>";
 
         sendHtmlEmail(toEmail, subject, body);
@@ -177,8 +177,8 @@ public class EmailService {
 
     // ========== 6. Forgot Password Email ==========
     public void sendForgotPasswordEmail(String toEmail, String otp) {
-        String resetUrl = "https://dhotels24.in/reset-password?email=" + toEmail + "&otp=" + otp;
-        String subject = "Reset Your Password - DHotels24.in";
+        String resetUrl = "https://dhotels24.com/reset-password?email=" + toEmail + "&otp=" + otp;
+        String subject = "Reset Your Password - DHotels24.com";
         String body = "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;margin:0;padding:0;background:#0c1222;'>"
             + "<div style='max-width:600px;margin:30px auto;background:#111827;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.3);'>"
             + "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);padding:30px;text-align:center;border-bottom:3px solid #f7b538;'>"
@@ -186,7 +186,7 @@ public class EmailService {
             + "</div>"
             + "<div style='padding:40px;text-align:center;'>"
             + "<p style='color:#e5e7eb;font-size:18px;font-weight:600;'>Hello,</p>"
-            + "<p style='color:#9ca3af;font-size:16px;line-height:1.6;'>We received a request to reset your password for your DHotels24.in account. Click the button below to verify your identity and set a new password:</p>"
+            + "<p style='color:#9ca3af;font-size:16px;line-height:1.6;'>We received a request to reset your password for your DHotels24.com account. Click the button below to verify your identity and set a new password:</p>"
             + "<div style='margin:35px 0;'>"
             + "<a href='" + resetUrl + "' style='background-color:#f7b538;color:#1a1a2e;padding:14px 30px;text-decoration:none;border-radius:8px;font-weight:bold;font-size:16px;display:inline-block;box-shadow:0 4px 6px rgba(247,181,56,0.2);'>Verify & Reset Password</a>"
             + "</div>"
@@ -195,7 +195,7 @@ public class EmailService {
             + "<p style='color:#ef4444;font-size:14px;margin-top:25px;border-top:1px solid #1e293b;padding-top:20px;'>If you did not request a password reset, please ignore this email.</p>"
             + "</div>"
             + "<div style='background:#0f172a;padding:20px;text-align:center;border-top:1px solid #1e293b;'>"
-            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.in. All rights reserved.</p>"
+            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.com. All rights reserved.</p>"
             + "</div></div></body></html>";
 
         sendHtmlEmail(toEmail, subject, body);
@@ -226,11 +226,11 @@ public class EmailService {
             + "<p style='color:#d1d5db;font-size:15px;line-height:1.6;background:#111827;padding:12px;border-radius:6px;border:1px solid #374151;'>" + message + "</p>"
             + "</div>"
             + "<div style='text-align:center;margin:25px 0;'>"
-            + "<a href='https://dhotels24.in/admin/contact-messages' style='background:#f7b538;color:#1a1a2e;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>View Messages</a>"
+            + "<a href='https://dhotels24.com/admin/contact-messages' style='background:#f7b538;color:#1a1a2e;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>View Messages</a>"
             + "</div>"
             + "</div>"
             + "<div style='background:#0f172a;padding:15px;text-align:center;border-top:1px solid #1e293b;'>"
-            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.in. All rights reserved.</p>"
+            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.com. All rights reserved.</p>"
             + "</div></div></body></html>";
 
         sendHtmlEmail(adminEmail, emailSubject, body);
@@ -240,11 +240,11 @@ public class EmailService {
     @Async
     public void sendContactReplyEmail(String toEmail, String userName, String originalSubject,
             String originalMessage, String replyContent) {
-        String subject = "Re: " + (originalSubject != null ? originalSubject : "Your Contact Message") + " — DHotels24.in";
+        String subject = "Re: " + (originalSubject != null ? originalSubject : "Your Contact Message") + " — DHotels24.com";
         String body = "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;margin:0;padding:0;background:#0c1222;'>"
             + "<div style='max-width:600px;margin:30px auto;background:#111827;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.3);'>"
             + "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);padding:30px;text-align:center;border-bottom:3px solid #f7b538;'>"
-            + "<h1 style='color:#f7b538;margin:0;font-size:28px;'>💬 Reply from DHotels24.in</h1>"
+            + "<h1 style='color:#f7b538;margin:0;font-size:28px;'>💬 Reply from DHotels24.com</h1>"
             + "</div>"
             + "<div style='padding:30px;'>"
             + "<h2 style='color:#e5e7eb;'>Hello " + userName + ",</h2>"
@@ -260,7 +260,7 @@ public class EmailService {
             + "<p style='color:#9ca3af;font-size:14px;line-height:1.6;'>If you have any further questions, feel free to reply to this email or visit our website.</p>"
             + "</div>"
             + "<div style='background:#0f172a;padding:15px;text-align:center;border-top:1px solid #1e293b;'>"
-            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.in. All rights reserved.</p>"
+            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.com. All rights reserved.</p>"
             + "</div></div></body></html>";
 
         sendHtmlEmail(toEmail, subject, body);
@@ -285,7 +285,7 @@ public class EmailService {
     // ========== Approval/Rejection Notifications ==========
     @Async
     public void sendListingApprovedEmail(String toEmail, String fullName, String listingTitle) {
-        String subject = "Your Listing has been Approved — DHotels24.in";
+        String subject = "Your Listing has been Approved — DHotels24.com";
         String body = "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;margin:0;padding:0;background:#0c1222;'>"
             + "<div style='max-width:600px;margin:30px auto;background:#111827;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.3);'>"
             + "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);padding:30px;text-align:center;border-bottom:3px solid #10b981;'>"
@@ -296,7 +296,7 @@ public class EmailService {
             + "<p style='color:#9ca3af;font-size:16px;line-height:1.6;'>Great news! Your listing <strong>" + listingTitle + "</strong> has been approved by our team.</p>"
             + "<p style='color:#9ca3af;font-size:16px;line-height:1.6;'>It is now live on our marketplace and visible to potential buyers.</p>"
             + "<div style='text-align:center;margin:30px 0;'>"
-            + "<a href='https://dhotels24.in/dashboard' style='background:#10b981;color:#ffffff;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>View in Dashboard</a>"
+            + "<a href='https://dhotels24.com/dashboard' style='background:#10b981;color:#ffffff;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>View in Dashboard</a>"
             + "</div>"
             + "</div></div></body></html>";
         sendHtmlEmail(toEmail, subject, body);
@@ -304,7 +304,7 @@ public class EmailService {
 
     @Async
     public void sendListingRejectedEmail(String toEmail, String fullName, String listingTitle, String reason) {
-        String subject = "Update on Your Listing — DHotels24.in";
+        String subject = "Update on Your Listing — DHotels24.com";
         String body = "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;margin:0;padding:0;background:#0c1222;'>"
             + "<div style='max-width:600px;margin:30px auto;background:#111827;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.3);'>"
             + "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);padding:30px;text-align:center;border-bottom:3px solid #ef4444;'>"
@@ -324,7 +324,7 @@ public class EmailService {
 
     @Async
     public void sendJobApprovedEmail(String toEmail, String fullName, String jobTitle) {
-        String subject = "Your Job Posting has been Approved — DHotels24.in";
+        String subject = "Your Job Posting has been Approved — DHotels24.com";
         String body = "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;margin:0;padding:0;background:#0c1222;'>"
             + "<div style='max-width:600px;margin:30px auto;background:#111827;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.3);'>"
             + "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);padding:30px;text-align:center;border-bottom:3px solid #10b981;'>"
@@ -335,7 +335,7 @@ public class EmailService {
             + "<p style='color:#9ca3af;font-size:16px;line-height:1.6;'>Great news! Your job posting for <strong>" + jobTitle + "</strong> has been approved by our team.</p>"
             + "<p style='color:#9ca3af;font-size:16px;line-height:1.6;'>It is now live on our platform and visible to job seekers.</p>"
             + "<div style='text-align:center;margin:30px 0;'>"
-            + "<a href='https://dhotels24.in/dashboard' style='background:#10b981;color:#ffffff;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>View in Dashboard</a>"
+            + "<a href='https://dhotels24.com/dashboard' style='background:#10b981;color:#ffffff;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>View in Dashboard</a>"
             + "</div>"
             + "</div></div></body></html>";
         sendHtmlEmail(toEmail, subject, body);
@@ -343,7 +343,7 @@ public class EmailService {
 
     @Async
     public void sendJobRejectedEmail(String toEmail, String fullName, String jobTitle, String reason) {
-        String subject = "Update on Your Job Posting — DHotels24.in";
+        String subject = "Update on Your Job Posting — DHotels24.com";
         String body = "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;margin:0;padding:0;background:#0c1222;'>"
             + "<div style='max-width:600px;margin:30px auto;background:#111827;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.3);'>"
             + "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);padding:30px;text-align:center;border-bottom:3px solid #ef4444;'>"
@@ -363,7 +363,7 @@ public class EmailService {
 
     @Async
     public void sendItemDeletedEmail(String toEmail, String fullName, String itemType, String itemTitle) {
-        String subject = "Notice of Deletion: " + itemTitle + " — DHotels24.in";
+        String subject = "Notice of Deletion: " + itemTitle + " — DHotels24.com";
         String body = "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;margin:0;padding:0;background:#0c1222;'>"
             + "<div style='max-width:600px;margin:30px auto;background:#111827;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.3);'>"
             + "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);padding:30px;text-align:center;border-bottom:3px solid #ef4444;'>"
@@ -378,7 +378,7 @@ public class EmailService {
     }
     @Async
     public void sendListingDeletedByAdminEmail(String toEmail, String fullName, String listingTitle, String reason) {
-        String subject = "Your Listing has been Deleted — DHotels24.in";
+        String subject = "Your Listing has been Deleted — DHotels24.com";
         String body = "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;margin:0;padding:0;background:#0c1222;'>"
             + "<div style='max-width:600px;margin:30px auto;background:#111827;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.3);'>"
             + "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);padding:30px;text-align:center;border-bottom:3px solid #ef4444;'>"
@@ -398,7 +398,7 @@ public class EmailService {
     @Async
     public void sendListingDeletedByOwnerEmail(String toAdmin, String ownerName, String ownerEmail,
                                                Long listingId, String uniqueCode, String listingTitle, String reason) {
-        String subject = "Listing Deleted by Owner — DHotels24.in";
+        String subject = "Listing Deleted by Owner — DHotels24.com";
         String body = "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;margin:0;padding:0;background:#0c1222;'>"
             + "<div style='max-width:600px;margin:30px auto;background:#111827;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.3);'>"
             + "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);padding:30px;text-align:center;border-bottom:3px solid #f7b538;'>"
@@ -421,7 +421,7 @@ public class EmailService {
     // ========== 9. Consultation Notification to Admin ==========
     @Async
     public void sendConsultationNotification(String toAdmin, String name, String email, String phone, String preferredDate, String timeSlot, String topic) {
-        String subject = "New Call Request — DHotels24.in";
+        String subject = "New Call Request — DHotels24.com";
         String body = "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;margin:0;padding:0;background:#0c1222;'>"
             + "<div style='max-width:600px;margin:30px auto;background:#111827;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.3);'>"
             + "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);padding:30px;text-align:center;border-bottom:3px solid #f7b538;'>"
@@ -441,11 +441,11 @@ public class EmailService {
             + "<p style='color:#d1d5db;font-size:15px;line-height:1.6;background:#111827;padding:12px;border-radius:6px;border:1px solid #374151;'>" + (topic != null ? topic : "N/A") + "</p>"
             + "</div>"
             + "<div style='text-align:center;margin:25px 0;'>"
-            + "<a href='https://dhotels24.in/admin/consultations' style='background:#f7b538;color:#1a1a2e;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>View Consultations</a>"
+            + "<a href='https://dhotels24.com/admin/consultations' style='background:#f7b538;color:#1a1a2e;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>View Consultations</a>"
             + "</div>"
             + "</div>"
             + "<div style='background:#0f172a;padding:15px;text-align:center;border-top:1px solid #1e293b;'>"
-            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.in. All rights reserved.</p>"
+            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.com. All rights reserved.</p>"
             + "</div></div></body></html>";
 
         sendHtmlEmail(toAdmin, subject, body);
@@ -454,7 +454,7 @@ public class EmailService {
     // ========== 10. Mandate Notification to Admin ==========
     @Async
     public void sendMandateNotification(String toAdmin, String name, String email, String phone, String objectives) {
-        String subject = "New Mandate Submission — DHotels24.in";
+        String subject = "New Mandate Submission — DHotels24.com";
         String body = "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;margin:0;padding:0;background:#0c1222;'>"
             + "<div style='max-width:600px;margin:30px auto;background:#111827;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.3);'>"
             + "<div style='background:linear-gradient(135deg,#1a1a2e,#16213e);padding:30px;text-align:center;border-bottom:3px solid #f7b538;'>"
@@ -472,11 +472,11 @@ public class EmailService {
             + "<p style='color:#d1d5db;font-size:15px;line-height:1.6;background:#111827;padding:12px;border-radius:6px;border:1px solid #374151;white-space:pre-wrap;'>" + (objectives != null ? objectives : "N/A") + "</p>"
             + "</div>"
             + "<div style='text-align:center;margin:25px 0;'>"
-            + "<a href='https://dhotels24.in/admin/mandates' style='background:#f7b538;color:#1a1a2e;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>View Mandates</a>"
+            + "<a href='https://dhotels24.com/admin/mandates' style='background:#f7b538;color:#1a1a2e;padding:14px 30px;text-decoration:none;border-radius:6px;font-size:16px;font-weight:bold;'>View Mandates</a>"
             + "</div>"
             + "</div>"
             + "<div style='background:#0f172a;padding:15px;text-align:center;border-top:1px solid #1e293b;'>"
-            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.in. All rights reserved.</p>"
+            + "<p style='color:#4b5563;font-size:12px;margin:0;'>© 2026 DHotels24.com. All rights reserved.</p>"
             + "</div></div></body></html>";
 
         sendHtmlEmail(toAdmin, subject, body);

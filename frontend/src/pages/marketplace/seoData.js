@@ -8,14 +8,14 @@
 export const seoData = {
   'hotels-for-sale-goa': {
     guides: ['how-to-buy-a-hotel-in-india', 'hotel-profit-sharing-agreements-explained'],
-    title: 'Hotels for Sale & Lease in Goa | Boutique & Beach Hotels | DHotels24.in',
+    title: 'Hotels for Sale & Lease in Goa | Boutique & Beach Hotels | DHotels24.com',
     description: 'Browse hotels for sale, lease and profit sharing in Goa — beach hotels, boutique stays and heritage properties in North and South Goa. Reviewed listings with rooms, area and title details.',
     h1: 'Hotels for sale & lease in Goa',
     eyebrow: 'Goa',
     categoryName: 'Hotels',
     locationName: 'Goa',
     cityFilter: 'Goa',
-    introduction: 'Goa’s year-round domestic travel and long winter season make it one of India’s most actively traded hotel markets. Owners list everything from 10-room boutique villas near the beach belts to mid-scale business hotels in Panaji and Margao. DHotels24.in lets you compare these properties on the facts that matter — rooms, plot and constructed area, ownership title and price — before you speak to the owner.',
+    introduction: 'Goa’s year-round domestic travel and long winter season make it one of India’s most actively traded hotel markets. Owners list everything from 10-room boutique villas near the beach belts to mid-scale business hotels in Panaji and Margao. DHotels24.com lets you compare these properties on the facts that matter — rooms, plot and constructed area, ownership title and price — before you speak to the owner.',
     sections: [
       {
         heading: 'What is typically on the market',
@@ -30,21 +30,21 @@ export const seoData = {
       },
     ],
     faqs: [
-      { q: 'Can I lease a hotel in Goa instead of buying it?', a: 'Yes. Many Goa listings on DHotels24.in are offered on lease, where you pay the owner a fixed rent or premium and run the hotel yourself. Filter by “For Lease” to see them.' },
+      { q: 'Can I lease a hotel in Goa instead of buying it?', a: 'Yes. Many Goa listings on DHotels24.com are offered on lease, where you pay the owner a fixed rent or premium and run the hotel yourself. Filter by “For Lease” to see them.' },
       { q: 'What does “Title” mean on a hotel listing?', a: 'It is the ownership title of the land and building — usually freehold or leasehold. Leasehold properties carry a ground lease with its own term and transfer conditions, which you should review before an offer.' },
       { q: 'How do I contact the owner of a listing?', a: 'Open the listing and unlock the seller’s contact. You will receive the owner’s name, phone and email directly, and the listing is saved to your dashboard.' },
     ],
   },
   'hotels-for-sale-maharashtra': {
     guides: ['how-to-buy-a-hotel-in-india', 'how-to-value-a-hotel-or-restaurant'],
-    title: 'Hotels for Sale in Maharashtra | Mumbai, Pune, Lonavala | DHotels24.in',
+    title: 'Hotels for Sale in Maharashtra | Mumbai, Pune, Lonavala | DHotels24.com',
     description: 'Hotels for sale, lease and profit sharing across Maharashtra — business hotels in Mumbai and Pune, weekend properties in Lonavala and Mahabaleshwar. Compare rooms, area, title and price.',
     h1: 'Hotels for sale in Maharashtra',
     eyebrow: 'Maharashtra',
     categoryName: 'Hotels',
     locationName: 'Maharashtra',
     cityFilter: '',
-    introduction: 'Maharashtra combines dense business-travel demand in Mumbai, Pune and Nagpur with strong weekend leisure markets in the Western Ghats and along the Konkan coast. That mix creates a steady supply of hotels changing hands — from compact business hotels near IT parks to hill-station resorts-turned-hotels. Use DHotels24.in to shortlist by room count and land size, then speak to owners directly.',
+    introduction: 'Maharashtra combines dense business-travel demand in Mumbai, Pune and Nagpur with strong weekend leisure markets in the Western Ghats and along the Konkan coast. That mix creates a steady supply of hotels changing hands — from compact business hotels near IT parks to hill-station resorts-turned-hotels. Use DHotels24.com to shortlist by room count and land size, then speak to owners directly.',
     sections: [
       {
         heading: 'Popular micro-markets',
@@ -65,14 +65,14 @@ export const seoData = {
   },
   'restaurants-for-sale-mumbai': {
     guides: ['restaurant-takeover-checklist-india', 'how-to-value-a-hotel-or-restaurant'],
-    title: 'Restaurants for Sale & Lease in Mumbai | Running Outlets | DHotels24.in',
+    title: 'Restaurants for Sale & Lease in Mumbai | Running Outlets | DHotels24.com',
     description: 'Running restaurants, cafés and resto-bars for sale or lease in Mumbai — Bandra, Andheri, Lower Parel and beyond. See carpet area and price before you call the owner.',
     h1: 'Restaurants for sale & lease in Mumbai',
     eyebrow: 'Mumbai',
     categoryName: 'Restaurants',
     locationName: 'Mumbai',
     cityFilter: 'Mumbai',
-    introduction: 'Taking over a running restaurant in Mumbai can save months of fit-out and licensing compared with starting fresh. Owners list fully equipped kitchens, dine-in spaces and delivery-first outlets across the city. Every DHotels24.in listing shows the carpet area and asking price up front, so you can compare outlets quickly.',
+    introduction: 'Taking over a running restaurant in Mumbai can save months of fit-out and licensing compared with starting fresh. Owners list fully equipped kitchens, dine-in spaces and delivery-first outlets across the city. Every DHotels24.com listing shows the carpet area and asking price up front, so you can compare outlets quickly.',
     sections: [
       {
         heading: 'Takeover checklist',
@@ -100,14 +100,14 @@ export const seoData = {
   },
   'resorts-for-sale-kerala': {
     guides: ['how-to-buy-a-hotel-in-india', 'how-to-value-a-hotel-or-restaurant'],
-    title: 'Resorts for Sale & Lease in Kerala | Munnar, Kochi, Wayanad | DHotels24.in',
+    title: 'Resorts for Sale & Lease in Kerala | Munnar, Kochi, Wayanad | DHotels24.com',
     description: 'Resorts for sale and lease in Kerala — hill resorts in Munnar and Wayanad, backwater and beach properties near Kochi, Alleppey and Kovalam. Reviewed listings with carpet area and price.',
     h1: 'Resorts for sale & lease in Kerala',
     eyebrow: 'Kerala',
     categoryName: 'Resorts',
     locationName: 'Kerala',
     cityFilter: '',
-    introduction: 'Kerala’s hill stations, backwaters and beaches support a large base of leisure and wellness resorts, many of them family-owned. Owners regularly look for buyers or operators to take over, particularly for properties that would benefit from new marketing or an ayurveda and wellness programme. DHotels24.in helps you compare these resorts by size, location and price.',
+    introduction: 'Kerala’s hill stations, backwaters and beaches support a large base of leisure and wellness resorts, many of them family-owned. Owners regularly look for buyers or operators to take over, particularly for properties that would benefit from new marketing or an ayurveda and wellness programme. DHotels24.com helps you compare these resorts by size, location and price.',
     sections: [
       {
         heading: 'Things specific to resort deals',
@@ -132,14 +132,14 @@ export const seoData = {
   },
   'banquet-halls-for-sale-delhi': {
     guides: ['how-to-value-a-hotel-or-restaurant', 'restaurant-takeover-checklist-india'],
-    title: 'Banquet Halls for Sale & Lease in Delhi NCR | DHotels24.in',
+    title: 'Banquet Halls for Sale & Lease in Delhi NCR | DHotels24.com',
     description: 'Banquet halls, wedding venues and conference spaces for sale or lease in Delhi, Gurugram and Noida. Compare carpet area and price on reviewed listings.',
     h1: 'Banquet halls for sale & lease in Delhi NCR',
     eyebrow: 'Delhi NCR',
     categoryName: 'Banquet halls',
     locationName: 'Delhi NCR',
     cityFilter: 'Delhi',
-    introduction: 'Delhi NCR’s wedding and corporate-events calendar keeps banquet halls in demand year-round. Venues change hands as owners retire, re-develop or switch to leasing the space to a caterer-operator. DHotels24.in lists banquet halls with their carpet area and price so you can judge capacity and value at a glance.',
+    introduction: 'Delhi NCR’s wedding and corporate-events calendar keeps banquet halls in demand year-round. Venues change hands as owners retire, re-develop or switch to leasing the space to a caterer-operator. DHotels24.com lists banquet halls with their carpet area and price so you can judge capacity and value at a glance.',
     sections: [
       {
         heading: 'What to evaluate',

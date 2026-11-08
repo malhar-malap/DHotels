@@ -21,7 +21,7 @@ const BlogsPage = () => {
   return (
     <div className="bg-gray-950">
       <Seo
-        title="Insights & Market Guides | Buying Hotels, Resorts & Restaurants | DHotels24.in"
+        title="Insights & Market Guides | Buying Hotels, Resorts & Restaurants | DHotels24.com"
         description="Guides to buying, leasing and investing in hotels, resorts, restaurants and banquet halls across India — what to check, deal structures and regional notes."
         path="/blogs"
       />

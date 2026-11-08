@@ -9,7 +9,7 @@ import {
 } from 'react-icons/pi';
 
 /**
- * Single source of truth for the DHotels24.in marketplace taxonomy.
+ * Single source of truth for the DHotels24.com marketplace taxonomy.
  * `name` must match the `categories.name` rows seeded in database/dhotels_portal.sql.
  */
 const unsplashBase = (id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&q=70&w=`;

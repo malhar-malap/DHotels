@@ -35,18 +35,18 @@ const AboutUsPage = () => {
   return (
     <div className="bg-gray-950">
       <Seo
-        title="About DHotels24.in | India’s Hospitality Marketplace"
-        description="DHotels24.in is a marketplace and advisory team for buying, selling, leasing and co-owning hotels, resorts, restaurants, cafés, bars and banquet halls across India."
+        title="About DHotels24.com | India’s Hospitality Marketplace"
+        description="DHotels24.com is a marketplace and advisory team for buying, selling, leasing and co-owning hotels, resorts, restaurants, cafés, bars and banquet halls across India."
         path="/about"
       />
 
       {/* Intro */}
       <section className="container-site py-16 md:py-24">
-        <p className="eyebrow eyebrow-rule">About DHotels24.in</p>
+        <p className="eyebrow eyebrow-rule">About DHotels24.com</p>
         <h1 className="heading-xl mt-5 max-w-4xl">A dedicated marketplace for hospitality property — and the people who run it.</h1>
         <div className="mt-10 grid gap-8 text-lg leading-relaxed text-gray-300 md:grid-cols-2">
           <p>
-            DHotels24.in is India’s transaction marketplace for hospitality businesses. We help owners sell, lease or bring in profit-sharing partners for hotels, resorts, restaurants, cafés, bars and banquet halls — and help buyers and operators find properties worth their time.
+            DHotels24.com is India’s transaction marketplace for hospitality businesses. We help owners sell, lease or bring in profit-sharing partners for hotels, resorts, restaurants, cafés, bars and banquet halls — and help buyers and operators find properties worth their time.
           </p>
           <p>
             Hotels and restaurants are not just real estate. They carry licences, teams, guest reputations and seasonal cash flows. We replace informal brokers and scattered WhatsApp forwards with a structured, confidential process — from the first listing to the final handover.
@@ -123,14 +123,14 @@ const AboutUsPage = () => {
           <div>
             <p className="eyebrow eyebrow-rule">Leadership</p>
             <h2 className="heading-lg mt-3">Manas Survee</h2>
-            <p className="mt-2 text-primary-300">Founder, DHotels24.in &amp; CEO, Dhumavati Consulting LLP</p>
+            <p className="mt-2 text-primary-300">Founder, DHotels24.com &amp; CEO, Dhumavati Consulting LLP</p>
           </div>
           <div className="space-y-5 text-lg leading-relaxed text-gray-300">
             <p>
               With over 16 years in project development, business structuring, stakeholder management and transaction execution, Manas brings practical deal experience to hospitality M&amp;A — grounded in integrity, persistence and long-term value creation.
             </p>
             <p>
-              DHotels24.in began with a simple observation: India has thousands of hotels and restaurants whose owners want an exit, a successor, an operator or a growth partner — and just as many buyers looking for them, with no specialised place to meet. DHotels24.in was built to close that gap.
+              DHotels24.com began with a simple observation: India has thousands of hotels and restaurants whose owners want an exit, a successor, an operator or a growth partner — and just as many buyers looking for them, with no specialised place to meet. DHotels24.com was built to close that gap.
             </p>
           </div>
         </div>

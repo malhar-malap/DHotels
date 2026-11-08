@@ -26,8 +26,8 @@ const BlogArticlePage = () => {
       image: absoluteUrl(article.image),
       datePublished: article.datePublished,
       dateModified: article.dateModified || article.datePublished,
-      author: { '@type': 'Organization', name: 'DHotels24.in', url: SITE_URL },
-      publisher: { '@type': 'Organization', name: 'DHotels24.in', logo: { '@type': 'ImageObject', url: `${SITE_URL}/images/logo.png` } },
+      author: { '@type': 'Organization', name: 'DHotels24.com', url: SITE_URL },
+      publisher: { '@type': 'Organization', name: 'DHotels24.com', logo: { '@type': 'ImageObject', url: `${SITE_URL}/images/logo.png` } },
       mainEntityOfPage: `${SITE_URL}${path}`,
     },
     {
@@ -43,7 +43,7 @@ const BlogArticlePage = () => {
 
   return (
     <div className="bg-gray-950">
-      <Seo title={`${article.title} | DHotels24.in`} description={article.description} path={path} image={article.image} type="article" schema={schema} />
+      <Seo title={`${article.title} | DHotels24.com`} description={article.description} path={path} image={article.image} type="article" schema={schema} />
 
       <article className="container-site max-w-3xl py-12 md:py-16">
         <Link to="/blogs" className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-200">

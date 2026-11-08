@@ -55,7 +55,7 @@ public class DataInitializer implements CommandLineRunner {
                 mobile = "99999" + (System.currentTimeMillis() % 100000);
             }
             user.setMobileNumber(mobile);
-            user.setCompanyName("DHotels24.in Group");
+            user.setCompanyName("DHotels24.com Group");
         }
         user.setPasswordHash(passwordEncoder.encode(password));
         user.setStatus(User.UserStatus.ACTIVE);

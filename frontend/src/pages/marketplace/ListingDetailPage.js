@@ -152,7 +152,7 @@ const ListingDetailPage = () => {
   if (!listing) {
     return (
       <div className="container-site flex min-h-[60vh] flex-col items-center justify-center text-center">
-        <Seo title="Listing Not Found | DHotels24.in" noindex statusCode={404} />
+        <Seo title="Listing Not Found | DHotels24.com" noindex statusCode={404} />
         <h1 className="heading-lg">This listing isn’t available</h1>
         <p className="mt-3 text-gray-400">It may have been sold, withdrawn or is still under review.</p>
         <Link to="/listings" className="btn-brass mt-8">Browse the marketplace</Link>
@@ -178,10 +178,10 @@ const ListingDetailPage = () => {
   const seoName = listing.displayTitle || meta?.singular || 'Hospitality property';
   const seoPath = `/listings/${listing.id}-${generateSlug(seoName, listing.cityName)}`;
   const seoTitle = listing.cityName && !seoName.toLowerCase().includes(listing.cityName.toLowerCase())
-    ? `${seoName} in ${listing.cityName} | DHotels24.in`
-    : `${seoName} | DHotels24.in`;
+    ? `${seoName} in ${listing.cityName} | DHotels24.com`
+    : `${seoName} | DHotels24.com`;
   const seoDescription = truncate(listing.shortDescription || listing.detailedDescription) ||
-    truncate(`${meta?.singular || 'Hospitality property'} ${dealName ? `(${dealName.toLowerCase()}) ` : ''}in ${place || 'India'}. View details on DHotels24.in.`);
+    truncate(`${meta?.singular || 'Hospitality property'} ${dealName ? `(${dealName.toLowerCase()}) ` : ''}in ${place || 'India'}. View details on DHotels24.com.`);
   const seoImages = images.map(absoluteUrl);
   const seoSchema = [
     {

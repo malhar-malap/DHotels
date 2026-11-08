@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Main Application Class for Healthcare Portal
- * DHotels24.in - hospitality property marketplace
+ * DHotels24.com - hospitality property marketplace
  * 
  * @author Healthcare Portal Team
  * @version 1.0.0

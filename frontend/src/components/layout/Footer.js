@@ -21,7 +21,7 @@ const COLUMNS = [
   {
     title: 'Company',
     links: [
-      { label: 'About DHotels24.in', to: '/about' },
+      { label: 'About DHotels24.com', to: '/about' },
       { label: 'Profit sharing', to: '/partial-properties' },
       { label: 'Hospitality careers', to: '/jobs' },
       { label: 'Insights', to: '/blogs' },
@@ -80,7 +80,7 @@ const Footer = () => (
       </div>
 
       <div className="flex flex-col gap-2 border-t border-white/[0.06] py-6 text-xs text-gray-500 md:flex-row md:justify-between">
-        <p>© {new Date().getFullYear()} DHotels24.in Marketplace. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} DHotels24.com Marketplace. All rights reserved.</p>
         <p>Developed &amp; designed by Sahil &amp; Malhar</p>
       </div>
     </div>

@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# Launch step: put https://dhotels24.in live through the VPS's shared front proxy.
+# Launch step: put https://dhotels24.com live through the VPS's shared front proxy.
 #
-# Run on the VPS from /root/DHotels once DNS for dhotels24.in, www.dhotels24.in and the dhotels24.com
-# aliases points at this server:
+# Run on the VPS from /root/DHotels once DNS for dhotels24.com and www.dhotels24.com points at this server:
 #   bash deploy/enable-https.sh
 #
 # What it does, in order (each step stops the script if it fails):
@@ -15,9 +14,8 @@
 #      If the live proxy fails to come up, the previous override is restored.
 set -euo pipefail
 
-DOMAIN=dhotels24.in
-WWW=www.dhotels24.in
-ALIASES="dhotels24.com www.dhotels24.com"   # redirect to $DOMAIN; on the same certificate
+DOMAIN=dhotels24.com
+WWW=www.dhotels24.com
 DHOTELS_DIR=/root/DHotels
 PROXY_DIR="/root/DHealth Website"
 OVERRIDE="$PROXY_DIR/docker-compose.override.yml"
@@ -28,7 +26,7 @@ cd "$DHOTELS_DIR"
 
 echo "== 1. DNS"
 SERVER_IP=$(curl -fsS4 https://api.ipify.org)
-for name in "$DOMAIN" "$WWW" $ALIASES; do
+for name in "$DOMAIN" "$WWW"; do
   resolved=$(dig +short A "$name" @1.1.1.1 | tail -1)
   if [ "$resolved" != "$SERVER_IP" ]; then
     echo "$name resolves to '${resolved:-nothing}', expected $SERVER_IP. Fix DNS and try again."
@@ -38,14 +36,11 @@ for name in "$DOMAIN" "$WWW" $ALIASES; do
 done
 
 echo "== 2. Certificate"
-cert_names="-d $DOMAIN -d $WWW"
-for name in $ALIASES; do cert_names="$cert_names -d $name"; done
-if [ -d "/etc/letsencrypt/live/$DOMAIN" ] && certbot certificates --cert-name "$DOMAIN" 2>/dev/null | grep -q "www.dhotels24.com"; then
-  echo "Certificate already covers every name, skipping"
+if [ -d "/etc/letsencrypt/live/$DOMAIN" ]; then
+  echo "Certificate already exists, skipping"
 else
-  # shellcheck disable=SC2086
-  certbot certonly --standalone --non-interactive --agree-tos --expand --cert-name "$DOMAIN" -m "$CERT_EMAIL" \
-    $cert_names \
+  certbot certonly --standalone --non-interactive --agree-tos -m "$CERT_EMAIL" \
+    -d "$DOMAIN" -d "$WWW" \
     --pre-hook "docker stop $PROXY_CONTAINER" --post-hook "docker start $PROXY_CONTAINER"
 fi
 
@@ -65,7 +60,7 @@ assert mount in s and "      - society_proxy\n" in s and "  society_proxy:\n    
 s = s.replace(mount, mount + "      - /root/DHotels/deploy/proxy/dhotels.conf:/etc/nginx/conf.d/dhotels.conf:ro\n", 1)
 s = s.replace("      - society_proxy\n", "      - society_proxy\n      - dhotels_proxy\n", 1)
 s = s.replace("  society_proxy:\n    external: true", "  society_proxy:\n    external: true\n  dhotels_proxy:\n    external: true", 1)
-s = s.replace("# Added for Jaswanti Residency", "# Added for Jaswanti Residency and DHotels24.in (/root/DHotels)", 1)
+s = s.replace("# Added for Jaswanti Residency", "# Added for Jaswanti Residency and DHotels24.com (/root/DHotels)", 1)
 open(path, "w").write(s)
 PY
 
@@ -94,7 +89,6 @@ fi
 
 echo "== Checks"
 for url in "https://$DOMAIN/" "https://$DOMAIN/api/master/categories" "https://$WWW/" "http://$DOMAIN/" \
-           "https://dhotels24.com/" "http://www.dhotels24.com/" \
            "https://dhacquisitions.co/" "https://jaswantiresidency.in/"; do
   printf '%-45s %s\n' "$url" "$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$url")"
 done

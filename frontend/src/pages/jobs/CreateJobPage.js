@@ -446,7 +446,7 @@ const CreateJobPage = () => {
             {/* Recruiter benefits & FAQ */}
             <div className="bg-gray-900/60 border border-gray-800/80 rounded-3xl p-6 shadow-xl backdrop-blur-md space-y-6">
               <div>
-                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Recruiting on DHotels24.in</h3>
+                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Recruiting on DHotels24.com</h3>
                 <div className="space-y-4">
                   <div className="flex gap-3">
                     <div className="text-lg">🧑‍⚕️</div>

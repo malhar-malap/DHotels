@@ -29,12 +29,12 @@ const DEAL_FILTERS = ['For Sale', 'For Lease', 'Profit Sharing'];
 
 const pageCopy = (meta) => meta
   ? {
-      title: `${meta.label} for Sale & Lease in India | DHotels24.in`,
+      title: `${meta.label} for Sale & Lease in India | DHotels24.com`,
       h1: `${meta.label} for sale & lease`,
       description: `Browse verified ${meta.label.toLowerCase()} for ${meta.dealTypes.map((d) => d.toLowerCase()).join(', ')} across India. ${meta.blurb}`,
     }
   : {
-      title: 'Hotels, Resorts & Restaurants for Sale in India | DHotels24.in Marketplace',
+      title: 'Hotels, Resorts & Restaurants for Sale in India | DHotels24.com Marketplace',
       h1: 'The hospitality marketplace',
       description: 'Verified hotels, resorts, restaurants, cafés, bars and banquet halls for sale, lease and profit sharing across India.',
     };

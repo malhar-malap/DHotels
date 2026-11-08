@@ -58,8 +58,8 @@ const ContactUsPage = () => {
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-primary-500/10 py-16">
       <Seo
-        title="Contact Us | DHotels24.in"
-        description="Get in touch with DHotels24.in to buy, sell, lease or value a hotel, resort, restaurant, café, bar or banquet hall in India."
+        title="Contact Us | DHotels24.com"
+        description="Get in touch with DHotels24.com to buy, sell, lease or value a hotel, resort, restaurant, café, bar or banquet hall in India."
         path="/contact-us"
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -175,7 +175,7 @@ const ContactUsPage = () => {
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-gray-100 mb-1 tracking-wider uppercase">Email</h3>
-                    <p className="text-gray-400 font-medium hover:text-primary-300 transition-colors cursor-pointer">support@dhotels24.in</p>
+                    <p className="text-gray-400 font-medium hover:text-primary-300 transition-colors cursor-pointer">d@dhotels24.com</p>
                   </div>
                 </div>
 

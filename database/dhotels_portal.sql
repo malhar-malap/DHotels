@@ -1,5 +1,5 @@
 -- ============================================================
--- DHotels24.in Portal Database Schema
+-- DHotels24.com Portal Database Schema
 -- Hospitality Assets & Acquisitions Marketplace (Hotels, Cafes, Restaurants, Banquets, Resorts)
 -- Database: dhotels_portal
 -- ============================================================
@@ -465,15 +465,15 @@ INSERT INTO job_categories (name, description) VALUES
 
 -- Insert Default Site Settings
 INSERT INTO site_settings (setting_key, setting_value, description) VALUES
-('site_name', 'DHotels24.in', 'Website name'),
+('site_name', 'DHotels24.com', 'Website name'),
 ('site_tagline', 'Acquisitions & Marketplace for Hotels, Cafes & Restaurants', 'Website tagline'),
 ('listing_expiry_days', '90', 'Number of days before listing expires'),
 ('max_images_per_listing', '10', 'Maximum images allowed per listing'),
 ('max_cv_size_mb', '5', 'Maximum CV file size in MB'),
 ('max_image_size_mb', '5', 'Maximum image file size in MB'),
 ('enable_registration', 'true', 'Allow new user registrations'),
-('admin_email', 'admin@dhotels24.in', 'Admin notification email'),
-('contact_email', 'contact@dhotels24.in', 'Contact email displayed on site'),
+('admin_email', 'd@dhotels24.com', 'Admin notification email'),
+('contact_email', 'd@dhotels24.com', 'Contact email displayed on site'),
 ('support_phone', '1800-XXX-XXXX', 'Support phone number');
 
 -- No default admin account is created (a shared, known password would be a backdoor).

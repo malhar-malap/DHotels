@@ -120,7 +120,7 @@ public class AuthService {
         
         // Send welcome email
         emailService.sendWelcomeEmail(user.getEmail(), user.getFullName());
-        notificationService.notify(user, NotificationService.WELCOME, "Welcome to DHotels24.in",
+        notificationService.notify(user, NotificationService.WELCOME, "Welcome to DHotels24.com",
                 "Your account is ready. Updates about your listings, inquiries and jobs will appear here.", "/dashboard");
         
         // Generate tokens

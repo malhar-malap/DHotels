@@ -93,12 +93,12 @@ const HomePage = () => {
   return (
     <div className="bg-gray-950">
       <Seo
-        title="Buy, Sell & Lease Hotels, Resorts & Restaurants in India | DHotels24.in"
+        title="Buy, Sell & Lease Hotels, Resorts & Restaurants in India | DHotels24.com"
         description="India's hospitality marketplace. Buy, sell, lease or co-own hotels, resorts, restaurants, cafés, bars and banquet halls — every listing reviewed before it goes live."
         path="/"
         schema={[
-          { '@context': 'https://schema.org', '@type': 'Organization', name: 'DHotels24.in', url: SITE_URL, logo: `${SITE_URL}/images/logo.png`, areaServed: 'IN' },
-          { '@context': 'https://schema.org', '@type': 'WebSite', name: 'DHotels24.in', url: SITE_URL },
+          { '@context': 'https://schema.org', '@type': 'Organization', name: 'DHotels24.com', url: SITE_URL, logo: `${SITE_URL}/images/logo.png`, areaServed: 'IN' },
+          { '@context': 'https://schema.org', '@type': 'WebSite', name: 'DHotels24.com', url: SITE_URL },
         ]}
       />
 

@@ -8,4 +8,4 @@ Disallow: /dashboard
 Disallow: /admin
 Allow: /
 
-Sitemap: https://dhotels24.in/sitemap.xml
+Sitemap: https://dhotels24.com/sitemap.xml
