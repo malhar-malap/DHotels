@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Launch step: put https://dhotels24.in live through the VPS's shared front proxy.
 #
-# Run on the VPS from /root/DHotels once DNS for dhotels24.in and www.dhotels24.in points at this server:
+# Run on the VPS from /root/DHotels once DNS for dhotels24.in, www.dhotels24.in and the dhotels24.com
+# aliases points at this server:
 #   bash deploy/enable-https.sh
 #
 # What it does, in order (each step stops the script if it fails):
@@ -16,6 +17,7 @@ set -euo pipefail
 
 DOMAIN=dhotels24.in
 WWW=www.dhotels24.in
+ALIASES="dhotels24.com www.dhotels24.com"   # redirect to $DOMAIN; on the same certificate
 DHOTELS_DIR=/root/DHotels
 PROXY_DIR="/root/DHealth Website"
 OVERRIDE="$PROXY_DIR/docker-compose.override.yml"
@@ -26,7 +28,7 @@ cd "$DHOTELS_DIR"
 
 echo "== 1. DNS"
 SERVER_IP=$(curl -fsS4 https://api.ipify.org)
-for name in "$DOMAIN" "$WWW"; do
+for name in "$DOMAIN" "$WWW" $ALIASES; do
   resolved=$(dig +short A "$name" @1.1.1.1 | tail -1)
   if [ "$resolved" != "$SERVER_IP" ]; then
     echo "$name resolves to '${resolved:-nothing}', expected $SERVER_IP. Fix DNS and try again."
@@ -36,11 +38,14 @@ for name in "$DOMAIN" "$WWW"; do
 done
 
 echo "== 2. Certificate"
-if [ -d "/etc/letsencrypt/live/$DOMAIN" ]; then
-  echo "Certificate already exists, skipping"
+cert_names="-d $DOMAIN -d $WWW"
+for name in $ALIASES; do cert_names="$cert_names -d $name"; done
+if [ -d "/etc/letsencrypt/live/$DOMAIN" ] && certbot certificates --cert-name "$DOMAIN" 2>/dev/null | grep -q "www.dhotels24.com"; then
+  echo "Certificate already covers every name, skipping"
 else
-  certbot certonly --standalone --non-interactive --agree-tos -m "$CERT_EMAIL" \
-    -d "$DOMAIN" -d "$WWW" \
+  # shellcheck disable=SC2086
+  certbot certonly --standalone --non-interactive --agree-tos --expand --cert-name "$DOMAIN" -m "$CERT_EMAIL" \
+    $cert_names \
     --pre-hook "docker stop $PROXY_CONTAINER" --post-hook "docker start $PROXY_CONTAINER"
 fi
 
@@ -89,6 +94,7 @@ fi
 
 echo "== Checks"
 for url in "https://$DOMAIN/" "https://$DOMAIN/api/master/categories" "https://$WWW/" "http://$DOMAIN/" \
+           "https://dhotels24.com/" "http://www.dhotels24.com/" \
            "https://dhacquisitions.co/" "https://jaswantiresidency.in/"; do
   printf '%-45s %s\n' "$url" "$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$url")"
 done
