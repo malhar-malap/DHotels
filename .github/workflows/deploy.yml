@@ -1,20 +1,59 @@
 name: Deploy DHotels
 
+# Every push to main is tested, then pulled and rebuilt on the VPS by deploy/deploy.sh.
+# A failing test stops the deploy, so the live site keeps running the last good version.
 on:
   push:
     branches:
       - main
-
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+# Never run two deploys at once; a newer push waits for the running one to finish
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
 jobs:
-  deploy:
+  backend-tests:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - name: Run backend tests
+        working-directory: backend
+        run: mvn -B test
 
+  frontend-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Run frontend tests
+        working-directory: frontend
+        run: CI=true npm test -- --watchAll=false
+      - name: Production build
+        working-directory: frontend
+        run: npm run build
+
+  deploy:
+    needs: [backend-tests, frontend-build]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
       # Skip (instead of failing every push) until the VPS_* repository secrets are configured
       - name: Check deploy secrets
         id: secrets
@@ -23,36 +62,18 @@ jobs:
         run: |
           if [ -n "$VPS_HOST" ]; then echo "ready=true" >> "$GITHUB_OUTPUT"; else echo "::notice::VPS_HOST secret not set; skipping deploy"; fi
 
-      - name: Deploy to VPS
+      # The key in VPS_SSH_KEY is pinned to deploy/deploy.sh on the server, so whatever is sent
+      # here, the server only ever runs that script. VPS_KNOWN_HOSTS pins the server's host key.
+      - name: Pull and rebuild on the VPS
         if: steps.secrets.outputs.ready == 'true'
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT }}
-
-          script: |
-            cd /root/DHotels
-
-            # backend/uploads holds user-uploaded files and is no longer tracked in git.
-            # Back it up before pulling (a pull that untracks files deletes them) and restore after.
-            # The backup is a fresh snapshot each deploy, so files deleted through the app aren't resurrected.
-            UPLOADS_BACKUP=/root/dhotels-uploads-backup
-            rm -rf "$UPLOADS_BACKUP"
-            mkdir -p "$UPLOADS_BACKUP"
-            if [ -d backend/uploads ]; then
-              cp -a backend/uploads/. "$UPLOADS_BACKUP"/
-            fi
-
-            # Match GitHub exactly (works even after a history rewrite / force-push).
-            # Untracked, git-ignored files such as .env and backend/uploads are left alone.
-            git fetch origin main
-            git reset --hard origin/main
-
-            mkdir -p backend/uploads
-            cp -a "$UPLOADS_BACKUP"/. backend/uploads/
-            # The backend container runs as uid 10001 (see backend/Dockerfile)
-            chown -R 10001:10001 backend/uploads
-
-            docker compose up --build -d
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o ServerAliveInterval=30 "root@$VPS_HOST" deploy
