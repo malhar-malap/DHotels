@@ -21,7 +21,7 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("DHotels24.com Portal API")
-                        .description("DHotels24.com Marketplace - Buy, sell, lease and partner in hotels, cafes, restaurants, and resorts")
+                        .description("DHotels24.com Marketplace - Lease hotels, cafes, restaurants, and resorts")
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("DHotels24.com Support Team")

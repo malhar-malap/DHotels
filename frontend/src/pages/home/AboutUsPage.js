@@ -7,15 +7,15 @@ import Seo from '../../components/common/Seo';
 import { CATEGORIES } from '../../utils/hospitality';
 
 const PRINCIPLES = [
-  'Connect qualified buyers, sellers, lessors, operators and investors on one trusted platform.',
-  'Keep owners’ identities and numbers private until a buyer is serious.',
+  'Connect property owners and qualified operators on one trusted leasing platform.',
+  'Keep owners’ identities and numbers private until an operator is serious.',
   'Review every listing before it is published.',
   'Plan ownership transitions so guests, staff and bookings are not disrupted.',
   'Favour well-prepared, realistic transactions over fast ones.',
 ];
 
 const STEPS = [
-  { title: 'Plan', text: 'Clarify goals, price expectations and the right structure — sale, lease or profit sharing.' },
+  { title: 'Plan', text: 'Clarify goals, rent expectations and the right lease terms — lock-in, deposit and escalation.' },
   { title: 'Match', text: 'Put the property in front of qualified counterparties, confidentially.' },
   { title: 'Diligence', text: 'Title, approvals, licences (FSSAI, excise, fire), financials and operating data.' },
   { title: 'Negotiate', text: 'Agree price, terms, lock-ins and handover conditions.' },
@@ -23,9 +23,13 @@ const STEPS = [
 ];
 
 const AUDIENCES = [
-  { title: 'For sellers', text: 'Position the property properly, protect confidentiality and reach counterparties who can close.' },
-  { title: 'For buyers', text: 'Understand your investment goals and operating strengths before presenting opportunities.' },
-  { title: 'For owners & operators', text: 'Lease and profit-sharing structures that work for both sides over the long term.' },
+  { title: 'For owners', text: 'Position the property properly, protect confidentiality and reach operators who can sign.' },
+  { title: 'For operators', text: 'Understand your operating strengths and target markets before presenting properties.' },
+  { title: 'For both sides', text: 'Lease structures that work for owner and operator over the long term.' },
+  // Sale & profit sharing paused:
+  // { title: 'For sellers', text: 'Position the property properly, protect confidentiality and reach counterparties who can close.' },
+  // { title: 'For buyers', text: 'Understand your investment goals and operating strengths before presenting opportunities.' },
+  // { title: 'For owners & operators', text: 'Lease and profit-sharing structures that work for both sides over the long term.' },
 ];
 
 const AboutUsPage = () => {
@@ -36,7 +40,7 @@ const AboutUsPage = () => {
     <div className="bg-gray-950">
       <Seo
         title="About DHotels24.com | India’s Hospitality Marketplace"
-        description="DHotels24.com is a marketplace and advisory team for buying, selling, leasing and co-owning hotels, resorts, restaurants, cafés, bars and banquet halls across India."
+        description="DHotels24.com is a marketplace and advisory team for leasing hotels, resorts, restaurants, cafés, bars and banquet halls across India."
         path="/about"
       />
 
@@ -46,7 +50,7 @@ const AboutUsPage = () => {
         <h1 className="heading-xl mt-5 max-w-4xl">A dedicated marketplace for hospitality property — and the people who run it.</h1>
         <div className="mt-10 grid gap-8 text-lg leading-relaxed text-gray-300 md:grid-cols-2">
           <p>
-            DHotels24.com is India’s transaction marketplace for hospitality businesses. We help owners sell, lease or bring in profit-sharing partners for hotels, resorts, restaurants, cafés, bars and banquet halls — and help buyers and operators find properties worth their time.
+            DHotels24.com is India’s leasing marketplace for hospitality businesses. We help owners lease out hotels, resorts, restaurants, cafés, bars and banquet halls — and help operators find properties worth running.
           </p>
           <p>
             Hotels and restaurants are not just real estate. They carry licences, teams, guest reputations and seasonal cash flows. We replace informal brokers and scattered WhatsApp forwards with a structured, confidential process — from the first listing to the final handover.
@@ -127,10 +131,10 @@ const AboutUsPage = () => {
           </div>
           <div className="space-y-5 text-lg leading-relaxed text-gray-300">
             <p>
-              With over 16 years in project development, business structuring, stakeholder management and transaction execution, Manas brings practical deal experience to hospitality M&amp;A — grounded in integrity, persistence and long-term value creation.
+              With over 16 years in project development, business structuring, stakeholder management and transaction execution, Manas brings practical deal experience to hospitality leasing — grounded in integrity, persistence and long-term value creation.
             </p>
             <p>
-              DHotels24.com began with a simple observation: India has thousands of hotels and restaurants whose owners want an exit, a successor, an operator or a growth partner — and just as many buyers looking for them, with no specialised place to meet. DHotels24.com was built to close that gap.
+              DHotels24.com began with a simple observation: India has thousands of hotels and restaurants whose owners want a capable operator to run them — and just as many operators looking for properties, with no specialised place to meet. DHotels24.com was built to close that gap.
             </p>
           </div>
         </div>
@@ -140,13 +144,13 @@ const AboutUsPage = () => {
       <section className="container-site py-16 md:py-24">
         <div className="max-w-2xl">
           <h2 className="heading-lg">Start with a conversation</h2>
-          <p className="lede mt-3">Whether you are selling, buying, leasing or looking for a partner, we will listen first — confidentially.</p>
+          <p className="lede mt-3">Whether you are leasing out a property or looking for one to run, we will listen first — confidentially.</p>
         </div>
         <div className="mt-10 grid gap-4 md:grid-cols-3">
           {[
             { icon: PiEnvelopeSimple, title: 'Send a message', text: 'We reply within one business day.', action: 'Contact us', to: '/contact-us' },
             { icon: PiCalendarBlank, title: 'Schedule a call', text: 'Pick a 30 or 60-minute slot that suits you.', action: 'Book a slot', onClick: () => setShowScheduleCall(true) },
-            { icon: PiFileText, title: 'Submit a mandate', text: 'Share what you want to buy or sell and we will outline an approach.', action: 'Submit details', onClick: () => setShowMandate(true) },
+            { icon: PiFileText, title: 'Submit a mandate', text: 'Share what you want to lease or lease out and we will outline an approach.', action: 'Submit details', onClick: () => setShowMandate(true) },
           ].map(({ icon: Icon, title, text, action, to, onClick }) => {
             const body = (
               <>

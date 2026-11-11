@@ -22,8 +22,8 @@ const RegisterPage = () => {
   const otpInputs = useRef([]);
 
   const roleOptions = [
-    { value: 'SELLER', label: 'Seller / Lister', description: 'List hotels, restaurants or venues for sale or lease' },
-    { value: 'BUYER', label: 'Buyer / Investor', description: 'Browse listings and send inquiries' },
+    { value: 'SELLER', label: 'Owner / Lister', description: 'List hotels, restaurants or venues for lease' },
+    { value: 'BUYER', label: 'Operator / Lessee', description: 'Browse listings and send inquiries' },
     { value: 'EMPLOYER', label: 'Employer', description: 'Post hospitality job openings' },
     { value: 'JOB_SEEKER', label: 'Job Seeker', description: 'Find and apply for hospitality jobs' }
   ];

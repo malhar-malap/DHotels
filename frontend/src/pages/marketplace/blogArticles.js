@@ -5,6 +5,181 @@ const imageOf = (name) => CATEGORIES.find((c) => c.name === name)?.image;
 // Long-form guides rendered at /blogs/:slug (keep slugs in sync with SitemapService.STATIC_PATHS)
 export const blogArticles = [
   {
+    slug: 'how-to-lease-a-hotel-in-india',
+    title: 'How to Lease a Hotel in India: A Step-by-Step Guide',
+    description: 'A practical guide to taking a hotel on lease in India — choosing the right property, reading the numbers, negotiating rent and lock-in, checking approvals and licences, and taking over operations.',
+    category: 'Hotels',
+    readTime: '7 min read',
+    image: imageOf('Hotels'),
+    datePublished: '2026-11-11',
+    sections: [
+      {
+        paragraphs: [
+          'Leasing a running hotel lets an operator grow without owning the land and building. You take over rooms that are already approved, an existing booking history and often a trained team, and you pay the owner a rent instead of a large upfront investment. The returns depend on getting the rent, the lock-in and the condition of the property right before you sign.',
+          'This guide walks through the steps experienced operators follow, from setting criteria to the day you take over the keys.',
+        ],
+      },
+      {
+        heading: '1. Define what you are looking for',
+        paragraphs: ['Clear criteria save weeks of chasing unsuitable properties and make your first conversation with an owner far more productive.'],
+        list: [
+          'Location and demand driver: business district, airport, pilgrimage town, hill station or beach destination',
+          'Size: number of rooms (keys), banquet and restaurant space, and parking',
+          'Positioning: budget, mid-scale, upscale or boutique, and whether you will run it under your own brand',
+          'Budget: monthly rent you can carry, the security deposit, and the capital needed for refurbishment',
+          'Condition: a running hotel you can take over as-is, or a bare shell you will fit out',
+        ],
+      },
+      {
+        heading: '2. Shortlist properties',
+        paragraphs: [
+          'On DHotels24.com you can filter hotels by city, room count and rent, compare plot and constructed area side by side, and unlock the owner’s contact when you are ready to talk. Shortlist three or four properties and visit them on both a busy and a quiet day.',
+        ],
+      },
+      {
+        heading: '3. Read the numbers',
+        paragraphs: [
+          'Ask for at least two years of occupancy, average room rate and revenue by month, split across rooms, food and beverage and banqueting. Build your own forecast: what the hotel can earn under your management, minus operating costs, should comfortably cover the rent with room for seasonality.',
+          'A common rule of thumb is that rent should not exceed roughly a quarter to a third of the revenue you expect, but this varies widely with location and positioning.',
+        ],
+      },
+      {
+        heading: '4. Negotiate the lease terms',
+        list: [
+          'Rent and escalation: fixed rent, revenue share, or a mix, and how often it increases',
+          'Lock-in period: the minimum term during which neither side can exit',
+          'Security deposit: amount, interest (if any) and when it is returned',
+          'Rent-free fit-out period: time to refurbish before rent starts',
+          'Maintenance: who pays for structural repairs, lifts, generators and major equipment',
+          'Sub-letting and branding: whether you can sub-let outlets or put the hotel under your brand',
+        ],
+      },
+      {
+        heading: '5. Check approvals and licences',
+        paragraphs: [
+          'Confirm that the building is approved for hotel use and that the constructed area matches the sanctioned plan. Check which licences can be transferred to you and which you must apply for afresh — typically the trade licence, FSSAI, fire NOC, the police or tourism registration and, if there is a bar, the excise licence.',
+        ],
+      },
+      {
+        heading: '6. Plan the takeover',
+        paragraphs: [
+          'Agree an inventory of furniture and equipment, how existing staff will be handled, and how bookings already on the books will be honoured. Update the online travel agency listings, payment accounts and signage on the day you take charge.',
+          'DHotels24.com’s advisors can help you compare properties and structure the lease. Get in touch through the contact page when you have a shortlist.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'hospitality-lease-agreement-checklist',
+    title: 'Hotel & Restaurant Lease Agreements: What to Check Before You Sign',
+    description: 'The clauses that matter most in an Indian hospitality lease — rent and escalation, lock-in, security deposit, fit-out period, maintenance, licences and exit — for hotels, resorts, restaurants and banquet halls.',
+    category: 'Leasing',
+    readTime: '5 min read',
+    image: imageOf('Banquet halls'),
+    datePublished: '2026-11-11',
+    sections: [
+      {
+        paragraphs: [
+          'A hospitality lease runs for years and decides how much of the business’s profit you keep. Most disputes between owners and operators trace back to a clause that was vague or missing. Use this checklist with your lawyer before you sign.',
+        ],
+      },
+      {
+        heading: 'Money',
+        list: [
+          'Base rent, whether it is fixed or linked to revenue, and when it is due',
+          'Escalation: the percentage and frequency (for example 5% every year or 15% every three years)',
+          'Security deposit: number of months, whether it earns interest, and the deadline for refund at exit',
+          'GST, property tax, and who pays municipal and society charges',
+        ],
+      },
+      {
+        heading: 'Term and exit',
+        list: [
+          'Total lease term and renewal option, and on what terms rent resets at renewal',
+          'Lock-in period for each side, and the penalty for leaving early',
+          'Notice period after the lock-in ends',
+          'What happens to your fit-out, equipment and brand signage when you leave',
+        ],
+      },
+      {
+        heading: 'Running the property',
+        list: [
+          'Permitted use — hotel, restaurant, bar, banqueting — written explicitly',
+          'Rent-free period for refurbishment or fit-out',
+          'Responsibility for structural repairs, lifts, DG sets, fire systems and major equipment',
+          'Right to sub-let outlets, brand the property, or bring in a management company',
+          'Owner’s cooperation in transferring or applying for licences in your name',
+        ],
+      },
+      {
+        heading: 'Paperwork',
+        paragraphs: [
+          'Leases longer than eleven months generally need to be registered, with stamp duty paid according to state rules. Keep copies of the owner’s title documents, the sanctioned building plan and the occupancy certificate with the agreement, and make sure the person signing has the authority to lease the property.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'restaurant-takeover-checklist-india',
+    title: 'Taking Over a Running Restaurant in India: A Checklist',
+    description: 'What to check before taking over a running restaurant, café or bar in India — lease terms, licences, fit-out, trading history and staff — so the outlet keeps trading from day one.',
+    category: 'Restaurants',
+    readTime: '6 min read',
+    image: imageOf('Restaurants and Bar'),
+    datePublished: '2026-10-31',
+    sections: [
+      {
+        paragraphs: [
+          'Taking over an existing restaurant, café or bar can save months of fit-out and licensing compared with starting fresh. The risk is inheriting problems you cannot see in a single visit. Work through this checklist before you pay a deposit.',
+        ],
+      },
+      {
+        heading: 'The lease',
+        list: [
+          'Remaining term and lock-in, and whether the landlord consents to the transfer in writing',
+          'Rent, escalation and security deposit — and who gets the existing deposit back',
+          'Permitted use: confirm that food service and, if relevant, alcohol are allowed',
+          'Restrictions on signage, exhaust ducts, operating hours and outdoor seating',
+        ],
+      },
+      {
+        heading: 'Licences and registrations',
+        paragraphs: ['Requirements vary by state and city, but most outlets need some combination of:'],
+        list: [
+          'FSSAI licence or registration, in the name of the operating entity',
+          'Health or trade licence from the municipal corporation',
+          'Fire NOC, depending on seating capacity and premises size',
+          'Shops and establishments registration and GST registration',
+          'Excise licence for serving alcohol — check carefully whether it can be transferred or must be applied for afresh',
+          'Music and performance licences if you play recorded music or host events',
+        ],
+      },
+      {
+        heading: 'Fit-out and equipment',
+        paragraphs: [
+          'Get a written inventory of what is included: kitchen equipment, exhaust and fresh-air systems, refrigeration, furniture, POS hardware and software, and any brand assets. Check the condition and age of the expensive items, and whether any are leased or financed.',
+        ],
+      },
+      {
+        heading: 'Trading history',
+        list: [
+          'Monthly sales for at least a year, split by dine-in, takeaway and delivery platforms',
+          'Platform ratings, reviews and any account-level penalties',
+          'Food and beverage cost percentages and wastage',
+          'Pending dues to suppliers, landlords and statutory authorities',
+        ],
+      },
+      {
+        heading: 'People and handover',
+        paragraphs: [
+          'Decide early which staff you will retain, especially the head chef and floor manager, and agree how existing liabilities to employees will be settled. Plan the handover on a slow trading day, update delivery-platform and payment accounts, and keep recipes and supplier relationships documented.',
+        ],
+      },
+    ],
+  },
+  /* Sale & profit sharing paused (only lease deals are offered). Uncomment to bring these guides back,
+     and re-add their slugs to SitemapService.STATIC_PATHS.
+  {
     slug: 'how-to-buy-a-hotel-in-india',
     title: 'How to Buy a Hotel in India: A Step-by-Step Guide',
     description: 'A practical guide to buying a running hotel in India — setting criteria, sourcing deals, reading the numbers, checking title and licences, structuring the deal and taking over operations.',
@@ -134,64 +309,6 @@ export const blogArticles = [
     ],
   },
   {
-    slug: 'restaurant-takeover-checklist-india',
-    title: 'Taking Over a Running Restaurant in India: A Checklist',
-    description: 'What to check before taking over a running restaurant, café or bar in India — lease terms, licences, fit-out, trading history and staff — so the outlet keeps trading from day one.',
-    category: 'Restaurants',
-    readTime: '6 min read',
-    image: imageOf('Restaurants and Bar'),
-    datePublished: '2026-10-31',
-    sections: [
-      {
-        paragraphs: [
-          'Taking over an existing restaurant, café or bar can save months of fit-out and licensing compared with starting fresh. The risk is inheriting problems you cannot see in a single visit. Work through this checklist before you pay a deposit.',
-        ],
-      },
-      {
-        heading: 'The lease',
-        list: [
-          'Remaining term and lock-in, and whether the landlord consents to the transfer in writing',
-          'Rent, escalation and security deposit — and who gets the existing deposit back',
-          'Permitted use: confirm that food service and, if relevant, alcohol are allowed',
-          'Restrictions on signage, exhaust ducts, operating hours and outdoor seating',
-        ],
-      },
-      {
-        heading: 'Licences and registrations',
-        paragraphs: ['Requirements vary by state and city, but most outlets need some combination of:'],
-        list: [
-          'FSSAI licence or registration, in the name of the operating entity',
-          'Health or trade licence from the municipal corporation',
-          'Fire NOC, depending on seating capacity and premises size',
-          'Shops and establishments registration and GST registration',
-          'Excise licence for serving alcohol — check carefully whether it can be transferred or must be applied for afresh',
-          'Music and performance licences if you play recorded music or host events',
-        ],
-      },
-      {
-        heading: 'Fit-out and equipment',
-        paragraphs: [
-          'Get a written inventory of what is included: kitchen equipment, exhaust and fresh-air systems, refrigeration, furniture, POS hardware and software, and any brand assets. Check the condition and age of the expensive items, and whether any are leased or financed.',
-        ],
-      },
-      {
-        heading: 'Trading history',
-        list: [
-          'Monthly sales for at least a year, split by dine-in, takeaway and delivery platforms',
-          'Platform ratings, reviews and any account-level penalties',
-          'Food and beverage cost percentages and wastage',
-          'Pending dues to suppliers, landlords and statutory authorities',
-        ],
-      },
-      {
-        heading: 'People and handover',
-        paragraphs: [
-          'Decide early which staff you will retain, especially the head chef and floor manager, and agree how existing liabilities to employees will be settled. Plan the handover on a slow trading day, update delivery-platform and payment accounts, and keep recipes and supplier relationships documented.',
-        ],
-      },
-    ],
-  },
-  {
     slug: 'hotel-profit-sharing-agreements-explained',
     title: 'Hotel Profit-Sharing Agreements, Explained',
     description: 'How profit-sharing partnerships for hotels work in India — who brings what, how profit is split, lock-ins, reporting and exits — and what owners and partners should agree in writing.',
@@ -238,6 +355,7 @@ export const blogArticles = [
       },
     ],
   },
+  */
 ];
 
 export const getBlogArticle = (slug) => blogArticles.find((a) => a.slug === slug);

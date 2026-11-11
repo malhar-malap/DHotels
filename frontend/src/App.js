@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import ErrorBoundary from './components/common/ErrorBoundary';
 
@@ -22,7 +22,8 @@ const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage'));
 const ListingsPage = lazy(() => import('./pages/marketplace/ListingsPage'));
 const ListingDetailPage = lazy(() => import('./pages/marketplace/ListingDetailPage'));
 const CreateListingPage = lazy(() => import('./pages/marketplace/CreateListingPage'));
-const PartialPropertiesPage = lazy(() => import('./pages/marketplace/PartialPropertiesPage'));
+// Sale & profit sharing paused
+// const PartialPropertiesPage = lazy(() => import('./pages/marketplace/PartialPropertiesPage'));
 const BlogsPage = lazy(() => import('./pages/marketplace/BlogsPage'));
 const BlogArticlePage = lazy(() => import('./pages/marketplace/BlogArticlePage'));
 const SeoLandingPage = lazy(() => import('./pages/marketplace/SeoLandingPage'));
@@ -114,12 +115,21 @@ function App() {
             {CATEGORIES.map((c) => (
               <Route key={c.path} path={c.path} element={<ListingsPage />} />
             ))}
+            {/* Old "for sale" category URLs now point at the lease pages */}
+            {CATEGORIES.filter((c) => c.legacyPath).map((c) => (
+              <Route key={c.legacyPath} path={c.legacyPath} element={<Navigate to={c.path} replace />} />
+            ))}
             <Route path="/listings/:id" element={<ListingDetailPage />} />
-            <Route path="/partial-properties" element={<PartialPropertiesPage />} />
+            {/* Sale & profit sharing paused: profit-sharing page hidden, its URL goes to hotels for lease */}
+            {/* <Route path="/partial-properties" element={<PartialPropertiesPage />} /> */}
+            <Route path="/partial-properties" element={<Navigate to="/hotels-for-lease-india" replace />} />
             
             {/* Blogs & SEO Landing Pages */}
             <Route path="/blogs" element={<BlogsPage />} />
             <Route path="/blogs/:slug" element={<BlogArticlePage />} />
+            {Object.entries(seoData).filter(([, page]) => page.legacyPath).map(([pathKey, page]) => (
+              <Route key={page.legacyPath} path={page.legacyPath} element={<Navigate to={`/${pathKey}`} replace />} />
+            ))}
             {Object.keys(seoData).map((pathKey) => (
               <Route key={pathKey} path={`/${pathKey}`} element={<SeoLandingPage pathKey={pathKey} />} />
             ))}

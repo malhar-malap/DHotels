@@ -27,68 +27,76 @@ export const CATEGORIES = [
     name: 'Hotels',
     label: 'Hotels',
     singular: 'Hotel',
-    path: '/hotels-for-sale-india',
+    path: '/hotels-for-lease-india',
+    legacyPath: '/hotels-for-sale-india', // old URL, redirects to path
     icon: PiBuildings,
     image: unsplash('photo-1566073771259-6a8506099945'),
     blurb: 'Business, boutique and heritage hotels with operating history.',
-    dealTypes: ['For Sale', 'For Lease', 'Profit Sharing'],
+    dealTypes: ['For Lease'], // sale & profit sharing paused: ['For Sale', 'For Lease', 'Profit Sharing']
   },
   {
     name: 'Resorts',
     label: 'Resorts',
     singular: 'Resort',
-    path: '/resorts-for-sale-india',
+    path: '/resorts-for-lease-india',
+    legacyPath: '/resorts-for-sale-india', // old URL, redirects to path
     icon: PiTreePalm,
     image: unsplash('photo-1582719508461-905c673771fd'),
     blurb: 'Leisure, wellness and destination resorts across India.',
-    dealTypes: ['For Sale', 'For Lease'],
+    dealTypes: ['For Lease'], // sale paused: ['For Sale', 'For Lease']
   },
   {
     name: 'Restaurants',
     label: 'Restaurants',
     singular: 'Restaurant',
-    path: '/restaurants-for-sale-india',
+    path: '/restaurants-for-lease-india',
+    legacyPath: '/restaurants-for-sale-india', // old URL, redirects to path
     icon: PiForkKnife,
     image: unsplash('photo-1517248135467-4c7edcad34c4'),
     blurb: 'Fine dine, casual dining and QSR outlets in proven locations.',
-    dealTypes: ['For Sale', 'For Lease'],
+    dealTypes: ['For Lease'], // sale paused: ['For Sale', 'For Lease']
   },
   {
     name: 'Restaurants and Bar',
     label: 'Restaurant & Bar',
     singular: 'Restaurant & Bar',
-    path: '/restaurant-and-bar-for-sale-india',
+    path: '/restaurant-and-bar-for-lease-india',
+    legacyPath: '/restaurant-and-bar-for-sale-india', // old URL, redirects to path
     icon: PiMartini,
     image: unsplash('photo-1514933651103-005eec06c04b'),
     blurb: 'Licensed resto-bars, pubs and lounges with active permits.',
-    dealTypes: ['For Sale', 'For Lease'],
+    dealTypes: ['For Lease'], // sale paused: ['For Sale', 'For Lease']
   },
   {
     name: 'Cafe',
     label: 'Cafés',
     singular: 'Café',
-    path: '/cafes-for-sale-india',
+    path: '/cafes-for-lease-india',
+    legacyPath: '/cafes-for-sale-india', // old URL, redirects to path
     icon: PiCoffee,
     image: unsplash('photo-1554118811-1e0d58224f24'),
     blurb: 'Coffee shops, bakeries and bistros in high-footfall streets.',
-    dealTypes: ['For Sale', 'For Lease'],
+    dealTypes: ['For Lease'], // sale paused: ['For Sale', 'For Lease']
   },
   {
     name: 'Banquet halls',
     label: 'Banquet Halls',
     singular: 'Banquet Hall',
-    path: '/banquet-halls-for-sale-india',
+    path: '/banquet-halls-for-lease-india',
+    legacyPath: '/banquet-halls-for-sale-india', // old URL, redirects to path
     icon: PiChampagne,
     image: unsplash('photo-1519167758481-83f550bb49b3'),
     blurb: 'Wedding, conference and celebration venues.',
-    dealTypes: ['For Sale', 'For Lease'],
+    dealTypes: ['For Lease'], // sale paused: ['For Sale', 'For Lease']
   },
 ];
 
+// Only lease deals are offered for now (backend: app.enabled-deal-types). To bring sale or profit
+// sharing back, uncomment them here and in the other places marked "sale & profit sharing paused".
 export const DEAL_TYPES = [
-  { name: 'For Sale', label: 'Buy', description: 'Outright acquisition of the property or running business.' },
+  // { name: 'For Sale', label: 'Buy', description: 'Outright acquisition of the property or running business.' },
   { name: 'For Lease', label: 'Lease', description: 'Take over operations on a long-term lease.' },
-  { name: 'Profit Sharing', label: 'Profit Sharing', description: 'Co-own a hotel and share in its operating profit.' },
+  // { name: 'Profit Sharing', label: 'Profit Sharing', description: 'Co-own a hotel and share in its operating profit.' },
 ];
 
 export const TITLE_TYPES = ['Freehold', 'Leasehold', 'Other'];
@@ -106,7 +114,7 @@ const normalize = (value) => String(value ?? '').trim().toLowerCase();
 export const getCategoryMeta = (nameOrPath) => {
   const key = normalize(nameOrPath);
   if (!key) return null;
-  return CATEGORIES.find((c) => normalize(c.name) === key || c.path === nameOrPath || normalize(c.label) === key) || null;
+  return CATEGORIES.find((c) => normalize(c.name) === key || c.path === nameOrPath || c.legacyPath === nameOrPath || normalize(c.label) === key) || null;
 };
 
 export const isHotelCategory = (name) => normalize(name) === 'hotels';

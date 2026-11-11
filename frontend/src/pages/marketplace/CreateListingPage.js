@@ -128,7 +128,12 @@ const CreateListingPage = () => {
   useEffect(() => {
     if (!formData.categoryId) { setDealTypes([]); return; }
     masterAPI.getDealTypes(formData.categoryId)
-      .then((res) => setDealTypes(res.data?.data || []))
+      .then((res) => {
+        const types = res.data?.data || [];
+        setDealTypes(types);
+        // Only one deal type on offer (lease): pick it so the owner doesn't have to
+        if (types.length === 1) setFormData((prev) => (prev.dealTypeId ? prev : { ...prev, dealTypeId: types[0].id }));
+      })
       .catch(() => setDealTypes([]));
   }, [formData.categoryId]);
 
@@ -281,7 +286,7 @@ const CreateListingPage = () => {
     id: 0,
     displayTitle: formData.title.trim() || (categoryMeta ? `Your ${categoryMeta.singular.toLowerCase()} title` : 'Your listing title'),
     categoryName: categoryName || 'Hotels',
-    dealType: dealName || 'For Sale',
+    dealType: dealName || 'For Lease',
     cityName: formData.cityName || 'City',
     locality: formData.locality,
     stateName: formData.stateName,
@@ -313,7 +318,7 @@ const CreateListingPage = () => {
         </button>
         <div className="mt-6 max-w-2xl">
           <p className="eyebrow eyebrow-rule">{isEditMode ? 'Edit listing' : 'List your property'}</p>
-          <h1 className="heading-lg mt-3">{isEditMode ? 'Update your listing' : 'Tell buyers about your property'}</h1>
+          <h1 className="heading-lg mt-3">{isEditMode ? 'Update your listing' : 'Tell operators about your property'}</h1>
           <p className="mt-3 text-gray-400">Takes about five minutes. Our team reviews every listing and adds photographs before it goes live.</p>
         </div>
 
@@ -389,6 +394,7 @@ const CreateListingPage = () => {
                       );
                     })}
                   </div>
+                  {/* Sale & profit sharing paused; this note shows only if Profit Sharing is offered again */}
                   {dealName === 'Profit Sharing' && (
                     <p className="mt-3 flex items-start gap-2 text-sm text-gray-400">
                       <PiInfo className="mt-0.5 h-4 w-4 shrink-0 text-primary-400" />
@@ -529,7 +535,7 @@ const CreateListingPage = () => {
                   </select>
                   <label className="mt-3 flex cursor-pointer items-center gap-2.5 text-sm text-gray-300">
                     <input type="checkbox" name="priceNotDisclosed" checked={formData.priceNotDisclosed} onChange={handleChange} className="h-4 w-4 rounded border-white/20 bg-gray-900 accent-primary-400" />
-                    Don't show the price — share it with buyers when they connect
+                    Don't show the rent — share it with operators when they connect
                   </label>
                 </div>
                 <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 px-4 py-3 sm:mb-5">
@@ -553,7 +559,7 @@ const CreateListingPage = () => {
                   maxLength={500}
                   value={formData.shortDescription}
                   onChange={handleChange}
-                  placeholder="One or two lines buyers see first — location advantage, occupancy, brand, licences."
+                  placeholder="One or two lines operators see first — location advantage, occupancy, brand, licences."
                   className="field resize-y"
                 />
               </div>
@@ -569,7 +575,7 @@ const CreateListingPage = () => {
                   maxLength={3000}
                   value={formData.detailedDescription}
                   onChange={handleChange}
-                  placeholder="Operating history, occupancy and ADR, revenue, staff, licences (FSSAI, liquor, fire NOC), parking, and why you are selling or leasing."
+                  placeholder="Operating history, occupancy and ADR, revenue, staff, licences (FSSAI, liquor, fire NOC), parking, and why you are leasing it out."
                   className="field resize-y"
                 />
               </div>

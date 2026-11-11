@@ -25,18 +25,19 @@ const PRICE_PRESETS = [
   { label: '₹25 Cr +', min: '250000000', max: '' },
 ];
 
-const DEAL_FILTERS = ['For Sale', 'For Lease', 'Profit Sharing'];
+// Sale & profit sharing paused: ['For Sale', 'For Lease', 'Profit Sharing']
+const DEAL_FILTERS = ['For Lease'];
 
 const pageCopy = (meta) => meta
   ? {
-      title: `${meta.label} for Sale & Lease in India | DHotels24.com`,
-      h1: `${meta.label} for sale & lease`,
+      title: `${meta.label} for Lease in India | DHotels24.com`,
+      h1: `${meta.label} for lease`,
       description: `Browse verified ${meta.label.toLowerCase()} for ${meta.dealTypes.map((d) => d.toLowerCase()).join(', ')} across India. ${meta.blurb}`,
     }
   : {
-      title: 'Hotels, Resorts & Restaurants for Sale in India | DHotels24.com Marketplace',
+      title: 'Hotels, Resorts & Restaurants for Lease in India | DHotels24.com Marketplace',
       h1: 'The hospitality marketplace',
-      description: 'Verified hotels, resorts, restaurants, cafés, bars and banquet halls for sale, lease and profit sharing across India.',
+      description: 'Verified hotels, resorts, restaurants, cafés, bars and banquet halls for lease across India.',
     };
 
 const ListingsPage = () => {
@@ -309,6 +310,8 @@ const ListingsPage = () => {
             )}
           </div>
           <div className="flex flex-wrap items-center gap-3">
+          {/* Deal type toggle hidden while lease is the only deal type (sale & profit sharing paused) */}
+          {availableDeals.length > 1 && (
           <div className="flex rounded-full border border-white/10 p-0.5" role="group" aria-label="Deal type">
             {['', ...availableDeals].map((d) => (
               <button
@@ -322,6 +325,7 @@ const ListingsPage = () => {
               </button>
             ))}
           </div>
+          )}
           <label className="flex items-center gap-2 text-sm text-gray-400">
             Sort
             <select

@@ -13,30 +13,33 @@ import StrategicWorkflow from '../../components/home/StrategicWorkflow';
 
 const HERO_IMAGES = [CATEGORIES[0].image, CATEGORIES[1].image, CATEGORIES[3].image];
 
+// Sale & profit sharing paused: with one deal type the mode tabs are hidden (see the search form)
 const SEARCH_MODES = [
-  { key: 'For Sale', label: 'Buy' },
+  // { key: 'For Sale', label: 'Buy' },
   { key: 'For Lease', label: 'Lease' },
-  { key: 'Profit Sharing', label: 'Profit sharing' },
+  // { key: 'Profit Sharing', label: 'Profit sharing' },
 ];
 
 const TRUST_POINTS = [
   { icon: PiSealCheck, text: 'Every listing reviewed before it goes live' },
-  { icon: PiLockKey, text: 'Seller contact shared only with serious buyers' },
-  { icon: PiHandshake, text: 'Advisory support through closing' },
+  { icon: PiLockKey, text: 'Owner contact shared only with serious operators' },
+  { icon: PiHandshake, text: 'Advisory support through to signing' },
 ];
 
 const DEAL_ICONS = { 'For Sale': PiTag, 'For Lease': PiKey, 'Profit Sharing': PiChartLineUp };
 
 const OWNER_STEPS = [
-  { title: 'List privately', text: 'Share rooms, areas, title and price in a five-minute form.' },
+  { title: 'List privately', text: 'Share rooms, areas and expected rent in a five-minute form.' },
   { title: 'We review', text: 'Our team checks the details and publishes it with a listing code.' },
-  { title: 'Qualified buyers reach out', text: 'Only buyers who unlock your listing can see your contact details.' },
-  { title: 'Sell, lease or partner', text: 'Choose the structure that works — outright sale, lease or profit sharing.' },
+  { title: 'Qualified operators reach out', text: 'Only operators who unlock your listing can see your contact details.' },
+  { title: 'Sign the lease', text: 'Agree rent, lock-in and deposit directly, with our advisors on hand.' },
+  // Sale & profit sharing paused:
+  // { title: 'Sell, lease or partner', text: 'Choose the structure that works — outright sale, lease or profit sharing.' },
 ];
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [mode, setMode] = useState('For Sale');
+  const [mode, setMode] = useState('For Lease'); // was 'For Sale' (sale & profit sharing paused)
   const [category, setCategory] = useState('');
   const [city, setCity] = useState('');
   const [cities, setCities] = useState([]);
@@ -93,8 +96,8 @@ const HomePage = () => {
   return (
     <div className="bg-gray-950">
       <Seo
-        title="Buy, Sell & Lease Hotels, Resorts & Restaurants in India | DHotels24.com"
-        description="India's hospitality marketplace. Buy, sell, lease or co-own hotels, resorts, restaurants, cafés, bars and banquet halls — every listing reviewed before it goes live."
+        title="Hotels, Resorts & Restaurants for Lease in India | DHotels24.com"
+        description="India's hospitality leasing marketplace. Lease hotels, resorts, restaurants, cafés, bars and banquet halls — every listing reviewed before it goes live."
         path="/"
         schema={[
           { '@context': 'https://schema.org', '@type': 'Organization', name: 'DHotels24.com', url: SITE_URL, logo: `${SITE_URL}/images/logo.png`, areaServed: 'IN' },
@@ -127,15 +130,17 @@ const HomePage = () => {
             <p className="eyebrow eyebrow-rule">India’s hospitality deal room</p>
             <h1 className="heading-xl mt-5">
               Hotels, resorts &amp; restaurants —{' '}
-              <em className="text-gradient not-italic">bought, leased and shared.</em>
+              <em className="text-gradient not-italic">ready to lease.</em>
             </h1>
             <p className="lede mt-5 max-w-2xl">
-              A private marketplace for operating hospitality properties. Find your next asset, or put yours in front of buyers who are ready to deal.
+              A private marketplace for hospitality properties on lease. Find your next property to run, or put yours in front of operators who are ready to sign.
             </p>
           </div>
 
           {/* Structured search */}
           <form onSubmit={handleSearch} className="surface-raised mt-10 max-w-4xl p-2 !bg-gray-900/90 backdrop-blur-xl" role="search">
+            {/* Deal type tabs only make sense with more than one deal type (sale & profit sharing paused) */}
+            {SEARCH_MODES.length > 1 && (
             <div className="flex gap-1 p-1" role="tablist" aria-label="Deal type">
               {SEARCH_MODES.map((m) => (
                 <button
@@ -150,6 +155,7 @@ const HomePage = () => {
                 </button>
               ))}
             </div>
+            )}
             <div className="grid gap-2 p-1 md:grid-cols-[1.1fr_1fr_auto]">
               <label className="flex flex-col rounded-xl bg-gray-950/60 px-4 py-2.5 ring-1 ring-white/[0.06] focus-within:ring-primary-400/60">
                 <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">Property type</span>
@@ -261,6 +267,7 @@ const HomePage = () => {
       </section>
 
       {/* ============ DEAL STRUCTURES ============ */}
+      {/* Sale & profit sharing paused: with only lease deals this three-card section is hidden.
       <section className="container-site py-20 lg:py-28">
         <div className="max-w-2xl">
           <p className="eyebrow eyebrow-rule">Ways to deal</p>
@@ -288,6 +295,7 @@ const HomePage = () => {
           })}
         </div>
       </section>
+      */}
 
       {/* ============ STRATEGIC WORKFLOW (buyers) ============ */}
       <StrategicWorkflow />
@@ -298,7 +306,7 @@ const HomePage = () => {
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="eyebrow eyebrow-rule">For owners</p>
-              <h2 className="heading-lg mt-3">Sell, lease or partner in four steps</h2>
+              <h2 className="heading-lg mt-3">Lease out your property in four steps</h2>
             </div>
             <Link to="/listings/create" className="btn-brass self-start md:self-auto">List your property</Link>
           </div>

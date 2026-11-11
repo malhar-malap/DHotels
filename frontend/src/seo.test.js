@@ -5,7 +5,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import HomePage from './pages/home/HomePage';
 import AboutUsPage from './pages/home/AboutUsPage';
 import ListingsPage from './pages/marketplace/ListingsPage';
-import PartialPropertiesPage from './pages/marketplace/PartialPropertiesPage';
+// import PartialPropertiesPage from './pages/marketplace/PartialPropertiesPage'; // sale & profit sharing paused
 import BlogsPage from './pages/marketplace/BlogsPage';
 import BlogArticlePage from './pages/marketplace/BlogArticlePage';
 import SeoLandingPage from './pages/marketplace/SeoLandingPage';
@@ -24,7 +24,7 @@ const pages = [
   ['/about', <AboutUsPage />],
   ['/listings', <ListingsPage />],
   ...CATEGORIES.map((c) => [c.path, <ListingsPage />]),
-  ['/partial-properties', <PartialPropertiesPage />],
+  // ['/partial-properties', <PartialPropertiesPage />], // sale & profit sharing paused
   ['/blogs', <BlogsPage />],
   ...blogArticles.map((a) => [`/blogs/${a.slug}`, null]),
   ...Object.keys(seoData).map((key) => [`/${key}`, <SeoLandingPage pathKey={key} />]),
@@ -66,6 +66,8 @@ describe('SEO tags on every indexable page', () => {
     expect(head.meta).not.toMatch(/noindex/);
     expect((head.body.match(/<h1[\s>]/g) || []).length).toBe(1);
     expect(head.body + head.meta + head.schema).not.toMatch(/hospital(?!ity)|pharma|dhacquisitions/i);
+    // Only lease deals are offered; no public page may advertise sale or profit sharing
+    expect(head.title + head.meta + head.body.replace(/<script[\s\S]*?<\/script>/g, '')).not.toMatch(/for sale|profit[- ]sharing|\bbuy(ing|ers?)?\b|\bsell(ing|ers?)?\b|co-own/i);
 
     expect(seen.titles.has(head.title)).toBe(false);
     expect(seen.descriptions.has(description)).toBe(false);
@@ -75,6 +77,6 @@ describe('SEO tags on every indexable page', () => {
 
   test('articles and landing pages carry structured data', () => {
     expect(renderHead(`/blogs/${blogArticles[0].slug}`, null).schema).toMatch(/"Article".*"BreadcrumbList"|"BreadcrumbList".*"Article"/s);
-    expect(renderHead('/hotels-for-sale-goa', <SeoLandingPage pathKey="hotels-for-sale-goa" />).schema).toContain('"FAQPage"');
+    expect(renderHead('/hotels-for-lease-goa', <SeoLandingPage pathKey="hotels-for-lease-goa" />).schema).toContain('"FAQPage"');
   });
 });

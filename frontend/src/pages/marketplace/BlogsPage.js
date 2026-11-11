@@ -21,14 +21,14 @@ const BlogsPage = () => {
   return (
     <div className="bg-gray-950">
       <Seo
-        title="Insights & Market Guides | Buying Hotels, Resorts & Restaurants | DHotels24.com"
-        description="Guides to buying, leasing and investing in hotels, resorts, restaurants and banquet halls across India — what to check, deal structures and regional notes."
+        title="Insights & Market Guides | Leasing Hotels, Resorts & Restaurants | DHotels24.com"
+        description="Guides to leasing hotels, resorts, restaurants and banquet halls across India — what to check, lease terms and regional notes."
         path="/blogs"
       />
 
       <section className="container-site py-16 md:py-20">
         <p className="eyebrow eyebrow-rule">Insights</p>
-        <h1 className="heading-xl mt-4 max-w-3xl">Guides for hospitality buyers and owners</h1>
+        <h1 className="heading-xl mt-4 max-w-3xl">Guides for hospitality operators and owners</h1>
         <p className="lede mt-5 max-w-2xl">Practical notes on what to check, how deals are structured and where the opportunities are.</p>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2">

@@ -24,7 +24,7 @@ const CardTitle = ({ children }) => (
 const WHY_PAY = [
   { icon: PiFunnel, title: 'We filter out the noise', text: 'Only reviewed, genuine listings are published.' },
   { icon: PiClock, title: 'You save time', text: 'Speak only to owners who are actually ready to deal.' },
-  { icon: PiTarget, title: 'Better responses', text: 'Owners take a buyer seriously when they reach out this way.' },
+  { icon: PiTarget, title: 'Better responses', text: 'Owners take an operator seriously when they reach out this way.' },
 ];
 
 const STEPS = [
@@ -77,7 +77,7 @@ const EnquiryFunnel = () => (
       <PiUserFocus className="h-7 w-7 text-primary-200" />
     </span>
     <div>
-      <p className="font-display text-lg text-primary-200">Serious buyers</p>
+      <p className="font-display text-lg text-primary-200">Serious operators</p>
       <p className="text-xs text-gray-500">Ready to visit and negotiate</p>
     </div>
   </div>
@@ -89,7 +89,7 @@ const StrategicWorkflow = () => (
       <div className="max-w-2xl">
         <p className="eyebrow eyebrow-rule">Strategic workflow</p>
         <h2 id="workflow-heading" className="heading-lg mt-3">How a {CONTACT_FEE} connection works</h2>
-        <p className="lede mt-3">Owners’ contact details stay private until a buyer is serious enough to pay for them — which keeps every conversation worth having.</p>
+        <p className="lede mt-3">Owners’ contact details stay private until an operator is serious enough to pay for them — which keeps every conversation worth having.</p>
       </div>
 
       <div className="mt-12 grid gap-4 lg:grid-cols-12">
@@ -160,7 +160,7 @@ const StrategicWorkflow = () => (
         </Card>
 
         <Card className="lg:col-span-7">
-          <CardTitle>How it works for buyers</CardTitle>
+          <CardTitle>How it works for operators</CardTitle>
           <ol className="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
             {STEPS.map(({ icon: Icon, title, text }, i) => (
               <li key={title} className="relative">
@@ -197,7 +197,7 @@ const StrategicWorkflow = () => (
         </Card>
 
         <Card className="lg:col-span-3">
-          <CardTitle>Built for <span className="text-primary-300">serious buyers</span></CardTitle>
+          <CardTitle>Built for <span className="text-primary-300">serious operators</span></CardTitle>
           <dl className="mt-6 divide-y divide-white/[0.06]">
             {TRUST.map((t) => (
               <div key={t.label} className="py-3 first:pt-0 last:pb-0">

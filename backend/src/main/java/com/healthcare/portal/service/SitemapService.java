@@ -28,13 +28,15 @@ public class SitemapService {
     // Public, indexable frontend routes
     private static final List<String> STATIC_PATHS = List.of(
             "/", "/about", "/contact-us", "/blogs", "/listings",
-            "/hotels-for-sale-india", "/restaurants-for-sale-india", "/cafes-for-sale-india",
-            "/banquet-halls-for-sale-india", "/restaurant-and-bar-for-sale-india", "/resorts-for-sale-india",
-            "/partial-properties", "/hospitality-jobs-india",
-            "/hotels-for-sale-goa", "/hotels-for-sale-maharashtra", "/restaurants-for-sale-mumbai",
-            "/resorts-for-sale-kerala", "/banquet-halls-for-sale-delhi",
-            "/blogs/how-to-buy-a-hotel-in-india", "/blogs/how-to-value-a-hotel-or-restaurant",
-            "/blogs/restaurant-takeover-checklist-india", "/blogs/hotel-profit-sharing-agreements-explained",
+            "/hotels-for-lease-india", "/restaurants-for-lease-india", "/cafes-for-lease-india",
+            "/banquet-halls-for-lease-india", "/restaurant-and-bar-for-lease-india", "/resorts-for-lease-india",
+            "/hospitality-jobs-india",
+            "/hotels-for-lease-goa", "/hotels-for-lease-maharashtra", "/restaurants-for-lease-mumbai",
+            "/resorts-for-lease-kerala", "/banquet-halls-for-lease-delhi",
+            "/blogs/how-to-lease-a-hotel-in-india", "/blogs/hospitality-lease-agreement-checklist",
+            "/blogs/restaurant-takeover-checklist-india",
+            // Sale & profit sharing paused: "/partial-properties", "/blogs/how-to-buy-a-hotel-in-india",
+            // "/blogs/how-to-value-a-hotel-or-restaurant", "/blogs/hotel-profit-sharing-agreements-explained",
             "/terms", "/privacy", "/cookies", "/refund-policy"
     );
 

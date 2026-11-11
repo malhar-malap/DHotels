@@ -10,13 +10,14 @@ import NotificationBell from './NotificationBell';
 import { authPath } from '../../utils/authRedirect';
 
 const DEAL_LINKS = [
-  { label: 'For Sale', to: '/listings?dealType=For+Sale' },
+  // Sale & profit sharing paused:
+  // { label: 'For Sale', to: '/listings?dealType=For+Sale' },
   { label: 'For Lease', to: '/listings?dealType=For+Lease' },
-  { label: 'Profit Sharing', to: '/partial-properties' },
+  // { label: 'Profit Sharing', to: '/partial-properties' },
 ];
 
 const NAV_LINKS = [
-  { label: 'Profit Sharing', to: '/partial-properties' },
+  // { label: 'Profit Sharing', to: '/partial-properties' }, // sale & profit sharing paused
   { label: 'Careers', to: '/jobs' },
   { label: 'About', to: '/about' },
   { label: 'Contact', to: '/contact-us', wide: true },

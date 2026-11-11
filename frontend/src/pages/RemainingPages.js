@@ -34,7 +34,7 @@ const PlaceholderPage = ({ title, description, linkText, linkHref }) => (
 export const CreateListingPage = () => (
   <PlaceholderPage
     title="Create Listing"
-    description="List your hotel, resort, restaurant, café, bar or banquet hall for sale or lease."
+    description="List your hotel, resort, restaurant, café, bar or banquet hall for lease."
     linkText="Back to Dashboard"
     linkHref="/dashboard"
   />

@@ -37,6 +37,11 @@ public class ListingService {
     @Value("${app.notification-email}")
     private String adminInbox;
 
+    // Deal types the site currently offers (e.g. only "For Lease"). Others stay in the database so
+    // they can be switched back on by changing ENABLED_DEAL_TYPES, without touching any listing.
+    @Value("${app.enabled-deal-types:For Lease}")
+    private List<String> enabledDealTypes = List.of("For Lease");
+
     @Autowired
     public ListingService(ListingRepository listingRepository, CategoryRepository categoryRepository, DealTypeRepository dealTypeRepository, CityRepository cityRepository, UserRepository userRepository, ListingImageRepository listingImageRepository, HospitalityPropertyDetailRepository hospitalityPropertyDetailRepository, InquiryRepository inquiryRepository, PaymentRepository paymentRepository, AuditLogService auditLogService, EmailService emailService, UserRoleRepository userRoleRepository, NotificationService notificationService) {
         this.notificationService = notificationService;
@@ -193,6 +198,7 @@ public class ListingService {
         
         DealType dealType = dealTypeRepository.findById(request.getDealTypeId())
                 .orElseThrow(() -> new RuntimeException("Deal type not found"));
+        requireEnabledDealType(dealType);
         
         validateCategorySpecifics(category, dealType, request, true);
         
@@ -285,6 +291,9 @@ public class ListingService {
         if (request.getDealTypeId() != null) {
             DealType dealType = dealTypeRepository.findById(request.getDealTypeId())
                     .orElseThrow(() -> new RuntimeException("Deal type not found"));
+            if (listing.getDealType() == null || !listing.getDealType().getId().equals(dealType.getId())) {
+                requireEnabledDealType(dealType);
+            }
             listing.setDealType(dealType);
         }
         // Owners must fill every required spec; admins can save incomplete mandates (e.g. imported ones)
@@ -442,6 +451,7 @@ public class ListingService {
                 DealType dealType = dealTypeRepository.findByCategoryId(category.getId()).stream()
                         .filter(d -> d.getName().equalsIgnoreCase(String.valueOf(item.getDealTypeName()).trim()))
                         .findFirst().orElseThrow(() -> new RuntimeException("deal type '" + item.getDealTypeName() + "' is not available for " + category.getName()));
+                requireEnabledDealType(dealType);
 
                 Listing listing = listingRepository.findByUniqueCode(code).orElse(null);
                 boolean isNew = listing == null;
@@ -735,6 +745,16 @@ public class ListingService {
         return value == null || value.trim().isEmpty() ? null : value.trim();
     }
     
+    static boolean isDealTypeEnabled(List<String> enabled, String name) {
+        return name != null && enabled.stream().anyMatch(e -> e.trim().equalsIgnoreCase(name.trim()));
+    }
+
+    private void requireEnabledDealType(DealType dealType) {
+        if (!isDealTypeEnabled(enabledDealTypes, dealType.getName())) {
+            throw new RuntimeException("'" + dealType.getName() + "' listings are not offered right now. Only " + String.join(", ", enabledDealTypes) + " is available.");
+        }
+    }
+
     /**
      * Hotels need rooms, plot area and constructed area; every other category needs carpet area.
      * The deal type must also belong to the chosen category (e.g. Profit Sharing is Hotels-only).

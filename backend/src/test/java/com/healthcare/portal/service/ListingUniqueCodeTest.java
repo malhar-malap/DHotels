@@ -9,7 +9,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 class ListingUniqueCodeTest {
@@ -45,6 +47,16 @@ class ListingUniqueCodeTest {
         when(repository.findUniqueCodesStartingWith("BQH")).thenReturn(List.of());
         assertEquals("BQH001", serviceWith(repository).nextUniqueCode(category("Banquet halls")));
         assertArrayEquals(new String[] {"DHL", "5"}, ListingService.codeFormat(category("Unknown")));
+    }
+
+    @Test
+    void onlyEnabledDealTypesAreOffered() {
+        List<String> leaseOnly = List.of("For Lease");
+        assertTrue(ListingService.isDealTypeEnabled(leaseOnly, " for lease "));
+        assertFalse(ListingService.isDealTypeEnabled(leaseOnly, "For Sale"));
+        assertFalse(ListingService.isDealTypeEnabled(leaseOnly, "Profit Sharing"));
+        assertFalse(ListingService.isDealTypeEnabled(leaseOnly, null));
+        assertTrue(ListingService.isDealTypeEnabled(List.of("For Lease", "For Sale"), "For Sale"));
     }
 
     @Test

@@ -11,18 +11,18 @@ const COLUMNS = [
   {
     title: 'Popular searches',
     links: [
-      { label: 'Hotels for sale in Goa', to: '/hotels-for-sale-goa' },
-      { label: 'Hotels for sale in Maharashtra', to: '/hotels-for-sale-maharashtra' },
-      { label: 'Restaurants for sale in Mumbai', to: '/restaurants-for-sale-mumbai' },
-      { label: 'Resorts for sale in Kerala', to: '/resorts-for-sale-kerala' },
-      { label: 'Banquet halls in Delhi NCR', to: '/banquet-halls-for-sale-delhi' },
+      { label: 'Hotels for lease in Goa', to: '/hotels-for-lease-goa' },
+      { label: 'Hotels for lease in Maharashtra', to: '/hotels-for-lease-maharashtra' },
+      { label: 'Restaurants for lease in Mumbai', to: '/restaurants-for-lease-mumbai' },
+      { label: 'Resorts for lease in Kerala', to: '/resorts-for-lease-kerala' },
+      { label: 'Banquet halls in Delhi NCR', to: '/banquet-halls-for-lease-delhi' },
     ],
   },
   {
     title: 'Company',
     links: [
       { label: 'About DHotels24.com', to: '/about' },
-      { label: 'Profit sharing', to: '/partial-properties' },
+      // { label: 'Profit sharing', to: '/partial-properties' }, // sale & profit sharing paused
       { label: 'Hospitality careers', to: '/jobs' },
       { label: 'Insights', to: '/blogs' },
       { label: 'Contact us', to: '/contact-us' },
@@ -46,7 +46,7 @@ const Footer = () => (
       <div className="flex flex-col gap-6 border-b border-white/[0.06] py-12 md:flex-row md:items-end md:justify-between">
         <div className="max-w-xl">
           <p className="eyebrow eyebrow-rule">For owners</p>
-          <h2 className="heading-lg mt-3">Thinking of selling or leasing your property?</h2>
+          <h2 className="heading-lg mt-3">Looking to lease out your property?</h2>
           <p className="mt-3 text-gray-400">List it privately in minutes. Our team reviews every listing before it goes live.</p>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -62,7 +62,7 @@ const Footer = () => (
             <span className="font-display text-2xl text-gray-50">DHotels24<span className="text-primary-400">.com</span></span>
           </Link>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-gray-400">
-            India's marketplace to buy, sell, lease and co-own hotels, resorts, restaurants, cafés, bars and banquet halls.
+            India's marketplace to lease hotels, resorts, restaurants, cafés, bars and banquet halls.
           </p>
         </div>
         {COLUMNS.map((col) => (

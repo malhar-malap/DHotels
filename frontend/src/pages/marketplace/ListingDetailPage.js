@@ -108,7 +108,7 @@ const ListingDetailPage = () => {
             if (verifyRes.data?.success) {
               setHasPaid(true);
               setSellerDetails(verifyRes.data.data);
-              toast.success('Payment successful — seller contact unlocked.');
+              toast.success('Payment successful — owner contact unlocked.');
             } else {
               toast.error('Payment verification failed. Please contact support.');
             }
@@ -427,7 +427,7 @@ const ListingDetailPage = () => {
                   </div>
                 ) : hasPaid && sellerDetails ? (
                   <div>
-                    <p className="flex items-center gap-2 text-sm font-semibold text-emerald-300"><PiLockKeyOpen className="h-5 w-5" /> Seller contact unlocked</p>
+                    <p className="flex items-center gap-2 text-sm font-semibold text-emerald-300"><PiLockKeyOpen className="h-5 w-5" /> Owner contact unlocked</p>
                     <ul className="mt-4 space-y-3">
                       <li className="flex items-center gap-3 text-sm">
                         <PiUser className="h-5 w-5 shrink-0 text-gray-500" />
@@ -448,7 +448,7 @@ const ListingDetailPage = () => {
                   <div>
                     <p className="flex items-center gap-2 text-sm font-semibold text-gray-100"><PiLockKey className="h-5 w-5 text-primary-400" /> Talk to the owner directly</p>
                     <p className="mt-2 text-sm leading-relaxed text-gray-400">
-                      Unlock the seller’s name, phone and email for a one-time {CONTACT_FEE}. This keeps owners’ details away from casual browsers.
+                      Unlock the owner’s name, phone and email for a one-time {CONTACT_FEE}. This keeps owners’ details away from casual browsers.
                     </p>
                     <button type="button" onClick={handlePayment} disabled={paymentLoading} className="btn-brass mt-5 w-full !py-3.5">
                       {paymentLoading

@@ -6,6 +6,7 @@ import com.healthcare.portal.entity.*;
 import com.healthcare.portal.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import java.util.List;
 import java.util.Objects;
 import java.util.Comparator;
@@ -23,6 +24,10 @@ public class MasterDataService {
     private final DealTypeRepository dealTypeRepository;
     private final JobCategoryRepository jobCategoryRepository;
     private final ListingRepository listingRepository;
+
+    // Only these deal types are offered to users; see app.enabled-deal-types
+    @Value("${app.enabled-deal-types:For Lease}")
+    private List<String> enabledDealTypes = List.of("For Lease");
 
     @Autowired
     public MasterDataService(StateRepository stateRepository, CityRepository cityRepository, CategoryRepository categoryRepository, DealTypeRepository dealTypeRepository, JobCategoryRepository jobCategoryRepository, ListingRepository listingRepository) {
@@ -67,6 +72,7 @@ public class MasterDataService {
     
     public List<ListingDTO.DealTypeDTO> getDealTypesByCategory(Long categoryId) {
         return dealTypeRepository.findByCategoryId(categoryId).stream()
+                .filter(d -> ListingService.isDealTypeEnabled(enabledDealTypes, d.getName()))
                 .map(this::mapToDealTypeDTO)
                 .collect(Collectors.toList());
     }
