@@ -160,6 +160,21 @@ export const AuthProvider = ({ children }) => {
     setUser(updatedUser);
   };
 
+  // Re-reads the account from the server, e.g. after an admin changed this user's roles
+  const refreshUser = async () => {
+    try {
+      const res = await authAPI.getCurrentUser();
+      const freshUser = res.data?.data;
+      if (freshUser) {
+        updateUser(freshUser);
+        return freshUser;
+      }
+    } catch (err) {
+      // Keep the current session; the caller decides what to do
+    }
+    return user;
+  };
+
   const value = {
     user,
     loading,
@@ -168,6 +183,7 @@ export const AuthProvider = ({ children }) => {
     verifyOtpAndRegister,
     logout,
     updateUser,
+    refreshUser,
     isAuthenticated: !!user,
   };
 

@@ -313,7 +313,7 @@ public class JobService {
         jobRepository.save(job);
         emailService.sendJobApprovedEmail(job.getEmployer().getEmail(), job.getEmployer().getFullName(), job.getTitle());
         notificationService.notify(job.getEmployer(), NotificationService.JOB_APPROVED, "Your job is live",
-                "\"" + job.getTitle() + "\" was approved and is now visible to candidates.", "/healthcare-jobs-india/" + job.getId());
+                "\"" + job.getTitle() + "\" was approved and is now visible to candidates.", "/hospitality-jobs-india/" + job.getId());
     }
     
     @Transactional
