@@ -43,7 +43,15 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-BRX7CXG2P2');
+      // Never send reset codes, emails or tokens from the address bar to analytics
+      // (password-reset links carry ?email=...&otp=...)
+      var gaLocation = location.origin + location.pathname;
+      try {
+        var gaUrl = new URL(location.href);
+        ['otp', 'email', 'token', 'code'].forEach(function (k) { gaUrl.searchParams.delete(k); });
+        gaLocation = gaUrl.toString();
+      } catch (e) { /* keep the path-only fallback */ }
+      gtag('config', 'G-BRX7CXG2P2', { page_location: gaLocation });
 
       window.addEventListener('load', function () {
         setTimeout(function () {
