@@ -7,7 +7,7 @@ const LEGAL_SEO = {
   privacy: { path: '/privacy', title: 'Privacy Policy | DHotels24.com', description: 'How DHotels24.com collects, uses and protects your personal data when you use our hospitality marketplace.' },
   terms: { path: '/terms', title: 'Terms of Service | DHotels24.com', description: 'The terms and conditions that govern use of the DHotels24.com hospitality marketplace, listings and services.' },
   cookies: { path: '/cookies', title: 'Cookies Policy | DHotels24.com', description: 'How DHotels24.com uses cookies and similar technologies, and how you can manage your cookie preferences.' },
-  refund: { path: '/refund-policy', title: 'Refund Policy | DHotels24.com', description: 'Refund terms for payments made on the DHotels24.com hospitality marketplace, including contact access purchases.' }
+  refund: { path: '/refund-policy', title: 'Refund Policy | DHotels24.com', description: 'Refund terms for payments made on the DHotels24.com hospitality marketplace.' }
 };
 
 const LegalCenterPage = () => {
@@ -66,7 +66,7 @@ const LegalCenterPage = () => {
       'Statutory Protection: Personal data collected via cookies is processed under DPDP Act, 2023 & IT Rules.'
     ],
     refund: [
-      'Finality: Payments for unlocking contacts or premium listings are final once details are successfully delivered.',
+      'Finality: Payments for premium listing features are final once details are successfully delivered.',
       'Technical Failure: Refunds are granted for duplicate deductions or system failures delivering target data.',
       'Timeline: Approved refunds will show on the original payment method statement within 5 to 7 business days.'
     ]
@@ -321,11 +321,11 @@ const LegalCenterPage = () => {
       sections: [
         {
           title: 'General Refund Guidelines',
-          body: 'At dhotels24.com, all payments made for unlocking seller contact details or premium listing features are generally considered final and non-refundable, as the service (delivery of information) is executed immediately upon successful payment.'
+          body: 'At dhotels24.com, all payments made for premium listing features are generally considered final and non-refundable, as the service is delivered immediately upon successful payment.'
         },
         {
           title: 'Exceptions for Refunds',
-          body: 'Refunds will only be processed under the following circumstances: (1) A technical failure resulting in duplicate charges for a single transaction. (2) The system fails to provide the purchased contact details after a successful payment deduction.'
+          body: 'Refunds will only be processed under the following circumstances: (1) A technical failure resulting in duplicate charges for a single transaction. (2) The system fails to deliver the purchased service after a successful payment deduction.'
         },
         {
           title: 'Refund Process',

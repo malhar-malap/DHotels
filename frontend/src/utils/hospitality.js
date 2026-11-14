@@ -101,7 +101,8 @@ export const DEAL_TYPES = [
 
 export const TITLE_TYPES = ['Freehold', 'Leasehold', 'Other'];
 
-// One-time fee to unlock an owner's contact (PaymentService.CONTACT_ACCESS_AMOUNT_PAISE)
+// One-time fee to unlock an owner's contact (PaymentService.CONTACT_ACCESS_AMOUNT_PAISE).
+// Paid contact access (₹1,000 per connection) paused: not shown anywhere while CONTACT_PAYWALL_ENABLED is off on the backend.
 export const CONTACT_FEE = '₹1,000';
 
 export const priceLabelFor = (dealTypeName) =>

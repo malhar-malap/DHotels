@@ -48,6 +48,10 @@ public class PaymentService {
 
     private final NotificationService notificationService;
 
+    // Paid contact access is paused (seller details are free); see ListingService
+    @Value("${app.contact-paywall.enabled:false}")
+    private boolean contactPaywallEnabled;
+
     public PaymentService(
             PaymentRepository paymentRepository,
             ListingRepository listingRepository,
@@ -70,6 +74,9 @@ public class PaymentService {
      */
     @Transactional
     public PaymentDTO.CreateOrderResponse createOrder(Long listingId, Long buyerId) {
+        if (!contactPaywallEnabled) {
+            throw new RuntimeException("Seller contact details are free to view on the listing page");
+        }
         // Validate listing exists
         Listing listing = listingRepository.findById(listingId)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));

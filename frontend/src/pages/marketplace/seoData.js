@@ -34,7 +34,7 @@ export const seoData = {
     faqs: [
       { q: 'How is rent usually structured for a hotel lease in Goa?', a: 'Most leases have a fixed monthly or yearly rent with an agreed escalation, plus a refundable security deposit. Some owners accept a revenue share in the off-season. Each listing shows the expected rent and whether it is per month or per year.' },
       { q: 'What lock-in period should I expect?', a: 'Hotel leases commonly run 9 to 15 years with a lock-in of 3 to 5 years, but this is negotiable. Agree a rent-free period for any refurbishment before rent starts.' },
-      { q: 'How do I contact the owner of a listing?', a: 'Open the listing and unlock the owner’s contact. You will receive the owner’s name, phone and email directly, and the listing is saved to your dashboard.' },
+      { q: 'How do I contact the owner of a listing?', a: 'Open the listing — the owner’s name, phone and email are shown right there, free of charge. Call or email them directly and mention the listing code.' },
     ],
   },
   'hotels-for-lease-maharashtra': {
@@ -190,7 +190,7 @@ export const seoData = {
     faqs: [
       { q: 'Can I lease a hotel in Goa instead of buying it?', a: 'Yes. Many Goa listings on DHotels24.com are offered on lease, where you pay the owner a fixed rent or premium and run the hotel yourself. Filter by “For Lease” to see them.' },
       { q: 'What does “Title” mean on a hotel listing?', a: 'It is the ownership title of the land and building — usually freehold or leasehold. Leasehold properties carry a ground lease with its own term and transfer conditions, which you should review before an offer.' },
-      { q: 'How do I contact the owner of a listing?', a: 'Open the listing and unlock the seller’s contact. You will receive the owner’s name, phone and email directly, and the listing is saved to your dashboard.' },
+      { q: 'How do I contact the owner of a listing?', a: 'Open the listing — the owner’s name, phone and email are shown right there, free of charge. Call or email them directly and mention the listing code.' },
     ],
   },
   'hotels-for-sale-maharashtra': {

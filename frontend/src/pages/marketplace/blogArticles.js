@@ -33,7 +33,7 @@ export const blogArticles = [
       {
         heading: '2. Shortlist properties',
         paragraphs: [
-          'On DHotels24.com you can filter hotels by city, room count and rent, compare plot and constructed area side by side, and unlock the owner’s contact when you are ready to talk. Shortlist three or four properties and visit them on both a busy and a quiet day.',
+          'On DHotels24.com you can filter hotels by city, room count and rent, compare plot and constructed area side by side, and call the owner directly from the listing when you are ready to talk. Shortlist three or four properties and visit them on both a busy and a quiet day.',
         ],
       },
       {
@@ -210,7 +210,7 @@ export const blogArticles = [
         heading: '2. Source and shortlist properties',
         paragraphs: [
           'Owners are often reluctant to advertise a sale widely because staff, guests and travel partners may hear about it. Most good deals come through specialised marketplaces, brokers and industry networks.',
-          'On DHotels24.com you can filter hotels by city, deal type, room count and price, compare plot and constructed area side by side, and unlock the owner’s contact when you are ready to talk.',
+          'On DHotels24.com you can filter hotels by city, deal type, room count and price, compare plot and constructed area side by side, and call the owner directly from the listing when you are ready to talk.',
         ],
       },
       {

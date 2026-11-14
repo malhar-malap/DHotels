@@ -42,6 +42,11 @@ public class ListingService {
     @Value("${app.enabled-deal-types:For Lease}")
     private List<String> enabledDealTypes = List.of("For Lease");
 
+    // Paid contact access (the ₹1,000 per connection) is paused: seller details are shown to everyone.
+    // Set CONTACT_PAYWALL_ENABLED=true to put them back behind the payment.
+    @Value("${app.contact-paywall.enabled:false}")
+    private boolean contactPaywallEnabled = false;
+
     @Autowired
     public ListingService(ListingRepository listingRepository, CategoryRepository categoryRepository, DealTypeRepository dealTypeRepository, CityRepository cityRepository, UserRepository userRepository, ListingImageRepository listingImageRepository, HospitalityPropertyDetailRepository hospitalityPropertyDetailRepository, InquiryRepository inquiryRepository, PaymentRepository paymentRepository, AuditLogService auditLogService, EmailService emailService, UserRoleRepository userRoleRepository, NotificationService notificationService) {
         this.notificationService = notificationService;
@@ -134,8 +139,9 @@ public class ListingService {
     }
     
     /**
-     * Public detail view. Seller contact details are only included for the owner, admins and
-     * buyers who paid for contact access; confidential listings keep their real title hidden.
+     * Public detail view. Seller contact details are shown to everyone unless the contact paywall is on,
+     * in which case only the owner, admins and buyers who paid see them. Confidential listings keep
+     * their real title and seller details hidden from everyone but the owner and admins.
      */
     public ListingDTO.ListingResponse getListingById(Long id, User viewer) {
         Listing stored = listingRepository.findById(id)
@@ -148,12 +154,12 @@ public class ListingService {
         }
         ListingDTO.ListingResponse response = getListingById(id);
         boolean isOwner = viewer != null && response.getSeller() != null && viewer.getId().equals(response.getSeller().getId());
-        boolean hasPaid = viewer != null && paymentRepository.existsByBuyerIdAndListingIdAndStatus(
-                viewer.getId(), id, Payment.PaymentStatus.PAID);
+        boolean hasPaid = !contactPaywallEnabled || (viewer != null && paymentRepository.existsByBuyerIdAndListingIdAndStatus(
+                viewer.getId(), id, Payment.PaymentStatus.PAID));
 
         boolean confidential = Boolean.TRUE.equals(response.getIsConfidential());
         if (response.getSeller() != null && !(isOwner || isAdmin || (hasPaid && !confidential))) {
-            // Keep only the id so the page can tell owners apart; contact details stay behind the paywall
+            // Keep only the id so the page can tell owners apart; contact details stay hidden
             ListingDTO.SellerInfo idOnly = new ListingDTO.SellerInfo();
             idOnly.setId(response.getSeller().getId());
             response.setSeller(idOnly);

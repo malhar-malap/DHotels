@@ -9,7 +9,7 @@ import { generateSlug } from '../../utils/slugify';
 import { CATEGORIES, DEAL_TYPES, unsplashSrcSet } from '../../utils/hospitality';
 import ListingCard, { ListingCardSkeleton } from '../../components/marketplace/ListingCard';
 import Seo, { SITE_URL } from '../../components/common/Seo';
-import StrategicWorkflow from '../../components/home/StrategicWorkflow';
+// import StrategicWorkflow from '../../components/home/StrategicWorkflow'; // Paid contact access (₹1,000 per connection) paused
 
 const HERO_IMAGES = [CATEGORIES[0].image, CATEGORIES[1].image, CATEGORIES[3].image];
 
@@ -22,7 +22,7 @@ const SEARCH_MODES = [
 
 const TRUST_POINTS = [
   { icon: PiSealCheck, text: 'Every listing reviewed before it goes live' },
-  { icon: PiLockKey, text: 'Owner contact shared only with serious operators' },
+  { icon: PiLockKey, text: 'Talk to owners directly — no fees to connect' },
   { icon: PiHandshake, text: 'Advisory support through to signing' },
 ];
 
@@ -31,7 +31,9 @@ const DEAL_ICONS = { 'For Sale': PiTag, 'For Lease': PiKey, 'Profit Sharing': Pi
 const OWNER_STEPS = [
   { title: 'List privately', text: 'Share rooms, areas and expected rent in a five-minute form.' },
   { title: 'We review', text: 'Our team checks the details and publishes it with a listing code.' },
-  { title: 'Qualified operators reach out', text: 'Only operators who unlock your listing can see your contact details.' },
+  { title: 'Operators reach out', text: 'Your contact details are on the listing, so interested operators call you directly.' },
+  // Paid contact access (₹1,000 per connection) paused:
+  // { title: 'Qualified operators reach out', text: 'Only operators who unlock your listing can see your contact details.' },
   { title: 'Sign the lease', text: 'Agree rent, lock-in and deposit directly, with our advisors on hand.' },
   // Sale & profit sharing paused:
   // { title: 'Sell, lease or partner', text: 'Choose the structure that works — outright sale, lease or profit sharing.' },
@@ -298,7 +300,7 @@ const HomePage = () => {
       */}
 
       {/* ============ STRATEGIC WORKFLOW (buyers) ============ */}
-      <StrategicWorkflow />
+      {/* Paid contact access (₹1,000 per connection) paused: <StrategicWorkflow /> explained the fee */}
 
       {/* ============ PROCESS (owners) ============ */}
       <section className="border-t border-white/[0.06] bg-gray-900/40 py-20 lg:py-28">

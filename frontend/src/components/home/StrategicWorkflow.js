@@ -8,6 +8,9 @@ import {
 import { CATEGORIES, CONTACT_FEE } from '../../utils/hospitality';
 
 /**
+ * Paid contact access (₹1,000 per connection) paused: no longer rendered on the HomePage; put
+ * <StrategicWorkflow /> back there if the fee returns.
+ *
  * Explains the paid-connection model (the "Strategic workflow" infographic from DHAcquisitions),
  * rebuilt as markup so it is responsive and indexable. Figures are limited to what is true of the
  * product: the fee, the review step and how contact details are protected.

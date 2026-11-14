@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
-import { authPath } from '../../utils/authRedirect';
+// import { authPath } from '../../utils/authRedirect'; // Paid contact access (₹1,000 per connection) paused
 import {
-  PiMapPin, PiCaretLeft, PiCaretRight, PiLockKey, PiLockKeyOpen, PiPhone, PiEnvelopeSimple, PiUser,
-  PiSealCheck, PiEye, PiClock, PiNotePencil, PiShieldCheck, PiArrowLeft,
+  PiMapPin, PiCaretLeft, PiCaretRight, PiLockKey, PiPhone, PiEnvelopeSimple, PiUser,
+  PiSealCheck, PiEye, PiClock, PiNotePencil, PiArrowLeft,
 } from 'react-icons/pi';
-import { listingsAPI, paymentAPI } from '../../services/api';
+import { listingsAPI /* , paymentAPI */ } from '../../services/api'; // Paid contact access (₹1,000 per connection) paused
 import { generateSlug } from '../../utils/slugify';
 import { formatListingPrice, listingPriceParts } from '../../utils/formatPrice';
-import { loadRazorpay } from '../../utils/loadRazorpay';
-import { getCategoryMeta, getSpecs, getPropertyFacts, parseAmenities, formatLocation, categoryImage, resolveImage, priceLabelFor, isSampleImage, hasBurnedInNote, SAMPLE_IMAGE_NOTE, CONTACT_FEE } from '../../utils/hospitality';
+// import { loadRazorpay } from '../../utils/loadRazorpay'; // Paid contact access (₹1,000 per connection) paused
+import { getCategoryMeta, getSpecs, getPropertyFacts, parseAmenities, formatLocation, categoryImage, resolveImage, priceLabelFor, isSampleImage, hasBurnedInNote, SAMPLE_IMAGE_NOTE /* , CONTACT_FEE */ } from '../../utils/hospitality';
 import { useAuth } from '../../context/AuthContext';
 import Seo, { absoluteUrl, truncate, SITE_URL } from '../../components/common/Seo';
-import toast from 'react-hot-toast';
+// import toast from 'react-hot-toast'; // Paid contact access (₹1,000 per connection) paused
 
 const ListingDetailPage = () => {
   const { id } = useParams();
@@ -24,10 +24,12 @@ const ListingDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [imageIndex, setImageIndex] = useState(0);
 
+  /* Paid contact access (₹1,000 per connection) paused: seller details now come with the listing itself.
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentChecking, setPaymentChecking] = useState(true);
   const [hasPaid, setHasPaid] = useState(false);
   const [sellerDetails, setSellerDetails] = useState(null);
+  */
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -51,6 +53,7 @@ const ListingDetailPage = () => {
     fetchListing();
   }, [numericId]);
 
+  /* Paid contact access (₹1,000 per connection) paused
   useEffect(() => {
     if (!isAuthenticated || !numericId) {
       setPaymentChecking(false);
@@ -138,6 +141,7 @@ const ListingDetailPage = () => {
       toast.error(error.response?.data?.message || 'Failed to start payment. Please try again.');
     }
   };
+  */
 
   if (loading) {
     return (
@@ -164,6 +168,9 @@ const ListingDetailPage = () => {
   const categoryName = listing.category?.name;
   const dealName = listing.dealType?.name;
   const isOwner = isAuthenticated && user?.id === listing?.seller?.id;
+  // The API leaves out the seller's contact details only for confidential listings
+  const seller = listing.seller || {};
+  const sellerVisible = Boolean(seller.fullName || seller.email || seller.mobileNumber);
   const specs = getSpecs(categoryName, listing.categoryDetails);
   const images = (listing.images || []).map(resolveImage).filter(Boolean);
   const gallery = images.length > 0 ? images : [categoryImage(categoryName)];
@@ -421,6 +428,44 @@ const ListingDetailPage = () => {
                     <p className="text-sm text-gray-400">This is your listing. Edits are re-reviewed before going live.</p>
                     <Link to={`/listings/${listing.id}/edit`} className="btn-brass mt-4 w-full"><PiNotePencil className="h-4 w-4" /> Edit listing</Link>
                   </>
+                ) : sellerVisible ? (
+                  <div>
+                    <p className="flex items-center gap-2 text-sm font-semibold text-gray-100"><PiUser className="h-5 w-5 text-primary-400" /> Talk to the owner directly</p>
+                    <ul className="mt-4 space-y-3">
+                      {seller.fullName && (
+                        <li className="flex items-center gap-3 text-sm">
+                          <PiUser className="h-5 w-5 shrink-0 text-gray-500" />
+                          <span className="truncate font-medium text-gray-100">{seller.fullName}{seller.companyName ? ` · ${seller.companyName}` : ''}</span>
+                        </li>
+                      )}
+                      {seller.mobileNumber && (
+                        <li className="flex items-center gap-3 text-sm">
+                          <PiPhone className="h-5 w-5 shrink-0 text-gray-500" />
+                          <a href={`tel:${seller.mobileNumber}`} className="text-primary-200 hover:underline">{seller.mobileNumber}</a>
+                        </li>
+                      )}
+                      {seller.email && (
+                        <li className="flex items-center gap-3 text-sm">
+                          <PiEnvelopeSimple className="h-5 w-5 shrink-0 text-gray-500" />
+                          <a href={`mailto:${seller.email}`} className="truncate text-primary-200 hover:underline">{seller.email}</a>
+                        </li>
+                      )}
+                    </ul>
+                    {seller.mobileNumber && (
+                      <a href={`tel:${seller.mobileNumber}`} className="btn-brass mt-5 w-full !py-3.5"><PiPhone className="h-4 w-4" /> Call the owner</a>
+                    )}
+                    <p className="mt-3 text-xs text-gray-500">Mention listing {listing.uniqueCode || `#${listing.id}`} when you get in touch.</p>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="flex items-center gap-2 text-sm font-semibold text-gray-100"><PiLockKey className="h-5 w-5 text-primary-400" /> Confidential listing</p>
+                    <p className="mt-2 text-sm leading-relaxed text-gray-400">
+                      The owner has asked to stay anonymous. Our advisors will introduce you once you share your requirement.
+                    </p>
+                    <Link to="/contact-us" className="btn-brass mt-5 w-full !py-3.5">Contact an advisor</Link>
+                  </div>
+                )}
+                {/* Paid contact access (₹1,000 per connection) paused: the old locked/unlocked contact card
                 ) : paymentChecking ? (
                   <div className="flex items-center justify-center gap-3 py-4 text-sm text-gray-400">
                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-600 border-t-primary-400" /> Checking access…
@@ -457,7 +502,7 @@ const ListingDetailPage = () => {
                     </button>
                     <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-gray-500"><PiShieldCheck className="h-4 w-4" /> Secure payment via Razorpay</p>
                   </div>
-                )}
+                */}
               </div>
             </div>
             <div className="mt-4 rounded-2xl border border-white/[0.06] p-5 text-sm text-gray-400">
@@ -469,7 +514,7 @@ const ListingDetailPage = () => {
       </div>
 
       {/* Mobile price bar */}
-      {!isOwner && !hasPaid && (
+      {!isOwner && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.06] bg-gray-950/95 px-4 py-3 backdrop-blur-xl lg:hidden">
           <div className="flex items-center justify-between gap-4">
             <div>

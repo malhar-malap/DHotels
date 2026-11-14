@@ -68,6 +68,8 @@ describe('SEO tags on every indexable page', () => {
     expect(head.body + head.meta + head.schema).not.toMatch(/hospital(?!ity)|pharma|dhacquisitions/i);
     // Only lease deals are offered; no public page may advertise sale or profit sharing
     expect(head.title + head.meta + head.body.replace(/<script[\s\S]*?<\/script>/g, '')).not.toMatch(/for sale|profit[- ]sharing|\bbuy(ing|ers?)?\b|\bsell(ing|ers?)?\b|co-own/i);
+    // Seller contact is free to view; no page may mention a connection fee or unlocking contacts
+    expect(head.body + head.meta + head.schema).not.toMatch(/₹\s?1,?000\b|unlock|connection fee/i);
 
     expect(seen.titles.has(head.title)).toBe(false);
     expect(seen.descriptions.has(description)).toBe(false);

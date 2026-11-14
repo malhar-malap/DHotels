@@ -44,7 +44,7 @@ const DashboardPage = () => {
               Hello, <span className="text-gradient underline decoration-primary-500/20">{user?.fullName?.split(' ')[0]}</span>
             </h1>
             <p className="text-sm font-bold text-gray-200 opacity-60 max-w-2xl tracking-tight leading-relaxed">
-              Your institutional command center is active. Track your listings, unlocked contacts and enquiries in one place.
+              Your institutional command center is active. Track your listings and enquiries in one place.
             </p>
           </section>
 

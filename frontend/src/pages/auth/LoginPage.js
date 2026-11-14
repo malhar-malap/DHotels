@@ -63,7 +63,7 @@ const LoginPage = () => {
               Welcome back to <span className="text-gradient">DHotels24.com</span>.
             </h1>
             <p className="text-base text-gray-400 leading-relaxed max-w-sm">
-              Pick up where you left off — your saved listings, unlocked contacts and enquiries are waiting.
+              Pick up where you left off — your listings, jobs and enquiries are waiting.
             </p>
             <div className="pt-4">
               <div className="inline-flex items-center gap-4 px-4 py-2.5 bg-gray-900/60 border border-gray-800/80 rounded-2xl shadow-lg backdrop-blur-md">
