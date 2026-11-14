@@ -76,7 +76,7 @@ const LegalCenterPage = () => {
     privacy: {
       subtitle: 'DATA PRIVACY & GOVERNANCE',
       title: 'Privacy Policy',
-      lastUpdated: 'September 12, 2026',
+      lastUpdated: 'November 14, 2026',
       sections: [
         {
           title: 'Scope & Preamble',
@@ -108,7 +108,7 @@ const LegalCenterPage = () => {
         },
         {
           title: 'Disclosure of Personal Data',
-          body: 'We may disclose personal data, where reasonably necessary, to:\n\n(a) our employees, partners and authorised personnel;\n(b) technology, hosting, website maintenance and IT service providers;\n(c) analytics and communication service providers;\n(d) professional advisers and consultants;\n(e) transaction counterparties or service providers where necessary and permitted in connection with a specific engagement;\n(f) governmental, regulatory, judicial or law-enforcement authorities where required or permitted by law; and\n(g) other persons where disclosure is authorised by you or permitted by applicable law.\n\nWe seek to ensure that third-party service providers processing personal data on our behalf are subject to appropriate contractual and confidentiality obligations.'
+          body: 'We may disclose personal data, where reasonably necessary, to:\n\n(a) our employees, partners and authorised personnel;\n(b) technology, hosting, website maintenance and IT service providers;\n(c) analytics and communication service providers;\n(d) professional advisers and consultants;\n(e) transaction counterparties or service providers where necessary and permitted in connection with a specific engagement;\n(f) governmental, regulatory, judicial or law-enforcement authorities where required or permitted by law;\n(g) other persons where disclosure is authorised by you or permitted by applicable law; and\n(h) visitors to the Website, where you publish a listing: the name, telephone number, email address and company name on your account are displayed publicly on that listing, free of charge, so that interested parties can contact you directly. Contact details are not displayed on listings marked confidential.\n\nWe seek to ensure that third-party service providers processing personal data on our behalf are subject to appropriate contractual and confidentiality obligations.'
         },
         {
           title: 'Data Security',
@@ -155,7 +155,7 @@ const LegalCenterPage = () => {
     terms: {
       subtitle: 'PLATFORM GOVERNANCE & LEGAL TERMS',
       title: 'Terms and Conditions',
-      lastUpdated: 'September 12, 2026',
+      lastUpdated: 'November 14, 2026',
       sections: [
         {
           title: 'Scope & Acceptance',
@@ -167,7 +167,7 @@ const LegalCenterPage = () => {
         },
         {
           title: 'Nature of the Website',
-          body: '2.1 The Website is intended to provide information concerning Dhumavati and its activities, capabilities, areas of expertise and potential transaction or advisory opportunities.\n\n2.2 The Website may contain information relating to financing, acquisition finance, technology funding, cross-border capital, mergers and acquisitions and other corporate or financial matters.\n\n2.3 Nothing contained on the Website shall, by itself, constitute an offer, invitation, solicitation, recommendation, commitment or undertaking by Dhumavati to provide any particular Service or enter into any transaction.\n\n2.4 Any engagement of Dhumavati for Services shall be subject to separate written terms, engagement documentation or definitive transaction documents, as applicable.'
+          body: '2.1 The Website is intended to provide information concerning Dhumavati and its activities, capabilities, areas of expertise and potential transaction or advisory opportunities.\n\n2.2 The Website may contain information relating to financing, acquisition finance, technology funding, cross-border capital, mergers and acquisitions and other corporate or financial matters.\n\n2.3 Nothing contained on the Website shall, by itself, constitute an offer, invitation, solicitation, recommendation, commitment or undertaking by Dhumavati to provide any particular Service or enter into any transaction.\n\n2.4 Any engagement of Dhumavati for Services shall be subject to separate written terms, engagement documentation or definitive transaction documents, as applicable.\n\n2.5 Property listings on the Website display the lister’s name, telephone number and email address publicly. No fee is charged by Dhumavati to view these details or to contact a lister. Any discussion, negotiation or agreement between Users and listers takes place directly between them; Dhumavati is not a party to it and does not verify every detail provided by listers.\n\n2.6 Contact details displayed on listings may be used only to enquire about the relevant property. Collecting, copying or using them for marketing, spam or any other purpose is prohibited.'
         },
         {
           title: 'Access and Acceptable Use',
@@ -317,7 +317,7 @@ const LegalCenterPage = () => {
     refund: {
       subtitle: 'TRANSACTION POLICY',
       title: 'Refund Policy',
-      lastUpdated: 'April 17, 2026',
+      lastUpdated: 'November 14, 2026',
       sections: [
         {
           title: 'General Refund Guidelines',
