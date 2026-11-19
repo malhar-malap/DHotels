@@ -4,6 +4,7 @@ import com.healthcare.portal.dto.AuthDTO;
 import com.healthcare.portal.dto.UserDTO;
 import com.healthcare.portal.entity.*;
 import com.healthcare.portal.repository.*;
+import com.healthcare.portal.security.GoogleTokenVerifier;
 import com.healthcare.portal.security.JwtTokenProvider;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,6 +36,7 @@ public class AuthService {
     private final OtpService otpService;
     private final NotificationService notificationService;
     private final LoginAttemptService loginAttemptService;
+    private final GoogleTokenVerifier googleTokenVerifier;
 
 
     public AuthService(UserRepository userRepository, 
@@ -45,7 +47,9 @@ public class AuthService {
                       PasswordEncoder passwordEncoder,
                       EmailService emailService,
                       OtpService otpService, NotificationService notificationService,
-                      LoginAttemptService loginAttemptService) {
+                      LoginAttemptService loginAttemptService,
+                      GoogleTokenVerifier googleTokenVerifier) {
+        this.googleTokenVerifier = googleTokenVerifier;
         this.notificationService = notificationService;
         this.loginAttemptService = loginAttemptService;
         this.userRepository = userRepository;
@@ -300,6 +304,78 @@ public class AuthService {
         return response;
     }
     
+    // ========== Google Sign-In ==========
+
+    /**
+     * Signs in the account that matches a verified Google email. A Google account with no matching
+     * user gets a short-lived sign-up token instead, so they can add the mobile number and role every
+     * account needs before it is created.
+     */
+    @Transactional
+    public AuthDTO.GoogleSignInResponse googleSignIn(String idToken) {
+        GoogleTokenVerifier.GoogleProfile profile = googleTokenVerifier.verify(idToken);
+        AuthDTO.GoogleSignInResponse response = new AuthDTO.GoogleSignInResponse();
+        java.util.Optional<User> existing = userRepository.findByEmailWithRoles(profile.email());
+        if (existing.isPresent()) {
+            User user = existing.get();
+            if (user.getStatus() == User.UserStatus.SUSPENDED) {
+                throw new RuntimeException("Your account has been suspended, unable to login. For more info contact us.");
+            }
+            // Google has confirmed this person owns the mailbox
+            user.setIsEmailVerified(true);
+            user.setLastLoginAt(java.time.LocalDateTime.now());
+            userRepository.save(user);
+            loginAttemptService.recordSuccess(user.getEmail());
+            response.setAuth(issueTokens(user));
+            return response;
+        }
+        response.setNeedsProfile(true);
+        response.setSignupToken(tokenProvider.generateGoogleSignupToken(profile.email(), profile.fullName()));
+        response.setEmail(profile.email());
+        response.setFullName(profile.fullName());
+        return response;
+    }
+
+    /** Creates the account for a Google user once they have added a mobile number and role. */
+    @Transactional
+    public AuthDTO.AuthResponse googleRegister(AuthDTO.GoogleRegisterRequest request) {
+        String[] signup = tokenProvider.parseGoogleSignupToken(request.getSignupToken());
+        if (signup == null || signup[0] == null) {
+            throw new RuntimeException("Your Google sign-up session has expired. Please sign in with Google again.");
+        }
+        AuthDTO.RegisterRequest registerRequest = new AuthDTO.RegisterRequest();
+        registerRequest.setFullName(request.getFullName().trim());
+        registerRequest.setEmail(signup[0]);
+        // Google accounts sign in without a password; "Recover password" can set one later
+        registerRequest.setPassword(randomPassword());
+        registerRequest.setMobileNumber(request.getMobileNumber());
+        registerRequest.setCompanyName(request.getCompanyName());
+        registerRequest.setRoles(request.getRoles());
+        AuthDTO.AuthResponse response = register(registerRequest);
+
+        userRepository.findByEmail(signup[0]).ifPresent(user -> {
+            user.setIsEmailVerified(true);
+            user.setLastLoginAt(java.time.LocalDateTime.now());
+            userRepository.save(user);
+        });
+        response.getUser().setIsEmailVerified(true);
+        return response;
+    }
+
+    public boolean isGoogleSignInEnabled() {
+        return googleTokenVerifier.isEnabled();
+    }
+
+    public String getGoogleClientId() {
+        return googleTokenVerifier.getClientId();
+    }
+
+    private static String randomPassword() {
+        byte[] bytes = new byte[32];
+        new java.security.SecureRandom().nextBytes(bytes);
+        return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+    }
+
     // ========== OTP-based Registration ==========
     
     /**

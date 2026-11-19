@@ -6,6 +6,7 @@ import { masterAPI, authAPI } from '../../services/api';
 import { FiUser, FiMail, FiLock, FiPhone, FiEye, FiEyeOff, FiActivity, FiMapPin, FiCheckCircle } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import Seo from '../../components/common/Seo';
+import GoogleSignIn from '../../components/auth/GoogleSignIn';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -209,6 +210,7 @@ const RegisterPage = () => {
 
           {step === 1 && (
             <div className="space-y-4 animate-fadeIn">
+              <GoogleSignIn context="signup" onSuccess={() => navigate(getRedirectTarget(location.search))} />
               <div className="space-y-1">
                 <label htmlFor="fullName" className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Full Legal Name</label>
                 <div className="relative">

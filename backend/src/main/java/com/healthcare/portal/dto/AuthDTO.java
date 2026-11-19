@@ -188,4 +188,62 @@ public class AuthDTO {
         public List<String> getRoles() { return roles; }
         public void setRoles(List<String> roles) { this.roles = roles; }
     }
+
+    public static class GoogleSignInRequest {
+        @NotBlank(message = "Google credential is required")
+        private String credential;
+
+        public String getCredential() { return credential; }
+        public void setCredential(String credential) { this.credential = credential; }
+    }
+
+    /** Either signed in (auth set) or a new Google user who still has to add a mobile number and role. */
+    public static class GoogleSignInResponse {
+        private boolean needsProfile;
+        private String signupToken;
+        private String email;
+        private String fullName;
+        private AuthResponse auth;
+
+        public boolean isNeedsProfile() { return needsProfile; }
+        public void setNeedsProfile(boolean needsProfile) { this.needsProfile = needsProfile; }
+        public String getSignupToken() { return signupToken; }
+        public void setSignupToken(String signupToken) { this.signupToken = signupToken; }
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+        public String getFullName() { return fullName; }
+        public void setFullName(String fullName) { this.fullName = fullName; }
+        public AuthResponse getAuth() { return auth; }
+        public void setAuth(AuthResponse auth) { this.auth = auth; }
+    }
+
+    public static class GoogleRegisterRequest {
+        @NotBlank(message = "Sign-up session is missing. Please sign in with Google again.")
+        private String signupToken;
+
+        @NotBlank(message = "Full name is required")
+        @Size(min = 2, max = 100, message = "Full name must be between 2 and 100 characters")
+        private String fullName;
+
+        @NotBlank(message = "Mobile number is required")
+        @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invalid Indian mobile number")
+        private String mobileNumber;
+
+        @Size(max = 200, message = "Company name is too long")
+        private String companyName;
+
+        @NotEmpty(message = "At least one role is required")
+        private List<String> roles;
+
+        public String getSignupToken() { return signupToken; }
+        public void setSignupToken(String signupToken) { this.signupToken = signupToken; }
+        public String getFullName() { return fullName; }
+        public void setFullName(String fullName) { this.fullName = fullName; }
+        public String getMobileNumber() { return mobileNumber; }
+        public void setMobileNumber(String mobileNumber) { this.mobileNumber = mobileNumber; }
+        public String getCompanyName() { return companyName; }
+        public void setCompanyName(String companyName) { this.companyName = companyName; }
+        public List<String> getRoles() { return roles; }
+        public void setRoles(List<String> roles) { this.roles = roles; }
+    }
 }

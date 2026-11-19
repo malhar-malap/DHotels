@@ -5,6 +5,7 @@ import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import Seo from '../../components/common/Seo';
+import GoogleSignIn from '../../components/auth/GoogleSignIn';
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -85,6 +86,8 @@ const LoginPage = () => {
               </h2>
               <p className="text-xs text-gray-500 mt-2">Welcome back! Please enter your details below.</p>
             </div>
+
+            <GoogleSignIn onSuccess={() => navigate(redirect)} />
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email */}

@@ -93,6 +93,9 @@ export const authAPI = {
   resetPassword: (data) => api.post('/auth/reset-password', data),
   getCurrentUser: () => api.get('/auth/me'),
   checkAvailability: (email, mobileNumber) => api.get('/auth/check-availability', { params: { email, mobileNumber } }),
+  googleConfig: () => api.get('/auth/google/config'),
+  googleSignIn: (credential) => api.post('/auth/google', { credential }),
+  googleRegister: (data) => api.post('/auth/google/register', data),
 };
 
 // User API

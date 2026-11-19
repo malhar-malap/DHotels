@@ -30,6 +30,9 @@ public class JwtTokenProvider {
     /** "typ" claim values: an access token can't be used to refresh, nor a refresh token to call the API. */
     public static final String ACCESS = "access";
     public static final String REFRESH = "refresh";
+    /** Short-lived proof of a verified Google account, exchanged for a new account once the profile is filled in. */
+    public static final String GOOGLE_SIGNUP = "google_signup";
+    private static final long GOOGLE_SIGNUP_EXPIRATION_MS = 15 * 60 * 1000L;
 
     /** Fails startup instead of signing tokens with a missing or guessable secret. */
     @jakarta.annotation.PostConstruct
@@ -79,6 +82,26 @@ public class JwtTokenProvider {
                 .compact();
     }
     
+    public String generateGoogleSignupToken(String email, String fullName) {
+        return Jwts.builder()
+                .claim("typ", GOOGLE_SIGNUP)
+                .claim("email", email)
+                .claim("name", fullName)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + GOOGLE_SIGNUP_EXPIRATION_MS))
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    /** The email and name of a valid Google sign-up token, as [email, name]; null when it is invalid or expired. */
+    public String[] parseGoogleSignupToken(String token) {
+        if (token == null || !validateToken(token, GOOGLE_SIGNUP)) {
+            return null;
+        }
+        Claims claims = parse(token);
+        return new String[] { claims.get("email", String.class), claims.get("name", String.class) };
+    }
+
     public Long getUserIdFromToken(String token) {
         return Long.parseLong(parse(token).getSubject());
     }

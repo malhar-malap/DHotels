@@ -50,6 +50,30 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("Login successful", response));
     }
     
+    @GetMapping("/google/config")
+    @Operation(summary = "Google sign-in settings", description = "Whether Google sign-in is on, and the public client ID for the button")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> googleConfig() {
+        Map<String, Object> config = new HashMap<>();
+        config.put("enabled", authService.isGoogleSignInEnabled());
+        config.put("clientId", authService.isGoogleSignInEnabled() ? authService.getGoogleClientId() : null);
+        return ResponseEntity.ok(ApiResponse.success("Google sign-in settings", config));
+    }
+
+    @PostMapping("/google")
+    @Operation(summary = "Sign in with Google", description = "Verifies a Google ID token; signs in, or asks a new user to complete their profile")
+    public ResponseEntity<ApiResponse<AuthDTO.GoogleSignInResponse>> googleSignIn(
+            @Valid @RequestBody AuthDTO.GoogleSignInRequest request) {
+        AuthDTO.GoogleSignInResponse response = authService.googleSignIn(request.getCredential());
+        return ResponseEntity.ok(ApiResponse.success(response.isNeedsProfile() ? "Complete your profile" : "Login successful", response));
+    }
+
+    @PostMapping("/google/register")
+    @Operation(summary = "Finish Google sign-up", description = "Creates the account for a new Google user with their mobile number and roles")
+    public ResponseEntity<ApiResponse<AuthDTO.AuthResponse>> googleRegister(
+            @Valid @RequestBody AuthDTO.GoogleRegisterRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Registration successful", authService.googleRegister(request)));
+    }
+
     @PostMapping("/refresh-token")
     @Operation(summary = "Refresh access token", description = "Generates new access token using refresh token")
     public ResponseEntity<ApiResponse<AuthDTO.AuthResponse>> refreshToken(

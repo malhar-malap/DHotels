@@ -147,6 +147,44 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const startSession = ({ accessToken, refreshToken, user: userData }) => {
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+  };
+
+  // Signs in with a Google ID token; a new Google user gets { needsProfile, signupToken, email, fullName }
+  const googleSignIn = async (credential) => {
+    try {
+      const response = await authAPI.googleSignIn(credential);
+      const data = response.data.data;
+      if (data.needsProfile) {
+        return { success: true, needsProfile: true, ...data };
+      }
+      startSession(data.auth);
+      toast.success('Login successful!');
+      return { success: true };
+    } catch (error) {
+      const message = error.response?.data?.message || 'Google sign-in failed';
+      toast.error(message);
+      return { success: false, message };
+    }
+  };
+
+  const googleRegister = async (registrationData) => {
+    try {
+      const response = await authAPI.googleRegister(registrationData);
+      startSession(response.data.data);
+      toast.success('Welcome to DHotels24.com!');
+      return { success: true };
+    } catch (error) {
+      const message = error.response?.data?.message || 'Could not create your account';
+      toast.error(message);
+      return { success: false, message };
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
@@ -181,6 +219,8 @@ export const AuthProvider = ({ children }) => {
     login,
     sendOtp,
     verifyOtpAndRegister,
+    googleSignIn,
+    googleRegister,
     logout,
     updateUser,
     refreshUser,
