@@ -157,7 +157,7 @@ export const AuthProvider = ({ children }) => {
   const sendLoginOtp = async (email) => {
     try {
       await authAPI.sendLoginOtp(email);
-      toast.success('If an account exists for this email, a 4-digit code is on its way.');
+      toast.success('We’ve sent a 4-digit code to your email.');
       return { success: true };
     } catch (error) {
       const message = error.response?.data?.message || 'Could not send the login code';

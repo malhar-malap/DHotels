@@ -51,10 +51,10 @@ public class AuthController {
     }
     
     @PostMapping("/login-otp/send")
-    @Operation(summary = "Email a login code", description = "Sends a 4-digit login code to the account's email; same reply for unknown emails")
+    @Operation(summary = "Email a login code", description = "Sends a 4-digit login code to the email of an existing account; unknown emails get an error")
     public ResponseEntity<ApiResponse<Void>> sendLoginOtp(@Valid @RequestBody AuthDTO.LoginOtpRequest request) {
         authService.sendLoginOtp(request.getEmail());
-        return ResponseEntity.ok(ApiResponse.success("If an account exists for this email, a login code is on its way", null));
+        return ResponseEntity.ok(ApiResponse.success("Login code sent to your email", null));
     }
 
     @PostMapping("/login-otp/verify")

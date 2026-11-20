@@ -39,8 +39,12 @@ const EmailCodeLogin = ({ onVerified, onBusyChange }) => {
             setStep('code');
             setOtpKey((k) => k + 1);
             setCooldown(RESEND_SECONDS);
+        } else if (step === 'email' && result.message) {
+            setError(result.message);
         }
     };
+
+    const noAccount = /no account/i.test(error);
 
     const verify = useCallback(async (code) => (await loginWithOtp(email.trim(), code)).success === true, [email, loginWithOtp]);
     const handleBusy = useCallback((b) => { setBusy(b); onBusyChange(b); }, [onBusyChange]);
@@ -58,6 +62,9 @@ const EmailCodeLogin = ({ onVerified, onBusyChange }) => {
                             placeholder="you@yourhotel.com" />
                     </div>
                     {error && <p className="text-[10px] font-bold text-red-400 uppercase tracking-wider">{error}</p>}
+                    {noAccount && (
+                        <Link to="/register" className="inline-block text-[10px] font-bold uppercase tracking-wider text-primary-400 hover:text-primary-300">Create an account →</Link>
+                    )}
                     <p className="text-[11px] text-gray-500">We’ll email you a 4-digit code. No password needed.</p>
                 </div>
                 <button type="submit" disabled={sending}

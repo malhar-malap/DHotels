@@ -306,14 +306,19 @@ public class AuthService {
     
     // ========== Email code (OTP) login ==========
 
+    public static final String NO_ACCOUNT_MESSAGE = "No account found with this email. Check it, or sign up to create one.";
+
     /**
-     * Emails a login code to an existing, non-suspended account. Answers the same way for unknown
-     * emails so accounts can't be discovered through this endpoint.
+     * Emails a login code, but only to an email that belongs to an account, and never to a
+     * suspended one; otherwise the caller is told why and nothing is sent.
      */
     public void sendLoginOtp(String email) {
         User user = userRepository.findByEmail(email.trim()).orElse(null);
-        if (user == null || user.getStatus() == User.UserStatus.SUSPENDED) {
-            return;
+        if (user == null) {
+            throw new RuntimeException(NO_ACCOUNT_MESSAGE);
+        }
+        if (user.getStatus() == User.UserStatus.SUSPENDED) {
+            throw new RuntimeException("Your account has been suspended, unable to login. For more info contact us.");
         }
         String otp = otpService.generateOtp(user.getEmail());
         emailService.sendLoginOtpEmail(user.getEmail(), otp);
