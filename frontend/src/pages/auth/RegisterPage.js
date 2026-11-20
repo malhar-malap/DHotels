@@ -395,7 +395,6 @@ const RegisterPage = () => {
                   onSuccess={handleVerified}
                   onBusyChange={setOtpBusy}
                 />
-                <p className="mt-3 text-[10px] font-bold uppercase tracking-wider text-gray-600">Enter the code clockwise from the top</p>
               </div>
 
               <button

@@ -1,36 +1,60 @@
 /*
- * Orbital OTP: digit boxes sit on a circular track around a hub. On the last digit the whole ring
- * turns 450deg while each box spirals in to the hub (radius shrinks), then one tile takes their place.
- * Each box lives in three wrappers: the arm sets its angle on the ring, the slot sets its distance
- * from the hub, and the upright wrapper counter-rotates with the ring so the digit never tilts.
+ * Orbital OTP. The digit boxes start in an ordinary row. When the last digit is in, they glide into
+ * a ring around a hub (gather), the ring turns 450deg while each box spirals in (orbit), and one tile
+ * takes their place. A wrong code reverses the orbit, the boxes glide back into the row and their
+ * outlines flash red for a second.
+ *
+ * Each box sits in four wrappers:
+ *   lane    - offset from its ring seat to its row position (0 while on the ring)
+ *   arm     - its angle on the ring (rotates with the ring)
+ *   slot    - its distance from the hub (shrinks to 0 for the spiral)
+ *   upright - counter-rotates with the ring so the digit never tilts
+ * Per box, the component sets --a (angle), --k (row index from the centre), --sin and --cos (of --a).
  */
 .otp-orbit {
-  --stage: min(252px, 74vw);
+  --n: 4;
+  /* Ring size; also shrinks with more digits so the starting row fits a phone */
+  --stage: min(252px, 74vw, calc(70vw / (var(--n) * 0.18 + (var(--n) - 1) * 0.04)));
   --r: calc(var(--stage) * 0.36);
   --box-w: calc(var(--stage) * 0.18);
   --box-h: calc(var(--stage) * 0.21);
+  --gap: calc(var(--stage) * 0.04);
   --tile: calc(var(--stage) * 0.28);
+  --row-h: calc(var(--box-h) + 8px);
+  --gather-ms: 420ms;
   --orbit-ms: 1600ms;
   --unwind-ms: 700ms;
   --orbit-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --glide-ease: cubic-bezier(0.22, 1, 0.36, 1);
   position: relative;
-  width: var(--stage);
+  width: max(var(--stage), calc(var(--n) * var(--box-w) + (var(--n) - 1) * var(--gap)));
   height: var(--stage);
   margin: 0 auto;
+  transition: height var(--gather-ms) var(--glide-ease);
 }
+
+/* Row states are only as tall as the row */
+.otp-orbit.is-idle,
+.otp-orbit.is-returning,
+.otp-orbit.is-error { height: var(--row-h); }
 
 .otp-orbit__track,
 .otp-orbit__ring,
+.otp-orbit__lane,
 .otp-orbit__arm {
   position: absolute;
   inset: 0;
 }
 
 .otp-orbit__track {
-  width: 100%;
-  height: 100%;
-  color: rgba(255, 255, 255, 0.09);
+  left: 50%;
+  top: 50%;
+  width: var(--stage);
+  height: var(--stage);
+  margin: calc(var(--stage) / -2) 0 0 calc(var(--stage) / -2);
+  color: rgba(255, 255, 255, 0.1);
   pointer-events: none;
+  opacity: 0;
 }
 
 .otp-orbit__hub {
@@ -43,10 +67,25 @@
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.06);
+  opacity: 0;
 }
 
-.otp-orbit__ring { transform-origin: 50% 50%; }
-.otp-orbit__arm { transform: rotate(var(--a)); pointer-events: none; }
+.otp-orbit__ring { transform-origin: 50% 50%; pointer-events: none; }
+
+/* Row position = (k * step, 0); ring seat = (r * sin a, -r * cos a); the lane moves between them */
+.otp-orbit__lane {
+  transform: translate(
+    calc(var(--k) * (var(--box-w) + var(--gap)) - var(--r) * var(--sin)),
+    calc(var(--r) * var(--cos))
+  );
+  transition: transform var(--gather-ms) var(--glide-ease);
+}
+.otp-orbit.is-gathering .otp-orbit__lane,
+.otp-orbit.is-orbiting .otp-orbit__lane,
+.otp-orbit.is-success .otp-orbit__lane,
+.otp-orbit.is-unwinding .otp-orbit__lane { transform: translate(0, 0); }
+
+.otp-orbit__arm { transform: rotate(var(--a)); }
 
 .otp-orbit__slot {
   position: absolute;
@@ -69,7 +108,7 @@
   width: 100%;
   height: 100%;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(9, 16, 19, 0.72);
   color: #e5e7eb;
   font-size: calc(var(--stage) * 0.085);
@@ -88,7 +127,16 @@
   box-shadow: 0 0 0 3px rgba(201, 162, 90, 0.12);
 }
 
-.otp-orbit__box.is-filled { border-color: rgba(255, 255, 255, 0.24); background: rgba(9, 16, 19, 0.9); }
+.otp-orbit__box.is-filled { border-color: rgba(255, 255, 255, 0.26); background: rgba(9, 16, 19, 0.9); }
+
+/* Wrong code: red outlines for a moment, with a small shake */
+.otp-orbit.is-error .otp-orbit__box {
+  border-color: rgba(248, 113, 113, 0.95);
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.14), 0 0 14px rgba(248, 113, 113, 0.18);
+  color: #fecaca;
+  transition: none;
+}
+.otp-orbit.is-error .otp-orbit__ring { animation: otp-shake 0.42s ease; }
 
 /* Central verification tile: hidden until the boxes have converged */
 .otp-orbit__tile {
@@ -122,7 +170,11 @@
 .otp-orbit__check { width: 46%; height: 46%; color: #34d399; }
 .otp-orbit__check path { stroke-dasharray: 30; stroke-dashoffset: 30; }
 
-/* ---------- Phase: orbiting (and converged while the server answers) ---------- */
+/* ---------- Gather: the track appears as the boxes glide onto it ---------- */
+.otp-orbit.is-gathering .otp-orbit__track,
+.otp-orbit.is-gathering .otp-orbit__hub { animation: otp-fade-in var(--gather-ms) ease forwards; }
+
+/* ---------- Orbit (and converged while the server answers) ---------- */
 .otp-orbit.is-orbiting .otp-orbit__ring,
 .otp-orbit.is-success .otp-orbit__ring { animation: otp-ring-in var(--orbit-ms) var(--orbit-ease) forwards; }
 .otp-orbit.is-orbiting .otp-orbit__upright,
@@ -136,7 +188,7 @@
 .otp-orbit.is-orbiting .otp-orbit__tile,
 .otp-orbit.is-success .otp-orbit__tile { animation: otp-tile-in var(--orbit-ms) var(--orbit-ease) forwards; }
 
-/* ---------- Phase: verified ---------- */
+/* ---------- Verified ---------- */
 .otp-orbit.is-success .otp-orbit__tile {
   border-color: rgba(52, 211, 153, 0.85);
   box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.25), 0 0 26px rgba(52, 211, 153, 0.22);
@@ -144,15 +196,15 @@
 }
 .otp-orbit.is-success .otp-orbit__check path { animation: otp-draw 0.45s 0.12s ease-out forwards; }
 
-/* ---------- Phase: unwinding (wrong code or failed request) ---------- */
+/* ---------- Unwind (wrong code or failed request), then glide back into the row ---------- */
 .otp-orbit.is-unwinding .otp-orbit__ring { animation: otp-ring-out var(--unwind-ms) var(--orbit-ease) forwards; }
 .otp-orbit.is-unwinding .otp-orbit__upright { animation: otp-upright-out var(--unwind-ms) var(--orbit-ease) forwards; }
 .otp-orbit.is-unwinding .otp-orbit__slot { animation: otp-spiral-out var(--unwind-ms) var(--orbit-ease) forwards; }
 .otp-orbit.is-unwinding .otp-orbit__track,
 .otp-orbit.is-unwinding .otp-orbit__hub { animation: otp-fade-in var(--unwind-ms) ease forwards; }
 .otp-orbit.is-unwinding .otp-orbit__tile { animation: otp-tile-out calc(var(--unwind-ms) * 0.5) ease forwards; }
-
-.otp-orbit.is-shaking { animation: otp-shake 0.42s ease; }
+.otp-orbit.is-returning .otp-orbit__track,
+.otp-orbit.is-returning .otp-orbit__hub { animation: otp-fade-out var(--gather-ms) ease forwards; }
 
 @keyframes otp-ring-in { from { transform: rotate(0deg); } to { transform: rotate(450deg); } }
 @keyframes otp-ring-out { from { transform: rotate(450deg); } to { transform: rotate(0deg); } }
@@ -199,6 +251,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .otp-orbit { --orbit-ms: 250ms; --unwind-ms: 200ms; }
-  .otp-orbit.is-shaking { animation: none; }
+  .otp-orbit { --gather-ms: 120ms; --orbit-ms: 250ms; --unwind-ms: 200ms; }
+  .otp-orbit.is-error .otp-orbit__ring { animation: none; }
 }

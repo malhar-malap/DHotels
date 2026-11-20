@@ -2,28 +2,30 @@ import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef,
 import toast from 'react-hot-toast';
 import './OrbitalOtp.css';
 
-// Keep in step with --orbit-ms / --unwind-ms in OrbitalOtp.css
+// Keep in step with --gather-ms / --orbit-ms / --unwind-ms in OrbitalOtp.css
+const GATHER_MS = 420;
 const ORBIT_MS = 1600;
 const UNWIND_MS = 700;
-const REDUCED_ORBIT_MS = 250;
-const REDUCED_UNWIND_MS = 200;
+const REDUCED = { gather: 120, orbit: 250, unwind: 200 };
 const SUCCESS_HOLD_MS = 1100;
+const ERROR_HOLD_MS = 1000;
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const reducedMotion = () => typeof window !== 'undefined'
   && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 /**
- * Verification code entry laid out on an orbit. When the last digit is typed the boxes orbit the
- * hub and spiral into one tile while `onComplete(code)` runs; the tile turns green only if it
- * resolves to true. A false result or a thrown error unwinds the orbit and clears the code, leaving
- * the caller's own error messages (toasts) as they were. Only one verification runs at a time.
+ * Verification code entry. The boxes start in a row; when the last digit is typed they glide onto a
+ * ring, orbit the hub and spiral into one tile while `onComplete(code)` runs. The tile turns green
+ * only if it resolves to true. A false result or a thrown error unwinds the orbit, returns the boxes
+ * to the row with red outlines for a second, then clears the code; the caller's own error messages
+ * (toasts) are left as they were. Only one verification runs at a time.
  */
 const OrbitalOtp = forwardRef(({ length = 6, onComplete, onSuccess, onBusyChange }, ref) => {
   const [digits, setDigits] = useState(() => Array(length).fill(''));
-  const [phase, setPhase] = useState('idle'); // idle | orbiting | success | unwinding
+  // idle -> gathering -> orbiting -> success | unwinding -> returning -> error -> idle
+  const [phase, setPhase] = useState('idle');
   const [waiting, setWaiting] = useState(false);
-  const [shaking, setShaking] = useState(false);
   const busy = useRef(false);
   const mounted = useRef(true);
   const inputs = useRef([]);
@@ -47,17 +49,20 @@ const OrbitalOtp = forwardRef(({ length = 6, onComplete, onSuccess, onBusyChange
     busy.current = true;
     onBusyChange?.(true);
     document.activeElement?.blur?.();
-    setShaking(false);
-    setPhase('orbiting');
+    setPhase('gathering');
 
     const reduced = reducedMotion();
+    const ms = (normal, key) => (reduced ? REDUCED[key] : normal);
     let verified = false;
     const request = Promise.resolve()
       .then(() => onComplete(code))
       .then((result) => { verified = result === true; })
       .catch(() => { verified = false; });
 
-    await wait(reduced ? REDUCED_ORBIT_MS : ORBIT_MS);
+    await wait(ms(GATHER_MS, 'gather'));
+    if (!mounted.current) return;
+    setPhase('orbiting');
+    await wait(ms(ORBIT_MS, 'orbit'));
     if (!mounted.current) return;
     setWaiting(true);
     await request;
@@ -72,11 +77,16 @@ const OrbitalOtp = forwardRef(({ length = 6, onComplete, onSuccess, onBusyChange
     }
 
     setPhase('unwinding');
-    await wait(reduced ? REDUCED_UNWIND_MS : UNWIND_MS);
+    await wait(ms(UNWIND_MS, 'unwind'));
+    if (!mounted.current) return;
+    setPhase('returning');
+    await wait(ms(GATHER_MS, 'gather'));
+    if (!mounted.current) return;
+    setPhase('error');
+    await wait(ERROR_HOLD_MS);
     if (!mounted.current) return;
     setDigits(Array(length).fill(''));
     setPhase('idle');
-    setShaking(true);
     busy.current = false;
     onBusyChange?.(false);
     setTimeout(() => focusBox(0), 0);
@@ -129,25 +139,33 @@ const OrbitalOtp = forwardRef(({ length = 6, onComplete, onSuccess, onBusyChange
   };
 
   const locked = phase !== 'idle';
-  const status = phase === 'success' ? 'Verified' : waiting || phase === 'orbiting' ? 'Verifying code…' : '';
+  const status = phase === 'success' ? 'Verified'
+    : phase === 'error' ? 'Incorrect code'
+      : phase === 'idle' ? '' : 'Verifying code…';
 
   return (
     <div>
-      <div
-        className={`otp-orbit is-${phase}${shaking ? ' is-shaking' : ''}`}
-        role="group"
-        aria-label={`${length}-digit verification code`}
-        onAnimationEnd={(e) => { if (e.animationName === 'otp-shake') setShaking(false); }}
-      >
+      <div className={`otp-orbit is-${phase}`} role="group" aria-label={`${length}-digit verification code`} style={{ '--n': length }}>
         <svg className="otp-orbit__track" viewBox="0 0 100 100" aria-hidden="true">
           <circle cx="50" cy="50" r="36" fill="none" stroke="currentColor" strokeWidth="0.6" />
         </svg>
         <div className="otp-orbit__hub" aria-hidden="true" />
 
         <div className="otp-orbit__ring">
-          {digits.map((digit, index) => (
-            // First digit at the top, then clockwise
-            <div key={index} className="otp-orbit__arm" style={{ '--a': `${(360 / length) * index}deg` }}>
+          {digits.map((digit, index) => {
+            // Row: left to right, centred. Ring seat: first digit on the left, then clockwise, so the
+            // row curls into the circle without boxes crossing paths.
+            const angle = (270 + (360 / length) * index) % 360;
+            const rad = (angle * Math.PI) / 180;
+            const seat = {
+              '--a': `${angle}deg`,
+              '--k': index - (length - 1) / 2,
+              '--sin': Math.sin(rad).toFixed(4),
+              '--cos': Math.cos(rad).toFixed(4),
+            };
+            return (
+            <div key={index} className="otp-orbit__lane" style={seat}>
+            <div className="otp-orbit__arm">
               <div className="otp-orbit__slot">
                 <div className="otp-orbit__upright">
                   <input
@@ -175,7 +193,9 @@ const OrbitalOtp = forwardRef(({ length = 6, onComplete, onSuccess, onBusyChange
                 </div>
               </div>
             </div>
-          ))}
+            </div>
+            );
+          })}
         </div>
 
         <div className="otp-orbit__tile" aria-hidden="true">

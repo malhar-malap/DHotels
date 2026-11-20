@@ -72,7 +72,6 @@ const EmailCodeLogin = ({ onVerified, onBusyChange }) => {
         <div className="space-y-5 text-center">
             <p className="text-xs text-gray-400">Enter the code sent to <span className="font-bold text-gray-200 break-all">{email.trim()}</span></p>
             <OrbitalOtp key={otpKey} ref={otpRef} length={4} onComplete={verify} onSuccess={onVerified} onBusyChange={handleBusy} />
-            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-600">Enter the code clockwise from the top</p>
             <div className="flex items-center justify-center gap-4 text-[10px] font-bold uppercase tracking-wider">
                 <button type="button" disabled={busy || sending || cooldown > 0} onClick={() => send()}
                     className="text-primary-400 hover:text-primary-500 disabled:text-gray-600 transition-colors">
