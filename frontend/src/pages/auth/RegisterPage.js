@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getRedirectTarget } from '../../utils/authRedirect';
 import { useAuth } from '../../context/AuthContext';
@@ -7,6 +7,7 @@ import { FiUser, FiMail, FiLock, FiPhone, FiEye, FiEyeOff, FiActivity, FiMapPin,
 import toast from 'react-hot-toast';
 import Seo from '../../components/common/Seo';
 import GoogleSignIn from '../../components/auth/GoogleSignIn';
+import OrbitalOtp from '../../components/auth/OrbitalOtp';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -18,9 +19,10 @@ const RegisterPage = () => {
   const [step, setStep] = useState(1);
   const [cities, setCities] = useState([]);
   const [formData, setFormData] = useState({ fullName: '', email: '', password: '', confirmPassword: '', mobileNumber: '', companyName: '', cityId: '', roles: [] });
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [otpKey, setOtpKey] = useState(0);
+  const [otpBusy, setOtpBusy] = useState(false);
   const [errors, setErrors] = useState({});
-  const otpInputs = useRef([]);
+  const otpRef = useRef(null);
 
   const roleOptions = [
     { value: 'SELLER', label: 'Owner / Lister', description: 'List hotels, restaurants or venues for lease' },
@@ -97,37 +99,11 @@ const RegisterPage = () => {
     setResending(true);
     const result = await sendOtp(formData.email);
     setResending(false);
-    if (result.success) setOtp(['', '', '', '', '', '']);
+    if (result.success) setOtpKey((k) => k + 1);
   };
 
-  const handleOtpChange = (element, index) => {
-    if (isNaN(element.value)) return false;
-
-    const newOtp = [...otp];
-    newOtp[index] = element.value;
-    setOtp(newOtp);
-
-    // Focus next input
-    if (element.value !== '' && index < 5) {
-      otpInputs.current[index + 1].focus();
-    }
-  };
-
-  const handleOtpKeyDown = (e, index) => {
-    if (e.key === 'Backspace' && otp[index] === '' && index > 0) {
-      otpInputs.current[index - 1].focus();
-    }
-  };
-
-  const handleVerifyAndRegister = async (e) => {
-    if (e) e.preventDefault();
-    const otpValue = otp.join('');
-    if (otpValue.length !== 6) {
-      toast.error('Please enter the full 6-digit verification code');
-      return;
-    }
-
-    setLoading(true);
+  // Called by OrbitalOtp once all six digits are in; true only when the server accepted the code
+  const verifyCode = useCallback(async (otpValue) => {
     const registrationData = {
       ...formData,
       otp: otpValue,
@@ -135,14 +111,11 @@ const RegisterPage = () => {
       companyName: formData.companyName || undefined
     };
     delete registrationData.confirmPassword;
-
     const result = await verifyOtpAndRegister(registrationData);
-    setLoading(false);
+    return result.success === true;
+  }, [formData, verifyOtpAndRegister]);
 
-    if (result.success) {
-      navigate(getRedirectTarget(location.search));
-    }
-  };
+  const handleVerified = useCallback(() => navigate(getRedirectTarget(location.search)), [navigate, location.search]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -413,35 +386,32 @@ const RegisterPage = () => {
                 </p>
               </div>
 
-              <div className="flex justify-between gap-2 mt-2">
-                {otp.map((data, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    maxLength="1"
-                    ref={el => otpInputs.current[index] = el}
-                    value={data}
-                    onChange={e => handleOtpChange(e.target, index)}
-                    onKeyDown={e => handleOtpKeyDown(e, index)}
-                    className="w-full h-12 text-center text-xl font-bold bg-gray-950/40 border border-gray-800 rounded-xl focus:border-primary-500 focus:bg-gray-950 focus:ring-4 focus:ring-primary-500/10 transition-all duration-300 outline-none text-gray-200"
-                  />
-                ))}
+              <div className="py-2">
+                <OrbitalOtp
+                  key={otpKey}
+                  ref={otpRef}
+                  length={6}
+                  onComplete={verifyCode}
+                  onSuccess={handleVerified}
+                  onBusyChange={setOtpBusy}
+                />
+                <p className="mt-3 text-[10px] font-bold uppercase tracking-wider text-gray-600">Enter the code clockwise from the top</p>
               </div>
 
               <button
                 type="button"
-                onClick={handleVerifyAndRegister}
-                disabled={loading}
+                onClick={() => otpRef.current?.submit()}
+                disabled={otpBusy}
                 className="w-full py-4 bg-gradient-to-r from-primary-500 to-primary-500 text-white font-bold rounded-xl shadow-lg hover:from-primary-600 hover:to-primary-600 hover:shadow-primary-500/10 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 text-xs uppercase tracking-wider"
               >
-                {loading ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white" /> : <>Verify and Register <FiCheckCircle className="w-4 h-4" /></>}
+                {otpBusy ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white" /> : <>Verify and Register <FiCheckCircle className="w-4 h-4" /></>}
               </button>
 
               <div className="pt-2 space-y-3">
                 <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
                   Didn't receive code?{' '}
                   <button
-                    disabled={resending}
+                    disabled={resending || otpBusy}
                     onClick={handleResendOtp}
                     className="text-primary-400 hover:text-primary-500 transition-colors uppercase font-extrabold"
                   >
@@ -449,6 +419,7 @@ const RegisterPage = () => {
                   </button>
                 </p>
                 <button
+                  disabled={otpBusy}
                   onClick={() => setStep(2)}
                   className="text-[10px] font-bold text-primary-500 hover:text-primary-600 uppercase tracking-wider transition-colors block mx-auto underline"
                 >
