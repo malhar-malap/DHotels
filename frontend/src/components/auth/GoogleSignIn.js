@@ -175,7 +175,9 @@ const GoogleSignIn = ({ onSuccess, context = 'signin' }) => {
   return (
     <div>
       <div className="relative flex min-h-[44px] items-center justify-center">
-        <div ref={buttonRef} className="flex w-full justify-center" />
+        {/* The site is color-scheme: dark; Google's iframe is light, and a mismatch makes browsers paint a
+            white box behind it. Matching the iframe's scheme keeps it transparent around the pill. */}
+        <div ref={buttonRef} className="flex w-full justify-center" style={{ colorScheme: 'light' }} />
         {busy && (
           <div className="absolute inset-0 flex items-center justify-center rounded-full bg-gray-950/70">
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-600 border-t-primary-400" />
