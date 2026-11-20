@@ -9,6 +9,7 @@ const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,8 +23,9 @@ const ForgotPasswordPage = () => {
       await authAPI.forgotPassword(email);
       setSubmitted(true);
       toast.success('Verification link sent to your email!');
-    } catch (error) {
-      const message = error.response?.data?.message || 'Failed to send reset link';
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to send reset link';
+      setError(message);
       toast.error(message);
     } finally {
       setLoading(false);
@@ -94,11 +96,15 @@ const ForgotPasswordPage = () => {
                       type="email"
                       required
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => { setEmail(e.target.value); setError(''); }}
                       className="w-full pl-12 pr-4 py-3.5 bg-gray-950/40 border border-gray-800/80 rounded-xl text-gray-200 placeholder-gray-600 font-bold focus:ring-2 focus:ring-primary-500/80 focus:border-transparent outline-none transition-all duration-300 shadow-inner backdrop-blur-sm"
                       placeholder="you@yourhotel.com"
                     />
                   </div>
+                  {error && <p className="text-[10px] font-bold text-red-400 uppercase tracking-wider">{error}</p>}
+                  {/no account/i.test(error) && (
+                    <Link to="/register" className="inline-block text-[10px] font-bold uppercase tracking-wider text-primary-400 hover:text-primary-300">Create an account →</Link>
+                  )}
                 </div>
 
                 <div>

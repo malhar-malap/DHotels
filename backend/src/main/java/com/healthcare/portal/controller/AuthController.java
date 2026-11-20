@@ -96,11 +96,11 @@ public class AuthController {
     }
     
     @PostMapping("/forgot-password")
-    @Operation(summary = "Request password reset", description = "Sends OTP for password reset")
+    @Operation(summary = "Request password reset", description = "Emails a password reset link to an existing account; unknown emails get an error")
     public ResponseEntity<ApiResponse<Void>> forgotPassword(
             @Valid @RequestBody AuthDTO.ForgotPasswordRequest request) {
         authService.forgotPassword(request);
-        return ResponseEntity.ok(ApiResponse.success("OTP sent to your email", null));
+        return ResponseEntity.ok(ApiResponse.success("Password reset link sent to your email", null));
     }
     
     @PostMapping("/reset-password")

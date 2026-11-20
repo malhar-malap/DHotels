@@ -208,10 +208,10 @@ public class AuthService {
     }
     
     public void forgotPassword(AuthDTO.ForgotPasswordRequest request) {
-        // Same response whether or not the account exists, so emails can't be enumerated
-        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
+        // Only accounts get a reset link; anyone else is told no account uses this email
+        User user = userRepository.findByEmail(request.getEmail().trim()).orElse(null);
         if (user == null) {
-            return;
+            throw new RuntimeException(NO_ACCOUNT_MESSAGE);
         }
         
         // Generate OTP via OtpService
