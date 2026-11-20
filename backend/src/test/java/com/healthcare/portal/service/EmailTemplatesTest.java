@@ -25,7 +25,8 @@ class EmailTemplatesTest {
         emails.put("buyer-approved", EmailService.buyerApproved(text));
         emails.put("inquiry", EmailService.inquiry(text, text, "op@example.com", "+91 98765 43210", text + "\nSecond line", text));
         emails.put("job-application", EmailService.jobApplication(text, text, "cv@example.com", text));
-        emails.put("otp", EmailService.otp("482913"));
+        emails.put("otp", EmailService.otp("4829"));
+        emails.put("login-otp", EmailService.loginOtp("4829"));
         emails.put("forgot-password", EmailService.forgotPassword("a+b@example.com", "482913"));
         emails.put("contact-message", EmailService.contactMessage(text, "c@example.com", null, text, text));
         emails.put("contact-reply", EmailService.contactReply(text, text, text, text));

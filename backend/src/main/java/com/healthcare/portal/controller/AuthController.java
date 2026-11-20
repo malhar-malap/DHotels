@@ -27,7 +27,7 @@ public class AuthController {
     }
     
     @PostMapping("/send-otp")
-    @Operation(summary = "Send OTP for registration", description = "Generates and sends a 6-digit OTP to the specified email")
+    @Operation(summary = "Send OTP for registration", description = "Generates and sends a 4-digit OTP to the specified email")
     public ResponseEntity<ApiResponse<Void>> sendOtp(
             @Valid @RequestBody AuthDTO.SendOtpRequest request) {
         authService.sendRegistrationOtp(request.getEmail());
@@ -50,6 +50,19 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("Login successful", response));
     }
     
+    @PostMapping("/login-otp/send")
+    @Operation(summary = "Email a login code", description = "Sends a 4-digit login code to the account's email; same reply for unknown emails")
+    public ResponseEntity<ApiResponse<Void>> sendLoginOtp(@Valid @RequestBody AuthDTO.LoginOtpRequest request) {
+        authService.sendLoginOtp(request.getEmail());
+        return ResponseEntity.ok(ApiResponse.success("If an account exists for this email, a login code is on its way", null));
+    }
+
+    @PostMapping("/login-otp/verify")
+    @Operation(summary = "Sign in with an emailed code", description = "Verifies the 4-digit login code and returns JWT tokens")
+    public ResponseEntity<ApiResponse<AuthDTO.AuthResponse>> loginWithOtp(@Valid @RequestBody AuthDTO.LoginOtpVerifyRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Login successful", authService.loginWithOtp(request)));
+    }
+
     @GetMapping("/google/config")
     @Operation(summary = "Google sign-in settings", description = "Whether Google sign-in is on, and the public client ID for the button")
     public ResponseEntity<ApiResponse<Map<String, Object>>> googleConfig() {

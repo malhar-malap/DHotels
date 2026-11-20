@@ -127,6 +127,20 @@ public class EmailService {
                 .small("If you did not request this code, you can ignore this email.")));
     }
 
+    public void sendLoginOtpEmail(String toEmail, String otp) {
+        send(toEmail, loginOtp(otp));
+    }
+
+    static Email loginOtp(String otp) {
+        return new Email("Your DHotels24.com login code: " + otp, layout(
+            "Your login code is " + otp + ". It expires in 5 minutes.",
+            "Sign in", "Your login code", Tone.BRASS,
+            body().paragraph("Enter this code to sign in to your ", "DHotels24.com", " account.")
+                .code(otp)
+                .paragraph("The code expires in 5 minutes. Never share it with anyone — our team will never ask for it.")
+                .small("If you did not try to sign in, you can ignore this email; your account stays safe without the code.")));
+    }
+
     // ========== 6. Forgot Password Email ==========
     public void sendForgotPasswordEmail(String toEmail, String otp) {
         send(toEmail, forgotPassword(toEmail, otp));

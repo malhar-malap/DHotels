@@ -1,11 +1,90 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getRedirectTarget } from '../../utils/authRedirect';
-import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiMail, FiLock, FiEye, FiEyeOff, FiSend } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import Seo from '../../components/common/Seo';
 import GoogleSignIn from '../../components/auth/GoogleSignIn';
+import OrbitalOtp from '../../components/auth/OrbitalOtp';
+
+const RESEND_SECONDS = 60;
+const fieldClass = 'w-full pl-12 pr-4 py-3.5 bg-gray-950/40 border border-gray-800/80 rounded-xl text-gray-200 placeholder-gray-600 font-bold focus:ring-2 focus:ring-primary-500/80 focus:border-transparent outline-none transition-all duration-300 shadow-inner backdrop-blur-sm';
+
+/** Sign in with a 4-digit code emailed to the account, entered on the orbital code input. */
+const EmailCodeLogin = ({ onVerified, onBusyChange }) => {
+    const { sendLoginOtp, loginWithOtp } = useAuth();
+    const [email, setEmail] = useState('');
+    const [error, setError] = useState('');
+    const [step, setStep] = useState('email');
+    const [sending, setSending] = useState(false);
+    const [busy, setBusy] = useState(false);
+    const [otpKey, setOtpKey] = useState(0);
+    const [cooldown, setCooldown] = useState(0);
+    const otpRef = useRef(null);
+
+    useEffect(() => {
+        if (cooldown <= 0) return undefined;
+        const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
+        return () => clearTimeout(t);
+    }, [cooldown]);
+
+    const send = async (ev) => {
+        if (ev) ev.preventDefault();
+        if (!/\S+@\S+\.\S+/.test(email)) { setError('Enter a valid email address'); return; }
+        setSending(true);
+        const result = await sendLoginOtp(email.trim());
+        setSending(false);
+        if (result.success) {
+            setStep('code');
+            setOtpKey((k) => k + 1);
+            setCooldown(RESEND_SECONDS);
+        }
+    };
+
+    const verify = useCallback(async (code) => (await loginWithOtp(email.trim(), code)).success === true, [email, loginWithOtp]);
+    const handleBusy = useCallback((b) => { setBusy(b); onBusyChange(b); }, [onBusyChange]);
+
+    if (step === 'email') {
+        return (
+            <form onSubmit={send} className="space-y-6">
+                <div className="space-y-2">
+                    <label htmlFor="otp-email" className="block text-xs font-bold text-gray-400 uppercase tracking-wider">Email Address</label>
+                    <div className="relative">
+                        <FiMail className="absolute left-4 top-4 text-primary-500/80 w-4 h-4" />
+                        <input id="otp-email" type="email" autoComplete="email" value={email}
+                            onChange={(e) => { setEmail(e.target.value); setError(''); }}
+                            className={`${fieldClass} ${error ? 'border-red-500/50 focus:ring-red-500/50' : ''}`}
+                            placeholder="you@yourhotel.com" />
+                    </div>
+                    {error && <p className="text-[10px] font-bold text-red-400 uppercase tracking-wider">{error}</p>}
+                    <p className="text-[11px] text-gray-500">We’ll email you a 4-digit code. No password needed.</p>
+                </div>
+                <button type="submit" disabled={sending}
+                    className="w-full py-4 bg-gradient-to-r from-primary-500 to-primary-500 text-white font-bold rounded-xl shadow-lg hover:from-primary-600 hover:to-primary-600 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 text-xs uppercase tracking-[0.2em]">
+                    {sending ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white" /> : <>Email me a code <FiSend className="w-4 h-4" /></>}
+                </button>
+            </form>
+        );
+    }
+
+    return (
+        <div className="space-y-5 text-center">
+            <p className="text-xs text-gray-400">Enter the code sent to <span className="font-bold text-gray-200 break-all">{email.trim()}</span></p>
+            <OrbitalOtp key={otpKey} ref={otpRef} length={4} onComplete={verify} onSuccess={onVerified} onBusyChange={handleBusy} />
+            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-600">Enter the code clockwise from the top</p>
+            <div className="flex items-center justify-center gap-4 text-[10px] font-bold uppercase tracking-wider">
+                <button type="button" disabled={busy || sending || cooldown > 0} onClick={() => send()}
+                    className="text-primary-400 hover:text-primary-500 disabled:text-gray-600 transition-colors">
+                    {sending ? 'Sending…' : cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend code'}
+                </button>
+                <span className="text-gray-700">·</span>
+                <button type="button" disabled={busy} onClick={() => setStep('email')}
+                    className="text-gray-400 hover:text-gray-200 disabled:text-gray-600 transition-colors">Use a different email</button>
+            </div>
+        </div>
+    );
+};
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -15,9 +94,12 @@ const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
+    const [mode, setMode] = useState('password');
+    // While an emailed code is being checked, wait for the success animation before leaving the page
+    const [holdRedirect, setHoldRedirect] = useState(false);
     const redirect = getRedirectTarget(location.search);
 
-    useEffect(() => { if (isAuthenticated) navigate(redirect); }, [isAuthenticated, navigate, redirect]);
+    useEffect(() => { if (isAuthenticated && !holdRedirect) navigate(redirect); }, [isAuthenticated, holdRedirect, navigate, redirect]);
 
     const validateForm = () => {
         const e = {};
@@ -44,7 +126,7 @@ const LoginPage = () => {
     };
 
   return (
-    <div className="min-h-screen bg-gray-950 bg-mesh relative w-full flex items-center justify-center py-12 px-4 md:px-8 text-gray-100 overflow-hidden">
+    <div className="min-h-screen bg-gray-950 bg-mesh relative w-full flex items-center justify-center py-12 px-4 md:px-8 text-gray-100 overflow-clip">
       <Seo title="Login | DHotels24.com" path="/login" noindex />
       {/* Decorative glow elements */}
       <div className="absolute top-0 left-0 right-0 h-[400px] bg-gradient-to-b from-primary-500/5 to-transparent pointer-events-none z-0" />
@@ -89,6 +171,19 @@ const LoginPage = () => {
 
             <GoogleSignIn onSuccess={() => navigate(redirect)} />
 
+            <div className="mb-6 grid grid-cols-2 gap-1 rounded-xl border border-gray-800/80 bg-gray-950/40 p-1" role="tablist" aria-label="Sign-in method">
+              {[['password', 'Password'], ['code', 'Email code']].map(([key, label]) => (
+                <button key={key} type="button" role="tab" aria-selected={mode === key} disabled={holdRedirect}
+                  onClick={() => setMode(key)}
+                  className={`rounded-lg py-2 text-[10px] font-bold uppercase tracking-wider transition-colors ${mode === key ? 'bg-gray-800/80 text-gray-100' : 'text-gray-500 hover:text-gray-300'}`}>
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {mode === 'code' ? (
+              <EmailCodeLogin onVerified={() => navigate(redirect)} onBusyChange={setHoldRedirect} />
+            ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email */}
               <div className="space-y-2">
@@ -154,6 +249,7 @@ const LoginPage = () => {
                 {loading ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white" /> : <>Login <FiLock className="w-4 h-4" /></>}
               </button>
             </form>
+            )}
           </div>
 
           <div className="mt-8 text-center flex flex-col sm:flex-row items-center justify-center gap-4">

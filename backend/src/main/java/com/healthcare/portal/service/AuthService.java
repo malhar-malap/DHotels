@@ -304,6 +304,39 @@ public class AuthService {
         return response;
     }
     
+    // ========== Email code (OTP) login ==========
+
+    /**
+     * Emails a login code to an existing, non-suspended account. Answers the same way for unknown
+     * emails so accounts can't be discovered through this endpoint.
+     */
+    public void sendLoginOtp(String email) {
+        User user = userRepository.findByEmail(email.trim()).orElse(null);
+        if (user == null || user.getStatus() == User.UserStatus.SUSPENDED) {
+            return;
+        }
+        String otp = otpService.generateOtp(user.getEmail());
+        emailService.sendLoginOtpEmail(user.getEmail(), otp);
+    }
+
+    @Transactional
+    public AuthDTO.AuthResponse loginWithOtp(AuthDTO.LoginOtpVerifyRequest request) {
+        String email = request.getEmail().trim();
+        User user = userRepository.findByEmailWithRoles(email).orElse(null);
+        if (user == null || !otpService.verifyOtp(user.getEmail(), request.getOtp())) {
+            throw new RuntimeException("Invalid or expired code. Please check it or request a new one.");
+        }
+        if (user.getStatus() == User.UserStatus.SUSPENDED) {
+            throw new RuntimeException("Your account has been suspended, unable to login. For more info contact us.");
+        }
+        // The code arrived in this mailbox, so the address is confirmed
+        user.setIsEmailVerified(true);
+        user.setLastLoginAt(java.time.LocalDateTime.now());
+        userRepository.save(user);
+        loginAttemptService.recordSuccess(user.getEmail());
+        return issueTokens(user);
+    }
+
     // ========== Google Sign-In ==========
 
     /**

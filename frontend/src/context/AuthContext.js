@@ -154,6 +154,31 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
   };
 
+  const sendLoginOtp = async (email) => {
+    try {
+      await authAPI.sendLoginOtp(email);
+      toast.success('If an account exists for this email, a 4-digit code is on its way.');
+      return { success: true };
+    } catch (error) {
+      const message = error.response?.data?.message || 'Could not send the login code';
+      toast.error(message);
+      return { success: false, message };
+    }
+  };
+
+  const loginWithOtp = async (email, otp) => {
+    try {
+      const response = await authAPI.loginWithOtp(email, otp);
+      startSession(response.data.data);
+      toast.success('Login successful!');
+      return { success: true };
+    } catch (error) {
+      const message = error.response?.data?.message || 'Login failed';
+      toast.error(message);
+      return { success: false, message };
+    }
+  };
+
   // Signs in with a Google ID token; a new Google user gets { needsProfile, signupToken, email, fullName }
   const googleSignIn = async (credential) => {
     try {
@@ -219,6 +244,8 @@ export const AuthProvider = ({ children }) => {
     login,
     sendOtp,
     verifyOtpAndRegister,
+    sendLoginOtp,
+    loginWithOtp,
     googleSignIn,
     googleRegister,
     logout,

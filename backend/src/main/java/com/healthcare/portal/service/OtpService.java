@@ -14,8 +14,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * In-memory OTP management service.
- * OTPs expire after 5 minutes, are single-use, and are invalidated after
- * MAX_VERIFY_ATTEMPTS wrong guesses. Sending is throttled per email.
+ * OTPs are OTP_LENGTH digits, expire after 5 minutes, are single-use, and are invalidated after
+ * MAX_VERIFY_ATTEMPTS wrong guesses. Sending is throttled per email, and an email that collects
+ * MAX_FAILURES_PER_DAY wrong guesses can't get or use codes for 24 hours, which keeps the odds of
+ * guessing a 4-digit code for someone else's account to about 1 in 1,000 a day.
  * OTP values are never logged.
  */
 @Service
@@ -26,12 +28,17 @@ public class OtpService {
     static final int MAX_VERIFY_ATTEMPTS = 5;
     static final int RESEND_COOLDOWN_SECONDS = 60;
     static final int MAX_SENDS_PER_HOUR = 5;
+    static final int OTP_LENGTH = 4;
+    static final int MAX_FAILURES_PER_DAY = 10;
+    static final String LOCKED_MESSAGE = "Too many incorrect codes. Please try again in 24 hours, or sign in with your password.";
     private static final SecureRandom random = new SecureRandom();
 
     // email -> OtpEntry
     private final Map<String, OtpEntry> otpStore = new ConcurrentHashMap<>();
     // email -> times an OTP was sent in the last hour
     private final Map<String, Deque<LocalDateTime>> sendLog = new ConcurrentHashMap<>();
+    // email -> wrong guesses in the last 24 hours
+    private final Map<String, Deque<LocalDateTime>> failureLog = new ConcurrentHashMap<>();
 
     private static class OtpEntry {
         final String otp;
@@ -49,7 +56,7 @@ public class OtpService {
     }
 
     /**
-     * Generate a 6-digit OTP for the given email.
+     * Generate an OTP_LENGTH-digit OTP for the given email.
      * Any previous OTP for this email is overwritten.
      * Throws if OTPs are being requested too often for this email.
      */
@@ -58,9 +65,10 @@ public class OtpService {
         // Clean up expired entries periodically
         otpStore.entrySet().removeIf(e -> e.getValue().isExpired());
 
+        ensureNotLockedOut(key);
         enforceSendLimit(key);
 
-        String otp = String.format("%06d", random.nextInt(1_000_000));
+        String otp = String.format("%0" + OTP_LENGTH + "d", random.nextInt((int) Math.pow(10, OTP_LENGTH)));
         otpStore.put(key, new OtpEntry(otp, LocalDateTime.now().plusMinutes(OTP_EXPIRY_MINUTES)));
         log.info("OTP generated for email {}", email);
         return otp;
@@ -94,6 +102,7 @@ public class OtpService {
      */
     public boolean verifyOtp(String email, String otp) {
         String key = email.toLowerCase();
+        ensureNotLockedOut(key);
         OtpEntry entry = otpStore.get(key);
         if (entry == null) {
             log.warn("No OTP found for email: {}", email);
@@ -111,6 +120,7 @@ public class OtpService {
                 return true;
             }
             entry.failedAttempts++;
+            recordFailure(key);
             if (entry.failedAttempts >= MAX_VERIFY_ATTEMPTS) {
                 otpStore.remove(key);
                 log.warn("OTP invalidated after {} wrong attempts for email: {}", MAX_VERIFY_ATTEMPTS, email);
@@ -119,5 +129,40 @@ public class OtpService {
             }
         }
         return false;
+    }
+
+    private Deque<LocalDateTime> recentFailures(String key) {
+        Deque<LocalDateTime> failures = failureLog.computeIfAbsent(key, k -> new ArrayDeque<>());
+        LocalDateTime cutoff = LocalDateTime.now().minusHours(24);
+        synchronized (failures) {
+            while (!failures.isEmpty() && failures.peekFirst().isBefore(cutoff)) {
+                failures.pollFirst();
+            }
+        }
+        return failures;
+    }
+
+    private void recordFailure(String key) {
+        Deque<LocalDateTime> failures = recentFailures(key);
+        synchronized (failures) {
+            failures.addLast(LocalDateTime.now());
+            if (failures.size() >= MAX_FAILURES_PER_DAY) {
+                otpStore.remove(key);
+                log.warn("OTP locked for 24 hours after {} wrong attempts", MAX_FAILURES_PER_DAY);
+            }
+        }
+    }
+
+    /** Throws once an email has had too many wrong guesses in the last 24 hours. */
+    private void ensureNotLockedOut(String key) {
+        Deque<LocalDateTime> failures = recentFailures(key);
+        synchronized (failures) {
+            if (failures.size() >= MAX_FAILURES_PER_DAY) {
+                throw new RuntimeException(LOCKED_MESSAGE);
+            }
+            if (failures.isEmpty()) {
+                failureLog.remove(key, failures);
+            }
+        }
     }
 }
